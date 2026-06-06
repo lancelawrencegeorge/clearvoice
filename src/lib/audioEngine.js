@@ -46,56 +46,59 @@ export class NoiseSuppressionEngine {
 
     const ctx = this.audioContext;
 
-    // High-pass filter — remove rumble/hum below 80Hz
+    // [0] High-pass filter — remove low-frequency rumble/hum below 80Hz
+    // Does NOT touch voice (voice starts at ~100Hz)
     const highPass = ctx.createBiquadFilter();
     highPass.type = 'highpass';
     highPass.frequency.value = 80;
-    highPass.Q.value = 0.7;
+    highPass.Q.value = 0.5;
     this.filters.push(highPass);
 
-    // Notch filter at 50Hz (mains hum)
+    // [1] Notch filter at 50Hz (EU mains hum) — surgical, doesn't affect voice
     const notch50 = ctx.createBiquadFilter();
     notch50.type = 'notch';
     notch50.frequency.value = 50;
-    notch50.Q.value = 10;
+    notch50.Q.value = 30;
     this.filters.push(notch50);
 
-    // Notch filter at 60Hz (mains hum US)
+    // [2] Notch filter at 60Hz (US mains hum) — surgical, doesn't affect voice
     const notch60 = ctx.createBiquadFilter();
     notch60.type = 'notch';
     notch60.frequency.value = 60;
-    notch60.Q.value = 10;
+    notch60.Q.value = 30;
     this.filters.push(notch60);
 
-    // Bandpass to focus on voice frequencies (300Hz - 3400Hz telephony range)
-    const voiceBand = ctx.createBiquadFilter();
-    voiceBand.type = 'bandpass';
-    voiceBand.frequency.value = 1500;
-    voiceBand.Q.value = 0.5;
-    this.filters.push(voiceBand);
+    // [3] Low-shelf cut to gently reduce low-end noise (below 200Hz)
+    // Voice fundamentals are mostly above 150Hz — this is gentle, not a bandpass
+    const lowShelf = ctx.createBiquadFilter();
+    lowShelf.type = 'lowshelf';
+    lowShelf.frequency.value = 200;
+    lowShelf.gain.value = -6; // reduce but not eliminate
+    this.filters.push(lowShelf);
 
-    // Peaking EQ to boost presence (2-4kHz)
+    // [4] High-shelf cut to reduce high-frequency hiss (above 8kHz)
+    // Voice intelligibility lives below 8kHz, so this only removes air/hiss
+    const highShelf = ctx.createBiquadFilter();
+    highShelf.type = 'highshelf';
+    highShelf.frequency.value = 8000;
+    highShelf.gain.value = -12;
+    this.filters.push(highShelf);
+
+    // [5] Subtle presence boost in voice clarity range (1kHz–4kHz)
     const presence = ctx.createBiquadFilter();
     presence.type = 'peaking';
-    presence.frequency.value = 3000;
-    presence.gain.value = 3;
-    presence.Q.value = 1;
+    presence.frequency.value = 2500;
+    presence.gain.value = 2;
+    presence.Q.value = 0.8;
     this.filters.push(presence);
 
-    // Low-pass to cut harsh highs
-    const lowPass = ctx.createBiquadFilter();
-    lowPass.type = 'lowpass';
-    lowPass.frequency.value = 8000;
-    lowPass.Q.value = 0.7;
-    this.filters.push(lowPass);
-
-    // Dynamics compressor for leveling
+    // Dynamics compressor — gentle, just to even out volume spikes
     this.compressor = ctx.createDynamicsCompressor();
-    this.compressor.threshold.value = -24;
-    this.compressor.knee.value = 12;
-    this.compressor.ratio.value = 4;
-    this.compressor.attack.value = 0.003;
-    this.compressor.release.value = 0.25;
+    this.compressor.threshold.value = -18;
+    this.compressor.knee.value = 20;
+    this.compressor.ratio.value = 3;
+    this.compressor.attack.value = 0.01;
+    this.compressor.release.value = 0.15;
 
     // Gain node
     this.gainNode = ctx.createGain();
@@ -125,24 +128,28 @@ export class NoiseSuppressionEngine {
   _applySuppressionLevel() {
     const level = this.suppressionLevel / 100;
 
-    // Adjust highpass cutoff based on suppression level (80-200Hz)
+    // [0] High-pass: raise cutoff slightly with more suppression (80Hz → 120Hz max)
+    // Stays well below voice fundamentals (150Hz+)
     if (this.filters[0]) {
-      this.filters[0].frequency.value = 80 + (level * 120);
+      this.filters[0].frequency.value = 80 + (level * 40);
     }
 
-    // Adjust bandpass Q (wider = more aggressive)
+    // [3] Low-shelf: cut more low-end noise at higher suppression levels (-6 → -18dB)
+    // Still leaves voice fundamentals intact
     if (this.filters[3]) {
-      this.filters[3].Q.value = 0.3 + (level * 0.7);
+      this.filters[3].gain.value = -6 - (level * 12);
     }
 
-    // Adjust compressor threshold
+    // [4] High-shelf: cut more hiss at higher suppression levels (-12 → -24dB)
+    // Voice intelligibility is below 8kHz so this is safe
+    if (this.filters[4]) {
+      this.filters[4].gain.value = -12 - (level * 12);
+    }
+
+    // Compressor: tighten slightly at higher suppression to reduce noise bursts
     if (this.compressor) {
-      this.compressor.threshold.value = -24 - (level * 16);
-    }
-
-    // Adjust lowpass cutoff
-    if (this.filters[5]) {
-      this.filters[5].frequency.value = 8000 - (level * 3000);
+      this.compressor.threshold.value = -18 - (level * 8);
+      this.compressor.ratio.value = 3 + (level * 2);
     }
   }
 
