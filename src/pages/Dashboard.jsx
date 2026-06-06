@@ -7,6 +7,7 @@ import ChannelCard from '@/components/audio/ChannelCard';
 import ControlBar from '@/components/audio/ControlBar';
 import SessionInfo from '@/components/audio/SessionInfo';
 import AudioVisualizer from '@/components/audio/AudioVisualizer';
+import TestPanel from '@/components/audio/TestPanel';
 
 export default function Dashboard() {
   const {
@@ -171,8 +172,18 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
+          className="mb-8"
         >
           <SessionInfo status={status} startTime={sessionStart} />
+        </motion.div>
+
+        {/* A/B Test Panel */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <TestPanel isEngineActive={isActive} />
         </motion.div>
 
         {/* Footer */}
