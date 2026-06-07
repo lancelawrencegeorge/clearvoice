@@ -1,5 +1,104 @@
-// Core audio processing engine using Web Audio API
-// Handles noise suppression via biquad filters and dynamics compressor
+// RNNoise-powered audio engine using AudioWorklet + @jitsi/rnnoise-wasm
+// RNNoise uses a recurrent neural network trained to separate voice from noise —
+// this works on call-centre background voices unlike simple biquad filters.
+
+const RNNOISE_CDN = 'https://cdn.jsdelivr.net/npm/@jitsi/rnnoise-wasm@0.2.0/dist/rnnoise-sync.js';
+
+// The AudioWorklet processor code (runs in a separate thread)
+// We inline it as a string so it can be loaded via a Blob URL — no separate file needed.
+const WORKLET_CODE = `
+// Load RNNoise sync WASM inside the worklet thread
+let rnnoiseModule = null;
+let denoiseState = null;
+const FRAME_SIZE = 480;
+let inputBuffer = new Float32Array(FRAME_SIZE);
+let inputFilled = 0;
+let outputBuffer = new Float32Array(FRAME_SIZE);
+let outputFilled = 0;
+let outputRead = 0;
+let suppressionLevel = 0.7; // 0-1, used as a blend factor
+
+importScripts('${RNNOISE_CDN}');
+
+async function initRNNoise() {
+  rnnoiseModule = await createRNNoise();
+  denoiseState = rnnoiseModule.newState();
+}
+
+initRNNoise().catch(e => console.error('[ClearVoice Worklet] RNNoise init failed:', e));
+
+class RNNoiseProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.port.onmessage = (e) => {
+      if (e.data.type === 'SET_LEVEL') {
+        suppressionLevel = e.data.level;
+      }
+    };
+  }
+
+  process(inputs, outputs) {
+    const input = inputs[0];
+    const output = outputs[0];
+
+    if (!input || !input[0] || !output || !output[0]) return true;
+
+    const inputCh = input[0];
+    const outputCh = output[0];
+
+    if (!rnnoiseModule || !denoiseState) {
+      // RNNoise not ready yet — pass through
+      outputCh.set(inputCh);
+      return true;
+    }
+
+    // Feed input samples into our buffer, process 480-sample frames
+    for (let i = 0; i < inputCh.length; i++) {
+      inputBuffer[inputFilled++] = inputCh[i];
+
+      if (inputFilled >= FRAME_SIZE) {
+        // Convert float32 -> int16 (RNNoise expects PCM)
+        const pcm = new Int16Array(FRAME_SIZE);
+        for (let j = 0; j < FRAME_SIZE; j++) {
+          const s = Math.max(-1, Math.min(1, inputBuffer[j]));
+          pcm[j] = s < 0 ? s * 32768 : s * 32767;
+        }
+
+        // Run RNNoise — this modifies pcm in place
+        rnnoiseModule.processFrame(denoiseState, pcm);
+
+        // Convert back to float32 and store in output ring
+        const denoised = new Float32Array(FRAME_SIZE);
+        for (let j = 0; j < FRAME_SIZE; j++) {
+          denoised[j] = pcm[j] / 32768;
+        }
+
+        // Blend denoised with dry signal based on suppression level
+        for (let j = 0; j < FRAME_SIZE; j++) {
+          outputBuffer[j] = denoised[j] * suppressionLevel + inputBuffer[j] * (1 - suppressionLevel);
+        }
+
+        outputFilled = FRAME_SIZE;
+        outputRead = 0;
+        inputFilled = 0;
+      }
+    }
+
+    // Write from output ring to output channel
+    for (let i = 0; i < outputCh.length; i++) {
+      if (outputRead < outputFilled) {
+        outputCh[i] = outputBuffer[outputRead++];
+      } else {
+        outputCh[i] = inputCh[i]; // fallback: passthrough while buffer fills
+      }
+    }
+
+    return true;
+  }
+}
+
+registerProcessor('rnnoise-processor', RNNoiseProcessor);
+`;
 
 export class NoiseSuppressionEngine {
   constructor() {
@@ -8,155 +107,67 @@ export class NoiseSuppressionEngine {
     this.sourceNode = null;
     this.analyserNode = null;
     this.gainNode = null;
-    this.filters = [];
-    this.compressor = null;
+    this.workletNode = null;
     this.isActive = false;
     this.suppressionLevel = 70; // 0-100
-    this.onAudioData = null;
   }
 
   async initialize() {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
-      sampleRate: 48000,
+      sampleRate: 48000, // RNNoise requires 48kHz
       latencyHint: 'interactive'
     });
 
-    // Request microphone access
+    // Load the worklet from a Blob URL (no separate file needed)
+    const blob = new Blob([WORKLET_CODE], { type: 'application/javascript' });
+    const workletUrl = URL.createObjectURL(blob);
+    await this.audioContext.audioWorklet.addModule(workletUrl);
+    URL.revokeObjectURL(workletUrl);
+
+    // Request microphone
     this.micStream = await navigator.mediaDevices.getUserMedia({
       audio: {
-        echoCancellation: true,
-        noiseSuppression: true, // Browser native
-        autoGainControl: true,
+        echoCancellation: false, // Let RNNoise handle it
+        noiseSuppression: false,
+        autoGainControl: false,
         channelCount: 1,
         sampleRate: 48000
       }
     });
 
     this.sourceNode = this.audioContext.createMediaStreamSource(this.micStream);
-    this._buildFilterChain();
-    this.isActive = true;
 
-    return this.micStream;
-  }
-
-  _buildFilterChain() {
-    // Clear existing filters
-    this.filters.forEach(f => f.disconnect());
-    this.filters = [];
-
-    const ctx = this.audioContext;
-
-    // [0] High-pass filter — remove low-frequency rumble/hum below 80Hz
-    // Does NOT touch voice (voice starts at ~100Hz)
-    const highPass = ctx.createBiquadFilter();
-    highPass.type = 'highpass';
-    highPass.frequency.value = 80;
-    highPass.Q.value = 0.5;
-    this.filters.push(highPass);
-
-    // [1] Notch filter at 50Hz (EU mains hum) — surgical, doesn't affect voice
-    const notch50 = ctx.createBiquadFilter();
-    notch50.type = 'notch';
-    notch50.frequency.value = 50;
-    notch50.Q.value = 30;
-    this.filters.push(notch50);
-
-    // [2] Notch filter at 60Hz (US mains hum) — surgical, doesn't affect voice
-    const notch60 = ctx.createBiquadFilter();
-    notch60.type = 'notch';
-    notch60.frequency.value = 60;
-    notch60.Q.value = 30;
-    this.filters.push(notch60);
-
-    // [3] Low-shelf cut to gently reduce low-end noise (below 200Hz)
-    // Voice fundamentals are mostly above 150Hz — this is gentle, not a bandpass
-    const lowShelf = ctx.createBiquadFilter();
-    lowShelf.type = 'lowshelf';
-    lowShelf.frequency.value = 200;
-    lowShelf.gain.value = -6; // reduce but not eliminate
-    this.filters.push(lowShelf);
-
-    // [4] High-shelf cut to reduce high-frequency hiss (above 8kHz)
-    // Voice intelligibility lives below 8kHz, so this only removes air/hiss
-    const highShelf = ctx.createBiquadFilter();
-    highShelf.type = 'highshelf';
-    highShelf.frequency.value = 8000;
-    highShelf.gain.value = -12;
-    this.filters.push(highShelf);
-
-    // [5] Subtle presence boost in voice clarity range (1kHz–4kHz)
-    const presence = ctx.createBiquadFilter();
-    presence.type = 'peaking';
-    presence.frequency.value = 2500;
-    presence.gain.value = 2;
-    presence.Q.value = 0.8;
-    this.filters.push(presence);
-
-    // Dynamics compressor — gentle, just to even out volume spikes
-    this.compressor = ctx.createDynamicsCompressor();
-    this.compressor.threshold.value = -18;
-    this.compressor.knee.value = 20;
-    this.compressor.ratio.value = 3;
-    this.compressor.attack.value = 0.01;
-    this.compressor.release.value = 0.15;
+    // RNNoise AudioWorklet node
+    this.workletNode = new AudioWorkletNode(this.audioContext, 'rnnoise-processor', {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: [1]
+    });
+    this.workletNode.port.postMessage({ type: 'SET_LEVEL', level: this.suppressionLevel / 100 });
 
     // Gain node
-    this.gainNode = ctx.createGain();
+    this.gainNode = this.audioContext.createGain();
     this.gainNode.gain.value = 1.0;
 
     // Analyser for visualization
-    this.analyserNode = ctx.createAnalyser();
+    this.analyserNode = this.audioContext.createAnalyser();
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0.8;
 
-    // Chain: source -> filters -> compressor -> gain -> analyser -> destination
-    let prev = this.sourceNode;
-    this.filters.forEach(filter => {
-      prev.connect(filter);
-      prev = filter;
-    });
-    prev.connect(this.compressor);
-    this.compressor.connect(this.gainNode);
+    // Chain: mic -> RNNoise worklet -> gain -> analyser -> destination
+    this.sourceNode.connect(this.workletNode);
+    this.workletNode.connect(this.gainNode);
     this.gainNode.connect(this.analyserNode);
-
-    // Connect to destination so it processes (but audio goes through system normally)
     this.analyserNode.connect(this.audioContext.destination);
 
-    this._applySuppressionLevel();
-  }
-
-  _applySuppressionLevel() {
-    const level = this.suppressionLevel / 100;
-
-    // [0] High-pass: raise cutoff slightly with more suppression (80Hz → 120Hz max)
-    // Stays well below voice fundamentals (150Hz+)
-    if (this.filters[0]) {
-      this.filters[0].frequency.value = 80 + (level * 40);
-    }
-
-    // [3] Low-shelf: cut more low-end noise at higher suppression levels (-6 → -18dB)
-    // Still leaves voice fundamentals intact
-    if (this.filters[3]) {
-      this.filters[3].gain.value = -6 - (level * 12);
-    }
-
-    // [4] High-shelf: cut more hiss at higher suppression levels (-12 → -24dB)
-    // Voice intelligibility is below 8kHz so this is safe
-    if (this.filters[4]) {
-      this.filters[4].gain.value = -12 - (level * 12);
-    }
-
-    // Compressor: tighten slightly at higher suppression to reduce noise bursts
-    if (this.compressor) {
-      this.compressor.threshold.value = -18 - (level * 8);
-      this.compressor.ratio.value = 3 + (level * 2);
-    }
+    this.isActive = true;
+    return this.micStream;
   }
 
   setSuppressionLevel(level) {
     this.suppressionLevel = Math.max(0, Math.min(100, level));
-    if (this.isActive) {
-      this._applySuppressionLevel();
+    if (this.workletNode) {
+      this.workletNode.port.postMessage({ type: 'SET_LEVEL', level: this.suppressionLevel / 100 });
     }
   }
 
@@ -213,10 +224,9 @@ export class NoiseSuppressionEngine {
     if (this.audioContext) {
       this.audioContext.close();
     }
-    this.filters = [];
     this.sourceNode = null;
-    this.analyserNode = null;
+    this.workletNode = null;
     this.gainNode = null;
-    this.compressor = null;
+    this.analyserNode = null;
   }
 }

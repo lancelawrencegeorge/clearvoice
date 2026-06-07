@@ -38,7 +38,7 @@ export default function ChannelCard({
             <div>
               <h3 className="font-semibold text-sm">{title}</h3>
               <p className="text-xs text-muted-foreground">
-                {isActive ? 'Processing' : 'Inactive'}
+                {isActive ? 'RNNoise AI Active' : 'Inactive'}
               </p>
             </div>
           </div>

@@ -25,7 +25,7 @@ export default function SessionInfo({ status, startTime }) {
   const stats = [
     { icon: Clock, label: 'Session Time', value: elapsed },
     { icon: Shield, label: 'Encryption', value: 'Local Only' },
-    { icon: Cpu, label: 'Processing', value: 'Browser' },
+    { icon: Cpu, label: 'Engine', value: 'RNNoise AI' },
     { icon: Wifi, label: 'Latency', value: '< 10ms' }
   ];
 
