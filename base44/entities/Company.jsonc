@@ -18,16 +18,31 @@
       "type": "string",
       "enum": [
         "trial",
-        "starter",
-        "pro",
-        "enterprise"
+        "paid",
+        "suspended"
       ],
       "default": "trial",
       "description": "Billing plan"
     },
     "seat_limit": {
       "type": "number",
-      "description": "Maximum number of seats allowed"
+      "description": "Maximum number of active seats allowed",
+      "default": 10
+    },
+    "trial_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the trial started"
+    },
+    "trial_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the trial ends (30 days from trial_start_date)"
+    },
+    "trial_expired": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the trial has expired and access should be restricted"
     },
     "notes": {
       "type": "string",

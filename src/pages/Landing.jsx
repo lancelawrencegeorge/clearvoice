@@ -45,32 +45,23 @@ const STATS = [
   { value: '10+', label: 'Softphone integrations' },
 ];
 
-const PLANS = [
-  {
-    name: 'Starter',
-    price: 'R599',
-    per: '/mo per team',
-    features: ['Up to 10 agents', 'Basic analytics', 'Chrome extension', 'Email support'],
-    cta: 'Get Started',
-    highlight: false,
-  },
-  {
-    name: 'Pro',
-    price: 'R1,299',
-    per: '/mo per team',
-    features: ['Up to 50 agents', 'Full analytics + reports', 'Manager dashboards', 'Priority support', 'Custom domain isolation'],
-    cta: 'Start Free Trial',
-    highlight: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    per: '',
-    features: ['Unlimited agents', 'Multi-company management', 'SLA + dedicated support', 'SSO / SAML', 'On-prem option'],
-    cta: 'Contact Sales',
-    highlight: false,
-  },
-];
+const PLAN = {
+  price: 'R95',
+  per: '/seat/month (ex VAT)',
+  trial: '1 month free · 10 seats included',
+  features: [
+    '10 seats free for 1 month',
+    'Then R95/seat/month (ex VAT)',
+    'Real-time noise suppression',
+    'Dual-channel processing',
+    'Usage analytics & reports',
+    'Manager dashboards',
+    'Chrome extension included',
+    'Domain-scoped data isolation',
+    'Email support',
+  ],
+  cta: 'Start Free Trial',
+};
 
 function FadeIn({ children, delay = 0, className = '' }) {
   const ref = useRef(null);
@@ -234,50 +225,43 @@ export default function Landing() {
 
       {/* PRICING */}
       <section id="pricing" className="py-24 px-6 bg-card/20">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           <FadeIn className="text-center mb-16">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">Simple pricing</p>
-            <h2 className="text-3xl sm:text-4xl font-bold">Pay for what you need</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">One plan. No surprises.</h2>
           </FadeIn>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PLANS.map((p, i) => (
-              <FadeIn key={p.name} delay={i * 0.1}>
-                <div className={`relative h-full flex flex-col p-7 rounded-2xl border transition-all duration-300 ${
-                  p.highlight
-                    ? 'border-primary/50 bg-primary/5 shadow-[0_0_40px_-10px_hsl(185,80%,55%,0.3)]'
-                    : 'border-border/50 bg-card/50'
-                }`}>
-                  {p.highlight && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                      Most Popular
-                    </div>
-                  )}
-                  <div className="mb-6">
-                    <h3 className="font-bold text-lg mb-2">{p.name}</h3>
-                    <div className="flex items-end gap-1">
-                      <span className="text-4xl font-extrabold">{p.price}</span>
-                      <span className="text-muted-foreground text-sm mb-1">{p.per}</span>
-                    </div>
-                  </div>
-                  <ul className="space-y-2.5 mb-8 flex-1">
-                    {p.features.map(f => (
-                      <li key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    variant={p.highlight ? 'default' : 'outline'}
-                    className="w-full"
-                    onClick={() => base44.auth.redirectToLogin()}
-                  >
-                    {p.cta}
-                  </Button>
+          <FadeIn>
+            <div className="relative flex flex-col p-8 rounded-2xl border border-primary/50 bg-primary/5 shadow-[0_0_60px_-10px_hsl(185,80%,55%,0.3)]">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap">
+                1 Month Free Trial · No Credit Card Required
+              </div>
+              <div className="text-center mb-8 mt-2">
+                <div className="flex items-end justify-center gap-2 mb-2">
+                  <span className="text-6xl font-extrabold">R95</span>
+                  <span className="text-muted-foreground text-base mb-2">/seat/month (ex VAT)</span>
                 </div>
-              </FadeIn>
-            ))}
-          </div>
+                <p className="text-primary font-semibold">Start with 10 seats free for 1 month</p>
+              </div>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                {PLAN.features.map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="lg"
+                className="w-full text-base gap-2"
+                onClick={() => base44.auth.redirectToLogin()}
+              >
+                Start Free Trial <ChevronRight className="w-4 h-4" />
+              </Button>
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                After trial: R95/seat/month (ex VAT) · Cancel anytime
+              </p>
+            </div>
+          </FadeIn>
         </div>
       </section>
 

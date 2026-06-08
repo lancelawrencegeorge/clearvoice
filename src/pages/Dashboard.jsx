@@ -11,6 +11,7 @@ import ControlBar from '@/components/audio/ControlBar';
 import SessionInfo from '@/components/audio/SessionInfo';
 import AudioVisualizer from '@/components/audio/AudioVisualizer';
 import TestPanel from '@/components/audio/TestPanel';
+import TrialBanner from '@/components/TrialBanner';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -134,6 +135,8 @@ export default function Dashboard() {
             </div>
           </div>
         </motion.div>
+
+        <TrialBanner user={user} />
 
         {/* Error Alert */}
         <AnimatePresence>

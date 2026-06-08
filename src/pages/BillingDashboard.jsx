@@ -65,9 +65,16 @@ export default function BillingDashboard() {
   const handleAddCompany = async () => {
     if (!newCompany.name.trim()) return;
     setSaving(true);
+    const trialStart = new Date();
+    const trialEnd = new Date(trialStart);
+    trialEnd.setDate(trialEnd.getDate() + 30);
     const created = await base44.entities.Company.create({
       ...newCompany,
-      seat_limit: newCompany.seat_limit ? Number(newCompany.seat_limit) : undefined,
+      seat_limit: newCompany.seat_limit ? Number(newCompany.seat_limit) : 10,
+      plan: 'trial',
+      trial_start_date: trialStart.toISOString(),
+      trial_end_date: trialEnd.toISOString(),
+      trial_expired: false,
       is_active: true
     });
     setCompanies(prev => [...prev, created]);
