@@ -32,16 +32,18 @@ const AuthenticatedApp = () => {
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Not logged in — show public routes
-      return (
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/landing" element={<Landing />} />
-          <Route path="*" element={<Landing />} />
-        </Routes>
-      );
     }
+  }
+
+  // Not authenticated — show public routes only
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="*" element={<Landing />} />
+      </Routes>
+    );
   }
 
   // Render the main app
