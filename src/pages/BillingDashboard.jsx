@@ -4,6 +4,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Building2, Users, Activity, Clock, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -15,6 +18,9 @@ export default function BillingDashboard() {
   const [expanded, setExpanded] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showAddCompany, setShowAddCompany] = useState(false);
+  const [newCompany, setNewCompany] = useState({ name: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -54,6 +60,20 @@ export default function BillingDashboard() {
     return { companyUsers, activeLast7, sessionsThisMonth, totalMinutes: Math.round(totalMinutes) };
   };
 
+  const handleAddCompany = async () => {
+    if (!newCompany.name.trim()) return;
+    setSaving(true);
+    const created = await base44.entities.Company.create({
+      ...newCompany,
+      seat_limit: newCompany.seat_limit ? Number(newCompany.seat_limit) : undefined,
+      is_active: true
+    });
+    setCompanies(prev => [...prev, created]);
+    setNewCompany({ name: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
+    setShowAddCompany(false);
+    setSaving(false);
+  };
+
   const filtered = companies.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -78,11 +98,16 @@ export default function BillingDashboard() {
             <h1 className="text-2xl font-bold">Billing Dashboard</h1>
             <p className="text-muted-foreground text-sm mt-1">Company seats & activity overview</p>
           </div>
-          <Link to="/invite">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" /> Invite Agent
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setShowAddCompany(true)}>
+              <Building2 className="w-4 h-4" /> Add Company
             </Button>
-          </Link>
+            <Link to="/invite">
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" /> Invite Agent
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -206,6 +231,44 @@ export default function BillingDashboard() {
           )}
         </div>
       </div>
+
+      {/* Add Company Dialog */}
+      <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Company</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label>Company Name *</Label>
+              <Input placeholder="Acme Corp" value={newCompany.name} onChange={e => setNewCompany(p => ({ ...p, name: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Billing Email</Label>
+              <Input placeholder="billing@company.com" value={newCompany.billing_contact_email} onChange={e => setNewCompany(p => ({ ...p, billing_contact_email: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Plan</Label>
+              <Select value={newCompany.plan} onValueChange={v => setNewCompany(p => ({ ...p, plan: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="trial">Trial</SelectItem>
+                  <SelectItem value="starter">Starter</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Seat Limit</Label>
+              <Input type="number" placeholder="e.g. 10" value={newCompany.seat_limit} onChange={e => setNewCompany(p => ({ ...p, seat_limit: e.target.value }))} />
+            </div>
+            <Button className="w-full" onClick={handleAddCompany} disabled={saving || !newCompany.name.trim()}>
+              {saving ? 'Creating...' : 'Create Company'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
