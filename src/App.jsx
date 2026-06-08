@@ -17,7 +17,7 @@ import BulkImport from './pages/BulkImport';
 // Add page imports here
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -33,9 +33,14 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
+      // Not logged in — show public routes
+      return (
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="*" element={<Landing />} />
+        </Routes>
+      );
     }
   }
 
@@ -43,13 +48,13 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
+      <Route path="/landing" element={<Landing />} />
       <Route path="/guide" element={<Guide />} />
       <Route path="/billing" element={<BillingDashboard />} />
       <Route path="/invite" element={<InviteAgent />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/analytics" element={<Analytics />} />
-      <Route path="/landing" element={<Landing />} />
       <Route path="/bulk-import" element={<BulkImport />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
