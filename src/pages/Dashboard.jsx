@@ -107,9 +107,7 @@ export default function Dashboard() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                <Volume2 className="w-6 h-6 text-primary" />
-              </div>
+              <img src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png" alt="ClearVoice" className="w-12 h-12 rounded-2xl object-cover" />
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
                   ClearVoice

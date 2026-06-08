@@ -118,9 +118,7 @@ export default function Landing() {
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/30 bg-background/80 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Volume2 className="w-4 h-4 text-primary" />
-            </div>
+            <img src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png" alt="ClearVoice" className="w-8 h-8 rounded-lg object-cover" />
             <span className="font-bold text-lg tracking-tight">ClearVoice</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">

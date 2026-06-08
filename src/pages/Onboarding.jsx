@@ -123,9 +123,7 @@ export default function Onboarding() {
             {/* Step: Welcome */}
             {currentStepId === 'welcome' && (
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-                  <Volume2 className="w-8 h-8 text-primary" />
-                </div>
+                <img src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png" alt="ClearVoice" className="w-16 h-16 rounded-2xl object-cover mx-auto" />
                 <h1 className="text-2xl font-bold">Welcome to ClearVoice</h1>
                 <p className="text-muted-foreground leading-relaxed">
                   Real-time AI noise suppression for your calls. Let's get you set up in just a few steps so you can start delivering crystal-clear audio.
