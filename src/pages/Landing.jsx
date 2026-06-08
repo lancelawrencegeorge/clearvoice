@@ -48,7 +48,7 @@ const STATS = [
 const PLANS = [
   {
     name: 'Starter',
-    price: '£29',
+    price: 'R599',
     per: '/mo per team',
     features: ['Up to 10 agents', 'Basic analytics', 'Chrome extension', 'Email support'],
     cta: 'Get Started',
@@ -56,7 +56,7 @@ const PLANS = [
   },
   {
     name: 'Pro',
-    price: '£79',
+    price: 'R1,299',
     per: '/mo per team',
     features: ['Up to 50 agents', 'Full analytics + reports', 'Manager dashboards', 'Priority support', 'Custom domain isolation'],
     cta: 'Start Free Trial',
