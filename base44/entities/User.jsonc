@@ -20,6 +20,10 @@
       "type": "string",
       "description": "Company name (denormalized)"
     },
+    "domain": {
+      "type": "string",
+      "description": "Email domain for this user's company (e.g. acme.com). Used for data isolation."
+    },
     "last_active_date": {
       "type": "string",
       "format": "date-time",
@@ -46,6 +50,70 @@
     "softphone_platform": {
       "type": "string",
       "description": "Softphone platform the agent uses (e.g. Genesys, Twilio Flex)"
+    }
+  },
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.domain": "{{user.data.domain}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.domain": "{{user.data.domain}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }

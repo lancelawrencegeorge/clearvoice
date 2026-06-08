@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, User, Building2, Headphones, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Volume2, User, Building2, Headphones, CheckCircle2, ChevronRight, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SOFTPHONES = [
@@ -13,38 +13,75 @@ const SOFTPHONES = [
   'NICE CXone', 'Five9', 'Amazon Connect', 'Salesforce Service Cloud', 'Other'
 ];
 
-const STEPS = [
+// Steps for regular users
+const USER_STEPS = [
   { id: 'welcome', title: 'Welcome to ClearVoice', icon: Volume2 },
   { id: 'profile', title: 'Your Profile', icon: User },
   { id: 'setup', title: 'Your Setup', icon: Headphones },
   { id: 'done', title: "You're all set!", icon: CheckCircle2 },
 ];
 
+// Extra domain step inserted for admins/super_users after welcome
+const ADMIN_STEPS = [
+  { id: 'welcome', title: 'Welcome to ClearVoice', icon: Volume2 },
+  { id: 'domain', title: 'Your Company Domain', icon: Globe },
+  { id: 'profile', title: 'Your Profile', icon: User },
+  { id: 'setup', title: 'Your Setup', icon: Headphones },
+  { id: 'done', title: "You're all set!", icon: CheckCircle2 },
+];
+
+const ADMIN_ROLES = ['admin', 'super_user', 'manager'];
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [form, setForm] = useState({
     job_title: '',
     phone: '',
     softphone_platform: '',
+    domain: '',
   });
+
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setCurrentUser(u);
+      if (u?.email) {
+        const autoDomaain = u.email.split('@')[1] || '';
+        setForm(f => ({ ...f, domain: autoDomaain }));
+      }
+    });
+  }, []);
+
+  const isAdmin = ADMIN_ROLES.includes(currentUser?.role);
+  const STEPS = isAdmin ? ADMIN_STEPS : USER_STEPS;
+  const currentStepId = STEPS[step]?.id;
 
   const update = (key, val) => setForm(p => ({ ...p, [key]: val }));
 
   const handleFinish = async () => {
     setSaving(true);
-    await base44.auth.updateMe({
+    const updates = {
       ...form,
       onboarding_complete: true,
       last_active_date: new Date().toISOString(),
-    });
+    };
+    // Store domain on user for RLS
+    if (isAdmin && form.domain) {
+      updates.domain = form.domain.toLowerCase().trim();
+    } else if (currentUser?.email) {
+      // Regular users get domain auto-set from email
+      updates.domain = currentUser.email.split('@')[1]?.toLowerCase() || '';
+    }
+    await base44.auth.updateMe(updates);
     navigate('/');
   };
 
   const canNext = () => {
-    if (step === 1) return form.job_title.trim().length > 0;
-    if (step === 2) return form.softphone_platform.length > 0;
+    if (currentStepId === 'domain') return form.domain.trim().length > 0;
+    if (currentStepId === 'profile') return form.job_title.trim().length > 0;
+    if (currentStepId === 'setup') return form.softphone_platform.length > 0;
     return true;
   };
 
@@ -83,8 +120,8 @@ export default function Onboarding() {
             transition={{ duration: 0.25 }}
             className="bg-card/80 border border-border/50 rounded-2xl p-8"
           >
-            {/* Step 0: Welcome */}
-            {step === 0 && (
+            {/* Step: Welcome */}
+            {currentStepId === 'welcome' && (
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
                   <Volume2 className="w-8 h-8 text-primary" />
@@ -108,8 +145,39 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 1: Profile */}
-            {step === 1 && (
+            {/* Step: Domain (admin/super_user/manager only) */}
+            {currentStepId === 'domain' && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-xl font-bold">Your Company Domain</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    This domain controls data isolation — only users with this email domain will see your company's data.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Company Email Domain *</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground text-sm font-mono px-3 py-2 bg-secondary rounded-l-md border border-r-0 border-input">@</span>
+                    <Input
+                      className="rounded-l-none"
+                      placeholder="acme.com"
+                      value={form.domain}
+                      onChange={e => update('domain', e.target.value.toLowerCase().replace(/^@/, ''))}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    We've pre-filled this from your email address. Only change it if your team uses a different domain.
+                  </p>
+                </div>
+                <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 text-sm text-muted-foreground space-y-1">
+                  <p className="font-medium text-foreground">🔒 How data isolation works</p>
+                  <p>All users, session logs and company data will only be visible to people signed in with a <strong>@{form.domain || 'yourdomain.com'}</strong> email address.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Step: Profile */}
+            {currentStepId === 'profile' && (
               <div className="space-y-5">
                 <div>
                   <h2 className="text-xl font-bold">Your Profile</h2>
@@ -134,8 +202,8 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 2: Setup */}
-            {step === 2 && (
+            {/* Step: Setup */}
+            {currentStepId === 'setup' && (
               <div className="space-y-5">
                 <div>
                   <h2 className="text-xl font-bold">Your Softphone Setup</h2>
@@ -161,8 +229,8 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 3: Done */}
-            {step === 3 && (
+            {/* Step: Done */}
+            {currentStepId === 'done' && (
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-8 h-8 text-primary" />
@@ -185,12 +253,12 @@ export default function Onboarding() {
 
             {/* Navigation */}
             <div className="flex gap-3 mt-8">
-              {step > 0 && step < 3 && (
+              {step > 0 && currentStepId !== 'done' && (
                 <Button variant="outline" className="flex-1" onClick={() => setStep(s => s - 1)}>
                   Back
                 </Button>
               )}
-              {step < 3 ? (
+              {currentStepId !== 'done' ? (
                 <Button
                   className="flex-1 gap-2"
                   onClick={() => setStep(s => s + 1)}
