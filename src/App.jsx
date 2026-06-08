@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Dashboard from './pages/Dashboard';
 import Guide from './pages/Guide';
+import BillingDashboard from './pages/BillingDashboard';
+import InviteAgent from './pages/InviteAgent';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -37,6 +39,8 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/guide" element={<Guide />} />
+      <Route path="/billing" element={<BillingDashboard />} />
+      <Route path="/invite" element={<InviteAgent />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

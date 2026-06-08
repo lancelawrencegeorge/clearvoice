@@ -1,0 +1,41 @@
+{
+  "name": "Company",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "billing_contact_email": {
+      "type": "string",
+      "description": "Billing contact email"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "starter",
+        "pro",
+        "enterprise"
+      ],
+      "default": "trial",
+      "description": "Billing plan"
+    },
+    "seat_limit": {
+      "type": "number",
+      "description": "Maximum number of seats allowed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this company account is active"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

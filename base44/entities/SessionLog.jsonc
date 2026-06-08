@@ -1,0 +1,45 @@
+{
+  "name": "SessionLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User who had this session"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email (denormalized for easy querying)"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Company this session belongs to"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name (denormalized)"
+    },
+    "session_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session started"
+    },
+    "session_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session ended"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Session duration in minutes"
+    },
+    "suppression_level": {
+      "type": "number",
+      "description": "Suppression level used during session"
+    }
+  },
+  "required": [
+    "user_id",
+    "company_id",
+    "session_start"
+  ]
+}

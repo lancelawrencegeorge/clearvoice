@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Mic, Headphones, Volume2, ShieldCheck } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioEngine } from '@/lib/useAudioEngine';
 import StatusIndicator from '@/components/audio/StatusIndicator';
@@ -25,6 +26,7 @@ export default function Dashboard() {
   } = useAudioEngine();
 
   const [sessionStart, setSessionStart] = useState(null);
+  const sessionStartRef = useRef(null);
   const [agentGain, setAgentGain] = useState(1.0);
   const [customerGain, setCustomerGain] = useState(1.0);
   const [customerSuppression, setCustomerSuppression] = useState(70);
@@ -33,13 +35,40 @@ export default function Dashboard() {
 
   const handleStart = useCallback(async () => {
     await start();
-    setSessionStart(Date.now());
+    const now = Date.now();
+    setSessionStart(now);
+    sessionStartRef.current = now;
+    // Update last_active_date on the user
+    base44.auth.me().then(user => {
+      if (user) base44.auth.updateMe({ last_active_date: new Date().toISOString() });
+    });
   }, [start]);
 
   const handleStop = useCallback(() => {
     stop();
+    // Log the session
+    if (sessionStartRef.current) {
+      const durationMs = Date.now() - sessionStartRef.current;
+      const durationMinutes = durationMs / 60000;
+      base44.auth.me().then(user => {
+        if (user) {
+          base44.entities.SessionLog.create({
+            user_id: user.id,
+            user_email: user.email,
+            company_id: user.company_id || '',
+            company_name: '',
+            session_start: new Date(sessionStartRef.current).toISOString(),
+            session_end: new Date().toISOString(),
+            duration_minutes: Math.round(durationMinutes * 10) / 10,
+            suppression_level: suppressionLevel
+          });
+          base44.auth.updateMe({ last_active_date: new Date().toISOString() });
+        }
+      });
+      sessionStartRef.current = null;
+    }
     setSessionStart(null);
-  }, [stop]);
+  }, [stop, suppressionLevel]);
 
   const handleAgentGainChange = useCallback((v) => {
     setAgentGain(v);
