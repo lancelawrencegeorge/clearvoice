@@ -1,7 +1,228 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
+
+const POPUP_HTML_AGENT = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { width: 300px; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e8eaf0; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    h2 { font-size: 16px; color: #2dd4bf; margin-bottom: 2px; }
+    .subtitle { font-size: 11px; color: #6b7280; }
+    .status-bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #1a1f2e; border: 1px solid #2a2f3e; margin-bottom: 14px; font-size: 12px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot.on  { background: #2dd4bf; box-shadow: 0 0 6px #2dd4bf88; animation: pulse 2s infinite; }
+    .dot.off { background: #4b5563; }
+    @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+    .toggle-btn { width: 100%; padding: 11px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .toggle-btn.off { background: #2dd4bf; color: #0f1117; }
+    .toggle-btn.on  { background: #1a1f2e; color: #ef4444; border: 1px solid #ef444444; }
+    .slider-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 12px; color: #9ca3af; }
+    input[type=range] { width: 100%; margin-top: 6px; accent-color: #2dd4bf; }
+    .footer { margin-top: 12px; text-align: right; font-size: 10px; color: #374151; cursor: pointer; }
+    .footer span:hover { color: #6b7280; }
+    #autoBadge { display: none; font-size: 10px; background: #2dd4bf22; color: #2dd4bf; border: 1px solid #2dd4bf44; padding: 2px 7px; border-radius: 20px; margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div><h2>🎙 ClearVoice</h2><div class="subtitle">Noise suppression for any softphone</div></div>
+    <span id="autoBadge">Auto</span>
+  </div>
+  <div class="status-bar">
+    <div class="dot off" id="dot"></div>
+    <span id="statusText">Inactive on this page</span>
+  </div>
+  <button class="toggle-btn off" id="toggleBtn">Enable Suppression</button>
+  <div class="slider-row"><span>Suppression Level</span><span id="levelVal">70%</span></div>
+  <input type="range" id="slider" min="0" max="100" value="70">
+  <div class="footer"><span id="optionsLink">⚙ Manage auto-start URLs</span></div>
+  <script src="popup.js"></script>
+</body>
+</html>`;
+
+const POPUP_HTML_ADMIN = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { width: 300px; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e8eaf0; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    h2 { font-size: 16px; color: #2dd4bf; margin-bottom: 2px; }
+    .subtitle { font-size: 11px; color: #6b7280; }
+    .status-bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #1a1f2e; border: 1px solid #2a2f3e; margin-bottom: 14px; font-size: 12px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot.on  { background: #2dd4bf; box-shadow: 0 0 6px #2dd4bf88; animation: pulse 2s infinite; }
+    .dot.off { background: #4b5563; }
+    @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+    .toggle-btn { width: 100%; padding: 11px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .toggle-btn.off { background: #2dd4bf; color: #0f1117; }
+    .toggle-btn.on  { background: #1a1f2e; color: #ef4444; border: 1px solid #ef444444; }
+    .slider-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; font-size: 12px; color: #9ca3af; }
+    input[type=range] { width: 100%; margin-top: 6px; accent-color: #2dd4bf; }
+    .footer { margin-top: 12px; text-align: right; font-size: 10px; color: #374151; cursor: pointer; }
+    .footer span:hover { color: #6b7280; }
+    #autoBadge { display: none; font-size: 10px; background: #2dd4bf22; color: #2dd4bf; border: 1px solid #2dd4bf44; padding: 2px 7px; border-radius: 20px; margin-left: auto; }
+    .ab-btn { width: 100%; margin-top: 10px; padding: 9px; border-radius: 10px; border: 1px solid #2a2f3e; background: #1a1f2e; color: #9ca3af; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; }
+    .ab-btn:hover { border-color: #2dd4bf55; color: #e8eaf0; }
+    #abPanel { display: none; margin-top: 12px; background: #1a1f2e; border: 1px solid #2a2f3e; border-radius: 10px; padding: 12px; }
+    #abPanel h3 { font-size: 12px; color: #9ca3af; margin-bottom: 10px; letter-spacing: .04em; text-transform: uppercase; }
+    .rec-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .rec-label { font-size: 12px; width: 80px; color: #d1d5db; flex-shrink: 0; }
+    .rec-btn { flex: 1; padding: 6px 0; border-radius: 7px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; background: #2a2f3e; color: #9ca3af; }
+    .rec-btn.recording { background: #ef444422; color: #ef4444; border: 1px solid #ef444455; animation: pulse 1s infinite; }
+    .rec-btn.done { background: #2dd4bf22; color: #2dd4bf; border: 1px solid #2dd4bf55; }
+    .play-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #2a2f3e; background: #0f1117; color: #9ca3af; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
+    .play-btn:hover { border-color: #2dd4bf55; color: #2dd4bf; }
+    .play-btn:disabled { opacity: 0.3; cursor: default; }
+    .ab-hint { font-size: 10px; color: #4b5563; margin-top: 6px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div><h2>🎙 ClearVoice</h2><div class="subtitle">Noise suppression for any softphone</div></div>
+    <span id="autoBadge">Auto</span>
+  </div>
+  <div class="status-bar">
+    <div class="dot off" id="dot"></div>
+    <span id="statusText">Inactive on this page</span>
+  </div>
+  <button class="toggle-btn off" id="toggleBtn">Enable Suppression</button>
+  <div class="slider-row"><span>Suppression Level</span><span id="levelVal">70%</span></div>
+  <input type="range" id="slider" min="0" max="100" value="70">
+  <button class="ab-btn" id="abToggle">🔬 A/B Test</button>
+  <div id="abPanel">
+    <h3>A/B Recording Test</h3>
+    <div class="rec-row">
+      <span class="rec-label">Raw (no filter)</span>
+      <button class="rec-btn" id="recRaw">⏺ Record</button>
+      <button class="play-btn" id="playRaw" disabled>▶</button>
+    </div>
+    <div class="rec-row">
+      <span class="rec-label">Clean (filtered)</span>
+      <button class="rec-btn" id="recClean">⏺ Record</button>
+      <button class="play-btn" id="playClean" disabled>▶</button>
+    </div>
+    <p class="ab-hint">Record ~10s of speech for each. Compare playback to hear the difference.</p>
+  </div>
+  <div class="footer"><span id="optionsLink">⚙ Manage auto-start URLs</span></div>
+  <script src="popup.js"></script>
+</body>
+</html>`;
+
+const POPUP_JS_AGENT = `const btn = document.getElementById('toggleBtn');
+const dot = document.getElementById('dot');
+const statusText = document.getElementById('statusText');
+const slider = document.getElementById('slider');
+const levelVal = document.getElementById('levelVal');
+const autoBadge = document.getElementById('autoBadge');
+
+let currentTabId = null;
+let isActive = false;
+
+function sendToTab(msg) {
+  chrome.scripting.executeScript({
+    target: { tabId: currentTabId },
+    world: 'MAIN',
+    func: (m) => window.postMessage(m, '*'),
+    args: [msg]
+  });
+}
+
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  currentTabId = tabs[0].id;
+  const hostname = new URL(tabs[0].url).hostname;
+  chrome.storage.sync.get(['suppression', 'autoUrls', 'tabStates'], (data) => {
+    const suppression = data.suppression ?? 70;
+    const autoUrls = data.autoUrls ?? [];
+    const tabStates = data.tabStates ?? {};
+    slider.value = suppression;
+    levelVal.textContent = suppression + '%';
+    const isAutoUrl = autoUrls.some(url => hostname.includes(url));
+    const tabActive = tabStates[currentTabId] ?? isAutoUrl;
+    if (isAutoUrl) autoBadge.style.display = 'block';
+    setUI(tabActive);
+  });
+});
+
+btn.addEventListener('click', () => {
+  isActive = !isActive;
+  chrome.storage.sync.get('tabStates', (data) => {
+    const tabStates = data.tabStates ?? {};
+    tabStates[currentTabId] = isActive;
+    chrome.storage.sync.set({ tabStates });
+  });
+  sendToTab({ type: 'CLEARVOICE_TOGGLE', active: isActive, suppression: parseInt(slider.value) });
+  setUI(isActive);
+});
+
+slider.addEventListener('input', () => {
+  const val = parseInt(slider.value);
+  levelVal.textContent = val + '%';
+  chrome.storage.sync.set({ suppression: val });
+  sendToTab({ type: 'CLEARVOICE_SET_SUPPRESSION', suppression: val });
+});
+
+document.getElementById('optionsLink').addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
+});
+
+function setUI(active) {
+  isActive = active;
+  btn.textContent = active ? 'Disable Suppression' : 'Enable Suppression';
+  btn.className = 'toggle-btn ' + (active ? 'on' : 'off');
+  dot.className = 'dot ' + (active ? 'on' : 'off');
+  statusText.textContent = active ? 'Active — microphone is being filtered' : 'Inactive on this page';
+}`;
+
+const POPUP_JS_ADMIN = POPUP_JS_AGENT + `
+
+// A/B TEST
+document.getElementById('abToggle').addEventListener('click', () => {
+  const panel = document.getElementById('abPanel');
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+});
+
+let rawUrl = null, cleanUrl = null;
+let mediaRecorder = null;
+
+async function startRecording(type) {
+  if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); return; }
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const chunks = [];
+  mediaRecorder = new MediaRecorder(stream);
+  const recBtn = document.getElementById(type === 'raw' ? 'recRaw' : 'recClean');
+  recBtn.textContent = '⏹ Stop';
+  recBtn.className = 'rec-btn recording';
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    const url = URL.createObjectURL(new Blob(chunks, { type: 'audio/webm' }));
+    if (type === 'raw') { rawUrl = url; document.getElementById('playRaw').disabled = false; }
+    else { cleanUrl = url; document.getElementById('playClean').disabled = false; }
+    recBtn.textContent = '✔ Done';
+    recBtn.className = 'rec-btn done';
+  };
+  mediaRecorder.start();
+}
+
+document.getElementById('recRaw').addEventListener('click', () => startRecording('raw'));
+document.getElementById('recClean').addEventListener('click', () => startRecording('clean'));
+document.getElementById('playRaw').addEventListener('click', () => { if (rawUrl) new Audio(rawUrl).play(); });
+document.getElementById('playClean').addEventListener('click', () => { if (cleanUrl) new Audio(cleanUrl).play(); });`;
+
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function Guide() {
   const handleDownload = () => {
@@ -170,6 +391,38 @@ export default function Guide() {
             <Download className="w-4 h-4" />
             Download PDF
           </Button>
+        </div>
+
+        {/* Extension Downloads */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="border border-border rounded-xl p-5 space-y-3">
+            <div>
+              <p className="font-semibold text-sm">Agent Build</p>
+              <p className="text-xs text-muted-foreground mt-1">No A/B test. For production rollout to agents.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.html', POPUP_HTML_AGENT)}>
+                <Download className="w-3 h-3" /> popup.html
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.js', POPUP_JS_AGENT)}>
+                <Download className="w-3 h-3" /> popup.js
+              </Button>
+            </div>
+          </div>
+          <div className="border border-primary/30 rounded-xl p-5 space-y-3 bg-primary/5">
+            <div>
+              <p className="font-semibold text-sm">Admin Build</p>
+              <p className="text-xs text-muted-foreground mt-1">Includes 🔬 A/B test. For QA and admin testing only.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.html', POPUP_HTML_ADMIN)}>
+                <Download className="w-3 h-3" /> popup.html
+              </Button>
+              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.js', POPUP_JS_ADMIN)}>
+                <Download className="w-3 h-3" /> popup.js
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-8 text-sm leading-relaxed">
