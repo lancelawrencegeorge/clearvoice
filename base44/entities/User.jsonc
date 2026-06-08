@@ -6,6 +6,8 @@
       "type": "string",
       "enum": [
         "admin",
+        "super_user",
+        "manager",
         "user"
       ],
       "default": "user"
@@ -13,6 +15,10 @@
     "company_id": {
       "type": "string",
       "description": "Reference to the Company this user belongs to"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name (denormalized)"
     },
     "last_active_date": {
       "type": "string",
@@ -23,6 +29,23 @@
       "type": "boolean",
       "default": true,
       "description": "Whether this agent seat is active"
+    },
+    "onboarding_complete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has completed onboarding"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "User's job title"
+    },
+    "phone": {
+      "type": "string",
+      "description": "User's phone number"
+    },
+    "softphone_platform": {
+      "type": "string",
+      "description": "Softphone platform the agent uses (e.g. Genesys, Twilio Flex)"
     }
   }
 }

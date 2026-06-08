@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Mic, Headphones, Volume2, ShieldCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 import { useAudioEngine } from '@/lib/useAudioEngine';
 import StatusIndicator from '@/components/audio/StatusIndicator';
 import ChannelCard from '@/components/audio/ChannelCard';
@@ -11,6 +13,17 @@ import AudioVisualizer from '@/components/audio/AudioVisualizer';
 import TestPanel from '@/components/audio/TestPanel';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user && !user.onboarding_complete) {
+        navigate('/onboarding');
+      }
+    });
+  }, []);
+
   const {
     status,
     error,
@@ -105,7 +118,18 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            <StatusIndicator status={status} />
+            <div className="flex items-center gap-3">
+              {user && ['admin', 'super_user', 'manager'].includes(user.role) && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Link to="/reports" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Reports</Link>
+                  <Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Analytics</Link>
+                  {['admin', 'super_user'].includes(user.role) && (
+                    <Link to="/billing" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Billing</Link>
+                  )}
+                </div>
+              )}
+              <StatusIndicator status={status} />
+            </div>
           </div>
         </motion.div>
 

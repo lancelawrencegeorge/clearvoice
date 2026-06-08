@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Building2, Users, Activity, Clock, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { Building2, Users, Activity, Clock, Plus, ChevronDown, ChevronRight, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function BillingDashboard() {
+  const { user } = useAuth();
   const [companies, setCompanies] = useState([]);
   const [users, setUsers] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -82,6 +84,19 @@ export default function BillingDashboard() {
   const activeToday = users.filter(u =>
     u.last_active_date && new Date(u.last_active_date) > new Date(Date.now() - 24 * 60 * 60 * 1000)
   ).length;
+
+  if (user && !['admin', 'super_user'].includes(user.role)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
+          <h2 className="text-lg font-semibold">Access Denied</h2>
+          <p className="text-muted-foreground text-sm mt-1">You need admin or super user access to view billing.</p>
+          <Link to="/" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">

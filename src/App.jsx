@@ -9,6 +9,9 @@ import Dashboard from './pages/Dashboard';
 import Guide from './pages/Guide';
 import BillingDashboard from './pages/BillingDashboard';
 import InviteAgent from './pages/InviteAgent';
+import Onboarding from './pages/Onboarding';
+import Reports from './pages/Reports';
+import Analytics from './pages/Analytics';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -41,6 +44,9 @@ const AuthenticatedApp = () => {
       <Route path="/guide" element={<Guide />} />
       <Route path="/billing" element={<BillingDashboard />} />
       <Route path="/invite" element={<InviteAgent />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/reports" element={<Reports />} />
+      <Route path="/analytics" element={<Analytics />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
