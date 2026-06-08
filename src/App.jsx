@@ -12,6 +12,8 @@ import InviteAgent from './pages/InviteAgent';
 import Onboarding from './pages/Onboarding';
 import Reports from './pages/Reports';
 import Analytics from './pages/Analytics';
+import Landing from './pages/Landing';
+import BulkImport from './pages/BulkImport';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -47,6 +49,8 @@ const AuthenticatedApp = () => {
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/analytics" element={<Analytics />} />
+      <Route path="/landing" element={<Landing />} />
+      <Route path="/bulk-import" element={<BulkImport />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
