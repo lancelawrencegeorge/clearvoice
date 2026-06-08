@@ -291,13 +291,23 @@ export default function Landing() {
         <FadeIn className="relative max-w-2xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to eliminate noise?</h2>
           <p className="text-muted-foreground mb-8">Set up takes under 5 minutes. No hardware. No IT department required.</p>
-          <Button
-            size="lg"
-            className="gap-2 px-10 text-base"
-            onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
-          >
-            Start Free <ChevronRight className="w-4 h-4" />
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              size="lg"
+              className="gap-2 px-10 text-base"
+              onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
+            >
+              Start Free <ChevronRight className="w-4 h-4" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="gap-2 px-10 text-base"
+              onClick={() => base44.auth.redirectToLogin()}
+            >
+              Sign In
+            </Button>
+          </div>
         </FadeIn>
       </section>
 
