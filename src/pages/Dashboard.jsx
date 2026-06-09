@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
+import { LogOut } from 'lucide-react';
 import { useAudioEngine } from '@/lib/useAudioEngine';
 import StatusIndicator from '@/components/audio/StatusIndicator';
 import ChannelCard from '@/components/audio/ChannelCard';
@@ -15,7 +16,7 @@ import TrialBanner from '@/components/TrialBanner';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     base44.auth.me().then(user => {
@@ -131,6 +132,9 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
+              <button onClick={() => logout()} className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md hover:bg-secondary" title="Logout">
+                <LogOut className="w-4 h-4" />
+              </button>
               <StatusIndicator status={status} />
             </div>
           </div>
