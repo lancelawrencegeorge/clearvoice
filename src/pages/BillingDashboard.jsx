@@ -21,7 +21,7 @@ export default function BillingDashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showAddCompany, setShowAddCompany] = useState(false);
-  const [newCompany, setNewCompany] = useState({ name: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
+  const [newCompany, setNewCompany] = useState({ name: '', domain: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function BillingDashboard() {
       is_active: true
     });
     setCompanies(prev => [...prev, created]);
-    setNewCompany({ name: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
+    setNewCompany({ name: '', domain: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
     setShowAddCompany(false);
     setSaving(false);
   };
@@ -187,7 +187,9 @@ export default function BillingDashboard() {
                         <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">inactive</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{company.billing_contact_email || 'No billing email'}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {company.domain ? `@${company.domain}` : 'No domain set'}{company.billing_contact_email ? ` · ${company.billing_contact_email}` : ''}
+                    </p>
                   </div>
                   <div className="flex items-center gap-6 text-right shrink-0">
                     <div>
@@ -264,6 +266,11 @@ export default function BillingDashboard() {
             <div className="space-y-1.5">
               <Label>Company Name *</Label>
               <Input placeholder="Acme Corp" value={newCompany.name} onChange={e => setNewCompany(p => ({ ...p, name: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Domain</Label>
+              <Input placeholder="acme.com" value={newCompany.domain} onChange={e => setNewCompany(p => ({ ...p, domain: e.target.value.toLowerCase().trim() }))} />
+              <p className="text-xs text-muted-foreground">Used for tenant isolation — users with this email domain are auto-assigned.</p>
             </div>
             <div className="space-y-1.5">
               <Label>Billing Email</Label>
