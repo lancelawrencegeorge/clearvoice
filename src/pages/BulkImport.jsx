@@ -48,7 +48,16 @@ export default function BulkImport() {
 
   useEffect(() => {
     if (user && ALLOWED_ROLES.includes(user.role)) {
-      base44.entities.Company.list().then(setCompanies);
+      base44.entities.Company.list().then(list => {
+        // Super users are locked to their own company (by domain)
+        if (user.role === 'super_user') {
+          const mine = list.filter(c => c.domain === user.domain);
+          setCompanies(mine);
+          if (mine[0]) setSelectedCompany(mine[0].id);
+        } else {
+          setCompanies(list);
+        }
+      });
     }
   }, [user]);
 
@@ -90,22 +99,23 @@ export default function BulkImport() {
   const invalidRows = rows.filter(r => r._errors.length > 0);
 
   const handleImport = async () => {
-    if (!validRows.length) return;
+    if (!validRows.length || !selectedCompany) return;
     setImporting(true);
     const company = companies.find(c => c.id === selectedCompany);
-    const succeeded = [];
-    const failed = [];
 
-    for (const row of validRows) {
-      const domain = row.email.split('@')[1]?.toLowerCase() || '';
-      const result = await base44.users.inviteUser(row.email, row.role || defaultRole).then(() => {
-        succeeded.push(row.email);
-      }).catch(err => {
-        failed.push({ email: row.email, reason: err?.message || 'Unknown error' });
+    try {
+      const res = await base44.functions.invoke('bulkInviteUsers', {
+        users: validRows.map(r => ({ email: r.email, role: r.role || defaultRole })),
+        company_id: selectedCompany,
       });
+      const data = res.data || res;
+      setResults({
+        succeeded: (data.succeeded || []).map(s => s.email),
+        failed: data.failed || [],
+      });
+    } catch (err) {
+      setResults({ succeeded: [], failed: validRows.map(r => ({ email: r.email, reason: err?.message || 'Request failed' })) });
     }
-
-    setResults({ succeeded, failed });
     setImporting(false);
   };
 
@@ -138,7 +148,7 @@ export default function BulkImport() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Company</label>
-                  <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+                  <Select value={selectedCompany} onValueChange={setSelectedCompany} disabled={user?.role === 'super_user'}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select company..." />
                     </SelectTrigger>
@@ -148,7 +158,9 @@ export default function BulkImport() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">Applied to all imported agents</p>
+                  <p className="text-xs text-muted-foreground">
+                    {user?.role === 'super_user' ? 'Locked to your company' : 'Applied to all imported agents'}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Default Role</label>

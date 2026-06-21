@@ -14,6 +14,7 @@ import Reports from './pages/Reports';
 import Analytics from './pages/Analytics';
 import Landing from './pages/Landing';
 import BulkImport from './pages/BulkImport';
+import UserManagement from './pages/UserManagement';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
       <Route path="/reports" element={<Reports />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/bulk-import" element={<BulkImport />} />
+      <Route path="/users" element={<UserManagement />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

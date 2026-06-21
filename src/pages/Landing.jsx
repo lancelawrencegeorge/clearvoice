@@ -157,7 +157,7 @@ export default function Landing() {
                 className="gap-2 px-8 text-base"
                 onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
               >
-                Get Started Free <ChevronRight className="w-4 h-4" />
+                {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
               </Button>
               <Link to="/guide">
                 <Button size="lg" variant="outline" className="gap-2 px-8 text-base">
@@ -253,12 +253,12 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="w-full text-base gap-2"
-                onClick={() => base44.auth.redirectToLogin()}
+                onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
               >
-                Start Free Trial <ChevronRight className="w-4 h-4" />
+                {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-4">
-                After trial: R95/seat/month (ex VAT) · Cancel anytime
+                Onboarding handled by your company admin · R95/seat/month after trial
               </p>
             </div>
           </FadeIn>
@@ -279,7 +279,7 @@ export default function Landing() {
               className="gap-2 px-10 text-base"
               onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
             >
-              Start Free <ChevronRight className="w-4 h-4" />
+              {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
             </Button>
             <Button
               size="lg"

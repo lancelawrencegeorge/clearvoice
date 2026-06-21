@@ -128,6 +128,9 @@ export default function Dashboard() {
                     <Link to="/billing" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Billing</Link>
                   )}
                   {['admin', 'super_user'].includes(user.role) && (
+                    <Link to="/users" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Users</Link>
+                  )}
+                  {['admin', 'super_user'].includes(user.role) && (
                     <Link to="/bulk-import" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Import</Link>
                   )}
                 </div>

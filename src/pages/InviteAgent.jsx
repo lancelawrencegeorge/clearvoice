@@ -5,10 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, Building2, CheckCircle2, Plus } from 'lucide-react';
+import { UserPlus, Building2, CheckCircle2, Plus, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
+
+const ALLOWED_ROLES = ['admin', 'super_user'];
 
 export default function InviteAgent() {
+  const { user } = useAuth();
   const [companies, setCompanies] = useState([]);
   const [email, setEmail] = useState('');
   const [companyId, setCompanyId] = useState('');
@@ -19,8 +23,30 @@ export default function InviteAgent() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    base44.entities.Company.list().then(setCompanies);
-  }, []);
+    if (!user) return;
+    base44.entities.Company.list().then(list => {
+      if (user.role === 'super_user') {
+        const mine = list.filter(c => c.domain === user.domain);
+        setCompanies(mine);
+        if (mine[0]) setCompanyId(mine[0].id);
+      } else {
+        setCompanies(list);
+      }
+    });
+  }, [user]);
+
+  if (!user || !ALLOWED_ROLES.includes(user.role)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
+          <h2 className="text-lg font-semibold">Access Denied</h2>
+          <p className="text-muted-foreground text-sm mt-1">You need admin or super user access to invite users.</p>
+          <Link to="/" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleCreateCompany = async () => {
     if (!newCompanyName.trim()) return;
@@ -34,16 +60,29 @@ export default function InviteAgent() {
   const handleInvite = async (e) => {
     e.preventDefault();
     if (!email || !companyId) { setError('Please fill in all fields.'); return; }
+    // Domain guard for super_user
+    if (user.role === 'super_user') {
+      const company = companies.find(c => c.id === companyId);
+      const emailDomain = email.split('@')[1]?.toLowerCase();
+      if (company?.domain && emailDomain !== company.domain) {
+        setError(`Email must be from the @${company.domain} domain.`);
+        return;
+      }
+    }
     setError('');
     setLoading(true);
-    await base44.users.inviteUser(email, 'user');
-    // We store the pending company assignment — once user registers,
-    // an admin can confirm from the billing dashboard.
-    // For now, log the intent in a session note.
-    setSuccess(true);
+    try {
+      // Use the bulk function for a single invite (gets domain validation + company scoping)
+      await base44.functions.invoke('bulkInviteUsers', {
+        users: [{ email, role: 'user' }],
+        company_id: companyId,
+      });
+      setSuccess(true);
+      setEmail('');
+    } catch (err) {
+      setError(err?.message || 'Failed to send invite');
+    }
     setLoading(false);
-    setEmail('');
-    setCompanyId('');
   };
 
   const selectedCompany = companies.find(c => c.id === companyId);
@@ -86,28 +125,30 @@ export default function InviteAgent() {
               </div>
 
               <div className="space-y-2">
-                <Label>Assign to Company</Label>
-                {!showNewCompany ? (
-                  <div className="flex gap-2">
-                    <Select value={companyId} onValueChange={setCompanyId}>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Select a company..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companies.map(c => (
-                          <SelectItem key={c.id} value={c.id}>
-                            <div className="flex items-center gap-2">
-                              <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
-                              {c.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <Label>Assign to Company</Label>
+              {!showNewCompany ? (
+                <div className="flex gap-2">
+                  <Select value={companyId} onValueChange={setCompanyId} disabled={user?.role === 'super_user'}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select a company..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companies.map(c => (
+                        <SelectItem key={c.id} value={c.id}>
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+                            {c.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {user?.role === 'admin' && (
                     <Button type="button" variant="outline" size="icon" onClick={() => setShowNewCompany(true)} title="Add new company">
                       <Plus className="w-4 h-4" />
                     </Button>
-                  </div>
+                  )}
+                </div>
                 ) : (
                   <div className="flex gap-2">
                     <Input
