@@ -302,18 +302,54 @@ export default function Guide() {
     };
 
     // --- CONTENT ---
-    addTitle('ClearVoice — Installation & Test Guide');
-    addBody('Follow the steps below to install the ClearVoice Chrome extension and run a successful noise suppression test.');
+    addTitle('ClearVoice — Setup Guide');
+    addBody('ClearVoice runs as an installable web app. Install it once and it runs in its own window, staying active throughout your calls. All audio is processed locally on your device.');
     addSpace();
     addDivider();
 
-    addH2('What You\'ll Need');
+    addH2('Option A: Install the ClearVoice App (Recommended)');
+    addBody('The app installs as a standalone window — harder to accidentally close than a browser tab, and your settings persist between sessions.');
+    addSpace();
+
+    addH3('Step 1: Install the App');
+    addBullet('Open the ClearVoice link in Chrome or Edge (Chromium-based browser required)');
+    addBullet('Sign in with your work email');
+    addBullet('On the Dashboard, click the "Install" button in the banner at the top');
+    addBullet('Confirm the install prompt — ClearVoice opens in its own window');
+    addBullet('Pin it to your taskbar / dock for quick access');
+    addBody('✅ Success check: ClearVoice opens in a standalone window (no browser address bar).', 10);
+    addSpace();
+
+    addH3('Step 2: Start Your Day');
+    addBullet('Open ClearVoice from your taskbar / dock');
+    addBullet('Click "Start Session" once to grant microphone access');
+    addBullet('Your saved suppression level and channel gains load automatically');
+    addBullet('Minimize the window — the engine keeps running while you take calls');
+    addSpace();
+
+    addH3('Step 3: During Calls');
+    addBullet('ClearVoice filters your mic in real time — no per-call action needed');
+    addBullet('Adjust the Suppression slider if a call is noisy (higher = more aggressive)');
+    addBullet('Use Pause if you need to step away; the engine auto-resumes when you return to the window');
+    addSpace();
+
+    addH3('Step 4: End of Day');
+    addBullet('Just close the window — your session is logged automatically');
+    addBullet('No need to click "End Session" — closing the window stops the engine and saves your session');
+    addSpace();
+
+    addDivider();
+    addH2('Option B: Browser Extension (Advanced / Fallback)');
+    addBody('For environments where the installable app isn\'t suitable, ClearVoice can also be loaded as a Chrome extension. This is intended for advanced users and IT-led pilots.');
+    addSpace();
+
+    addH3('What You\'ll Need');
     addBullet('Google Chrome (or Chromium-based browser: Edge, Brave, Arc)');
     addBullet('The ClearVoice extension folder (provided as a .zip — unzip it first)');
     addBullet('Access to your softphone platform in the browser');
     addSpace();
 
-    addH2('Step 1: Install the Extension');
+    addH3('Step 1: Install the Extension');
     addBullet('Open Chrome and go to chrome://extensions');
     addBullet('Toggle "Developer mode" ON (top-right corner)');
     addBullet('Click "Load unpacked"');
@@ -322,13 +358,13 @@ export default function Guide() {
     addBody('✅ Success check: The extension card shows no errors and the icon is visible in the toolbar.', 10);
     addSpace();
 
-    addH2('Step 2: Pin the Extension');
+    addH3('Step 2: Pin the Extension');
     addBullet('Click the puzzle piece icon in the Chrome toolbar');
     addBullet('Find ClearVoice and click the pin icon next to it');
     addBullet('The ClearVoice icon should now be permanently visible');
     addSpace();
 
-    addH2('Step 3: Run a Test Call');
+    addH3('Step 3: Run a Test Call');
     addBullet('Open your softphone in Chrome (e.g. Genesys, Twilio Flex, RingCentral, etc.)');
     addBullet('Click the ClearVoice icon in the toolbar — the popup should open');
     addBullet('Click "Start" to activate noise suppression');
@@ -336,7 +372,7 @@ export default function Guide() {
     addBullet('Have the other person confirm audio quality');
     addSpace();
 
-    addH2('Step 4: A/B Test (Recommended)');
+    addH3('Step 4: A/B Test (Admin Build Only)');
     addBullet('In the ClearVoice popup, click "A/B Test"');
     addBullet('Click "Record Raw" — speak for ~10 seconds with background noise present');
     addBullet('Click "Record Clean" — repeat the same speech with ClearVoice active');
@@ -384,14 +420,77 @@ export default function Guide() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Client Test Guide</h1>
-            <p className="text-muted-foreground text-sm mt-1">Installation & testing instructions for ClearVoice</p>
+            <h1 className="text-2xl font-bold">Setup Guide</h1>
+            <p className="text-muted-foreground text-sm mt-1">Install ClearVoice and start taking clearer calls</p>
           </div>
           <Button onClick={handleDownload} className="gap-2">
             <Download className="w-4 h-4" />
             Download PDF
           </Button>
         </div>
+
+        {/* Option A: PWA Install */}
+        <section className="border border-primary/30 rounded-xl p-6 space-y-6 mb-8 bg-primary/5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary">Option A — Recommended</span>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Install the ClearVoice App</h2>
+            <p className="text-sm text-muted-foreground">
+              Installs as a standalone window — harder to accidentally close than a browser tab, and your settings persist between sessions.
+            </p>
+          </div>
+
+          <div className="space-y-4 text-sm">
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 1: Install the App</h3>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>Open the ClearVoice link in <strong>Chrome</strong> or <strong>Edge</strong></li>
+                <li>Sign in with your work email</li>
+                <li>On the Dashboard, click the <strong>"Install"</strong> button in the banner at the top</li>
+                <li>Confirm the install prompt — ClearVoice opens in its own window</li>
+                <li>Pin it to your taskbar / dock for quick access</li>
+              </ol>
+              <p className="mt-2 text-primary text-xs">✅ Success check: ClearVoice opens in a standalone window (no browser address bar).</p>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 2: Start Your Day</h3>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>Open ClearVoice from your taskbar / dock</li>
+                <li>Click <strong>"Start Session"</strong> once to grant microphone access</li>
+                <li>Your saved suppression level and channel gains load automatically</li>
+                <li>Minimize the window — the engine keeps running while you take calls</li>
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 3: During Calls</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>ClearVoice filters your mic in real time — no per-call action needed</li>
+                <li>Adjust the Suppression slider if a call is noisy (higher = more aggressive)</li>
+                <li>Use <strong>Pause</strong> if you step away; the engine auto-resumes when you return to the window</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 4: End of Day</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Just close the window — your session is logged automatically</li>
+                <li>No need to click "End Session" — closing stops the engine and saves your session</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Option B: Browser Extension */}
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Option B — Advanced / Fallback</span>
+        </div>
+        <h2 className="text-lg font-semibold mb-3">Browser Extension</h2>
+        <p className="text-sm text-muted-foreground mb-6">
+          For environments where the installable app isn't suitable, ClearVoice can also be loaded as a Chrome extension. Intended for advanced users and IT-led pilots.
+        </p>
 
         {/* Extension Downloads */}
         <div className="grid grid-cols-2 gap-4 mb-8">
@@ -427,7 +526,7 @@ export default function Guide() {
 
         <div className="space-y-8 text-sm leading-relaxed">
           <section>
-            <h2 className="text-lg font-semibold mb-3 text-foreground">What You'll Need</h2>
+            <h3 className="font-medium text-sm mb-2 text-muted-foreground uppercase tracking-wide">What You'll Need</h3>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
               <li>Google Chrome (or Chromium-based browser: Edge, Brave, Arc)</li>
               <li>The ClearVoice extension folder (provided as a .zip — unzip it first)</li>
@@ -436,7 +535,7 @@ export default function Guide() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-3">Step 1: Install the Extension</h2>
+            <h3 className="font-medium text-sm mb-2">Step 1: Install the Extension</h3>
             <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
               <li>Open Chrome and go to <code className="bg-secondary px-1 rounded text-xs">chrome://extensions</code></li>
               <li>Toggle <strong>"Developer mode"</strong> ON (top-right corner)</li>
@@ -448,7 +547,7 @@ export default function Guide() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-3">Step 2: Pin the Extension</h2>
+            <h3 className="font-medium text-sm mb-2">Step 2: Pin the Extension</h3>
             <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
               <li>Click the puzzle piece icon (🧩) in the Chrome toolbar</li>
               <li>Find ClearVoice and click the pin icon next to it</li>
@@ -457,7 +556,7 @@ export default function Guide() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-3">Step 3: Run a Test Call</h2>
+            <h3 className="font-medium text-sm mb-2">Step 3: Run a Test Call</h3>
             <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
               <li>Open your softphone in Chrome (e.g. Genesys, Twilio Flex, RingCentral, etc.)</li>
               <li>Click the ClearVoice icon in the toolbar — the popup should open</li>
@@ -468,7 +567,7 @@ export default function Guide() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-3">Step 4: A/B Test (Recommended)</h2>
+            <h3 className="font-medium text-sm mb-2">Step 4: A/B Test (Admin Build Only)</h3>
             <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
               <li>In the ClearVoice popup, click <strong>"A/B Test"</strong></li>
               <li>Click <strong>"Record Raw"</strong> — speak for ~10 seconds with background noise present</li>
