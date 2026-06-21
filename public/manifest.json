@@ -1,0 +1,24 @@
+{
+  "name": "ClearVoice – Noise Suppression",
+  "short_name": "ClearVoice",
+  "description": "Real-time noise suppression for crystal-clear calls",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0f14",
+  "theme_color": "#0c0f14",
+  "icons": [
+    {
+      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -5,7 +5,12 @@ export function useAudioEngine() {
   const [status, setStatus] = useState('idle'); // idle, connecting, active, paused, error
   const [error, setError] = useState(null);
   const [audioLevel, setAudioLevel] = useState(0);
-  const [suppressionLevel, setSuppressionLevel] = useState(70);
+  const [suppressionLevel, setSuppressionLevel] = useState(() => {
+    try {
+      const saved = localStorage.getItem('clearvoice_suppression');
+      return saved ? Number(saved) : 70;
+    } catch { return 70; }
+  });
   const [frequencyData, setFrequencyData] = useState(new Uint8Array(0));
   const engineRef = useRef(null);
   const animFrameRef = useRef(null);
@@ -66,6 +71,7 @@ export function useAudioEngine() {
 
   const changeSuppressionLevel = useCallback((level) => {
     setSuppressionLevel(level);
+    try { localStorage.setItem('clearvoice_suppression', String(level)); } catch {}
     if (engineRef.current) {
       engineRef.current.setSuppressionLevel(level);
     }

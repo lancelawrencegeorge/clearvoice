@@ -13,6 +13,8 @@ import SessionInfo from '@/components/audio/SessionInfo';
 import AudioVisualizer from '@/components/audio/AudioVisualizer';
 import TestPanel from '@/components/audio/TestPanel';
 import TrialBanner from '@/components/TrialBanner';
+import InstallPrompt from '@/components/InstallPrompt';
+import { usePWA, isStandalone } from '@/lib/usePWA';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -42,9 +44,14 @@ export default function Dashboard() {
 
   const [sessionStart, setSessionStart] = useState(null);
   const sessionStartRef = useRef(null);
-  const [agentGain, setAgentGain] = useState(1.0);
-  const [customerGain, setCustomerGain] = useState(1.0);
+  const [agentGain, setAgentGain] = useState(() => {
+    try { const s = localStorage.getItem('clearvoice_agent_gain'); return s ? Number(s) : 1.0; } catch { return 1.0; }
+  });
+  const [customerGain, setCustomerGain] = useState(() => {
+    try { const s = localStorage.getItem('clearvoice_customer_gain'); return s ? Number(s) : 1.0; } catch { return 1.0; }
+  });
   const [customerSuppression, setCustomerSuppression] = useState(70);
+  const { canInstall, promptInstall } = usePWA();
 
   const isActive = status === 'active';
 
@@ -88,8 +95,58 @@ export default function Dashboard() {
 
   const handleAgentGainChange = useCallback((v) => {
     setAgentGain(v);
+    try { localStorage.setItem('clearvoice_agent_gain', String(v)); } catch {}
     changeGain(v);
   }, [changeGain]);
+
+  // Auto-stop + log session when tab/window closes (so agents never need to click Stop)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (sessionStartRef.current) {
+        const durationMs = Date.now() - sessionStartRef.current;
+        const durationMinutes = durationMs / 60000;
+        base44.auth.me().then(user => {
+          if (user) {
+            base44.entities.SessionLog.create({
+              user_id: user.id,
+              user_email: user.email,
+              company_id: user.company_id || '',
+              company_name: user.company_name || '',
+              domain: user.domain || (user.email ? user.email.split('@')[1] : ''),
+              session_start: new Date(sessionStartRef.current).toISOString(),
+              session_end: new Date().toISOString(),
+              duration_minutes: Math.round(durationMinutes * 10) / 10,
+              suppression_level: suppressionLevel
+            });
+          }
+        });
+        sessionStartRef.current = null;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [suppressionLevel]);
+
+  // Auto-resume on tab focus — only when running as installed PWA (standalone)
+  // Browsers require a user gesture for mic access, so we resume only if the
+  // engine was previously active in this session (user already granted mic).
+  useEffect(() => {
+    if (!isStandalone()) return;
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && status === 'paused') {
+        resume();
+      }
+    };
+    const handleFocus = () => {
+      if (status === 'paused') resume();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [status, resume]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,6 +201,9 @@ export default function Dashboard() {
         </motion.div>
 
         <TrialBanner user={user} />
+
+        {/* PWA Install Prompt */}
+        <InstallPrompt canInstall={canInstall} onInstall={promptInstall} />
 
         {/* Error Alert */}
         <AnimatePresence>
