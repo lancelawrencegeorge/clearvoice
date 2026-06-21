@@ -320,20 +320,40 @@ export default function Guide() {
     addBody('✅ Success check: ClearVoice opens in a standalone window (no browser address bar).', 10);
     addSpace();
 
-    addH3('Step 2: Start Your Day');
+    addH3('Step 2: Set Up Virtual Audio Cable (One-Time, IT Required)');
+    addBody('ClearVoice processes audio in its own window. To route the clean audio into your softphone, a virtual audio cable driver must be installed on each agent\'s machine. This requires local admin privileges and should be deployed by the client\'s IT team.');
+    addSpace();
+    addH3('Windows — VB-Cable');
+    addBullet('Download VB-Cable from vb-audio.com/Cable/ (free)');
+    addBullet('Right-click the installer and "Run as administrator"');
+    addBullet('Reboot the machine after installation');
+    addSpace();
+    addH3('Mac — BlackHole');
+    addBullet('Download BlackHole from existential.audio/blackhole/ (free)');
+    addBullet('Run the installer package');
+    addBullet('Reboot the machine after installation');
+    addSpace();
+    addH3('Configure the Softphone');
+    addBullet('Open your softphone\'s audio/microphone settings');
+    addBullet('Set the microphone input to "VB-Cable" (Windows) or "BlackHole 2ch" (Mac)');
+    addBullet('In ClearVoice, the app automatically routes processed audio to the virtual cable');
+    addBody('✅ Success check: Make a test call — the other person should hear your voice with background noise removed.', 10);
+    addSpace();
+
+    addH3('Step 3: Start Your Day');
     addBullet('Open ClearVoice from your taskbar / dock');
     addBullet('Click "Start Session" once to grant microphone access');
     addBullet('Your saved suppression level and channel gains load automatically');
     addBullet('Minimize the window — the engine keeps running while you take calls');
     addSpace();
 
-    addH3('Step 3: During Calls');
+    addH3('Step 4: During Calls');
     addBullet('ClearVoice filters your mic in real time — no per-call action needed');
     addBullet('Adjust the Suppression slider if a call is noisy (higher = more aggressive)');
     addBullet('Use Pause if you need to step away; the engine auto-resumes when you return to the window');
     addSpace();
 
-    addH3('Step 4: End of Day');
+    addH3('Step 5: End of Day');
     addBullet('Just close the window — your session is logged automatically');
     addBullet('No need to click "End Session" — closing the window stops the engine and saves your session');
     addSpace();
@@ -455,7 +475,42 @@ export default function Guide() {
             </div>
 
             <div>
-              <h3 className="font-medium text-sm mb-2">Step 2: Start Your Day</h3>
+              <h3 className="font-medium text-sm mb-2">Step 2: Set Up Virtual Audio Cable</h3>
+              <p className="text-xs text-amber-500 font-medium mb-3">⚠ One-time setup — requires IT / local admin</p>
+              <p className="text-muted-foreground mb-3">
+                ClearVoice processes audio in its own window. To route the clean audio into your softphone, a virtual audio cable driver must be installed on each agent's machine. This requires local admin privileges and should be deployed by the client's IT team.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div className="border border-border rounded-lg p-4 space-y-2">
+                  <p className="font-medium text-sm text-foreground">Windows — VB-Cable</p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
+                    <li>Download from <strong>vb-audio.com/Cable/</strong> (free)</li>
+                    <li>Right-click installer → <strong>"Run as administrator"</strong></li>
+                    <li>Reboot after installation</li>
+                  </ol>
+                </div>
+                <div className="border border-border rounded-lg p-4 space-y-2">
+                  <p className="font-medium text-sm text-foreground">Mac — BlackHole</p>
+                  <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
+                    <li>Download from <strong>existential.audio/blackhole/</strong> (free)</li>
+                    <li>Run the installer package</li>
+                    <li>Reboot after installation</li>
+                  </ol>
+                </div>
+              </div>
+              <div className="mt-3">
+                <p className="font-medium text-sm mb-1 text-foreground">Configure the Softphone</p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>Open your softphone's audio / microphone settings</li>
+                  <li>Set the microphone input to <strong>"VB-Cable"</strong> (Windows) or <strong>"BlackHole 2ch"</strong> (Mac)</li>
+                  <li>ClearVoice automatically routes processed audio to the virtual cable</li>
+                </ul>
+                <p className="mt-2 text-primary text-xs">✅ Success check: Make a test call — the other person should hear your voice with background noise removed.</p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 3: Start Your Day</h3>
               <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
                 <li>Open ClearVoice from your taskbar / dock</li>
                 <li>Click <strong>"Start Session"</strong> once to grant microphone access</li>
@@ -465,7 +520,7 @@ export default function Guide() {
             </div>
 
             <div>
-              <h3 className="font-medium text-sm mb-2">Step 3: During Calls</h3>
+              <h3 className="font-medium text-sm mb-2">Step 4: During Calls</h3>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                 <li>ClearVoice filters your mic in real time — no per-call action needed</li>
                 <li>Adjust the Suppression slider if a call is noisy (higher = more aggressive)</li>
@@ -474,7 +529,7 @@ export default function Guide() {
             </div>
 
             <div>
-              <h3 className="font-medium text-sm mb-2">Step 4: End of Day</h3>
+              <h3 className="font-medium text-sm mb-2">Step 5: End of Day</h3>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                 <li>Just close the window — your session is logged automatically</li>
                 <li>No need to click "End Session" — closing stops the engine and saves your session</li>
