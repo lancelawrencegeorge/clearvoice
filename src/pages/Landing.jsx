@@ -123,7 +123,7 @@ export default function Landing() {
                 <Button size="sm" className="gap-1.5">Dashboard <ChevronRight className="w-3.5 h-3.5" /></Button>
               </Link>
             ) : (
-              <Button size="sm" onClick={() => base44.auth.redirectToLogin()}>
+              <Button size="sm" onClick={() => base44.auth.redirectToLogin(window.location.href)}>
                 Sign In
               </Button>
             )}
@@ -155,7 +155,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="gap-2 px-8 text-base"
-                onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
+                onClick={() => authed ? window.location.href = '/' : base44.auth.redirectToLogin(window.location.href)}
               >
                 {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
               </Button>
@@ -253,7 +253,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="w-full text-base gap-2"
-                onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
+                onClick={() => authed ? window.location.href = '/' : base44.auth.redirectToLogin(window.location.href)}
               >
                 {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
               </Button>
@@ -277,7 +277,7 @@ export default function Landing() {
             <Button
               size="lg"
               className="gap-2 px-10 text-base"
-              onClick={() => authed ? window.location.href = '/dashboard' : base44.auth.redirectToLogin()}
+              onClick={() => authed ? window.location.href = '/' : base44.auth.redirectToLogin(window.location.href)}
             >
               {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
             </Button>
@@ -285,7 +285,7 @@ export default function Landing() {
               size="lg"
               variant="outline"
               className="gap-2 px-10 text-base"
-              onClick={() => base44.auth.redirectToLogin()}
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
             >
               Sign In
             </Button>
