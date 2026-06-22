@@ -18,18 +18,20 @@ let outputFilled = 0;
 let outputRead = 0;
 let suppressionLevel = 0.7; // 0-1, used as a blend factor
 
-importScripts('${RNNOISE_CDN}');
-
 async function initRNNoise() {
-  rnnoiseModule = await createRNNoise();
-  denoiseState = rnnoiseModule.newState();
+  try {
+    importScripts('${RNNOISE_CDN}');
+    rnnoiseModule = await createRNNoise();
+    denoiseState = rnnoiseModule.newState();
+  } catch(e) {
+    console.error('[ClearVoice Worklet] RNNoise init failed:', e);
+  }
 }
-
-initRNNoise().catch(e => console.error('[ClearVoice Worklet] RNNoise init failed:', e));
 
 class RNNoiseProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
+    initRNNoise().catch(e => console.error('[ClearVoice Worklet] RNNoise init failed:', e));
     this.port.onmessage = (e) => {
       if (e.data.type === 'SET_LEVEL') {
         suppressionLevel = e.data.level;
