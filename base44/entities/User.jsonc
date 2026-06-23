@@ -66,6 +66,9 @@
           }
         },
         {
+          "data.id": "{{user.id}}"
+        },
+        {
           "data.domain": "{{user.data.domain}}"
         }
       ]
@@ -81,6 +84,9 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "data.id": "{{user.id}}"
         },
         {
           "data.domain": "{{user.data.domain}}"
