@@ -37,41 +37,31 @@ export const AuthProvider = ({ children }) => {
       try {
         const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
         setAppPublicSettings(publicSettings);
-        
+
         // Always check user auth — the SDK manages the token in localStorage
         // internally, so we can't rely solely on appParams.token being present.
         await checkUserAuth();
         setIsLoadingPublicSettings(false);
       } catch (appError) {
         console.error('App state check failed:', appError);
-        
-        // Handle app-level errors
-        if (appError.status === 403 && appError.data?.extra_data?.reason) {
-          const reason = appError.data.extra_data.reason;
-          if (reason === 'auth_required') {
-            setAuthError({
-              type: 'auth_required',
-              message: 'Authentication required'
-            });
-          } else if (reason === 'user_not_registered') {
-            setAuthError({
-              type: 'user_not_registered',
-              message: 'User not registered for this app'
-            });
-          } else {
-            setAuthError({
-              type: reason,
-              message: appError.message
-            });
-          }
-        } else {
+
+        // user_not_registered is a hard block — the user was never invited
+        // to this app, so show the restricted-access screen regardless of
+        // whether they happen to have a valid auth token.
+        if (appError.status === 403 && appError.data?.extra_data?.reason === 'user_not_registered') {
           setAuthError({
-            type: 'unknown',
-            message: appError.message || 'Failed to load app'
+            type: 'user_not_registered',
+            message: 'User not registered for this app'
           });
+          setIsLoadingPublicSettings(false);
+          setIsLoadingAuth(false);
+        } else {
+          // For any other failure (network glitch, transient 5xx, etc.)
+          // still check user auth so a valid token isn't ignored —
+          // otherwise the user bounces to the landing page in a loop.
+          await checkUserAuth();
+          setIsLoadingPublicSettings(false);
         }
-        setIsLoadingPublicSettings(false);
-        setIsLoadingAuth(false);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -92,9 +82,19 @@ export const AuthProvider = ({ children }) => {
       // whether appParams.token was populated at module load time.
       const isAuth = await base44.auth.isAuthenticated();
       if (isAuth) {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
+        // Set authenticated FIRST, before calling me(). If me() throws
+        // (e.g. transient network error), we must NOT flip back to
+        // unauthenticated — that creates a sign-in loop because the
+        // token is still valid and the login redirect bounces back.
         setIsAuthenticated(true);
+        try {
+          const currentUser = await base44.auth.me();
+          setUser(currentUser);
+        } catch (meError) {
+          console.error('Failed to fetch user data:', meError);
+          // Keep isAuthenticated true; user stays null. Pages that
+          // need user data call base44.auth.me() themselves.
+        }
       } else {
         setIsAuthenticated(false);
       }
