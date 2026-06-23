@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Building2, Users, Activity, Clock, Plus, ChevronDown, ChevronRight, AlertCircle } from 'lucide-react';
+import { Building2, Users, Activity, Clock, Plus, ChevronDown, ChevronRight, AlertCircle, Pencil, Trash2, Power } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -23,6 +23,10 @@ export default function BillingDashboard() {
   const [showAddCompany, setShowAddCompany] = useState(false);
   const [newCompany, setNewCompany] = useState({ name: '', domain: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
   const [saving, setSaving] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(null);
+  const [editCompanyForm, setEditCompanyForm] = useState({ name: '', domain: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
+  const [savingCompany, setSavingCompany] = useState(false);
+  const [deletingCompanyId, setDeletingCompanyId] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -81,6 +85,50 @@ export default function BillingDashboard() {
     setNewCompany({ name: '', domain: '', billing_contact_email: '', plan: 'trial', seat_limit: '' });
     setShowAddCompany(false);
     setSaving(false);
+  };
+
+  const openEditCompany = (company) => {
+    setEditingCompany(company);
+    setEditCompanyForm({
+      name: company.name || '',
+      domain: company.domain || '',
+      billing_contact_email: company.billing_contact_email || '',
+      plan: company.plan || 'trial',
+      seat_limit: company.seat_limit ? String(company.seat_limit) : '',
+    });
+  };
+
+  const handleSaveCompany = async () => {
+    setSavingCompany(true);
+    const updates = {
+      name: editCompanyForm.name,
+      domain: editCompanyForm.domain,
+      billing_contact_email: editCompanyForm.billing_contact_email,
+      plan: editCompanyForm.plan,
+      seat_limit: editCompanyForm.seat_limit ? Number(editCompanyForm.seat_limit) : 10,
+    };
+    await base44.entities.Company.update(editingCompany.id, updates);
+    setCompanies(prev => prev.map(c => c.id === editingCompany.id ? { ...c, ...updates } : c));
+    setEditingCompany(null);
+    setSavingCompany(false);
+  };
+
+  const handleToggleCompanyActive = async (company) => {
+    const newActive = company.is_active === false;
+    await base44.entities.Company.update(company.id, { is_active: newActive });
+    setCompanies(prev => prev.map(c => c.id === company.id ? { ...c, is_active: newActive } : c));
+  };
+
+  const handleDeleteCompany = async (company) => {
+    if (!confirm(`Delete "${company.name}"? Users will remain but become unassigned. This cannot be undone.`)) return;
+    setDeletingCompanyId(company.id);
+    try {
+      await base44.entities.Company.delete(company.id);
+      setCompanies(prev => prev.filter(c => c.id !== company.id));
+    } catch (e) {
+      alert('Failed to delete company: ' + (e?.message || 'unknown error'));
+    }
+    setDeletingCompanyId(null);
   };
 
   const filtered = companies.filter(c =>
@@ -210,6 +258,19 @@ export default function BillingDashboard() {
 
                 {isExpanded && (
                   <div className="border-t border-border/50 px-5 py-4">
+                    {user?.role === 'admin' && (
+                      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/30">
+                        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => openEditCompany(company)}>
+                          <Pencil className="w-3 h-3" /> Edit
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => handleToggleCompanyActive(company)}>
+                          <Power className="w-3 h-3" /> {company.is_active === false ? 'Activate' : 'Suspend'}
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteCompany(company)} disabled={deletingCompanyId === company.id}>
+                          <Trash2 className="w-3 h-3" /> Delete
+                        </Button>
+                      </div>
+                    )}
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Agents</p>
                     {companyUsers.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No agents assigned yet.</p>
@@ -296,6 +357,49 @@ export default function BillingDashboard() {
               {saving ? 'Creating...' : 'Create Company'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Company Dialog */}
+      <Dialog open={!!editingCompany} onOpenChange={(o) => !o && setEditingCompany(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Company</DialogTitle>
+          </DialogHeader>
+          {editingCompany && (
+            <div className="space-y-4 mt-2">
+              <div className="space-y-1.5">
+                <Label>Company Name *</Label>
+                <Input value={editCompanyForm.name} onChange={e => setEditCompanyForm(p => ({ ...p, name: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Domain</Label>
+                <Input value={editCompanyForm.domain} onChange={e => setEditCompanyForm(p => ({ ...p, domain: e.target.value.toLowerCase().trim() }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Billing Email</Label>
+                <Input value={editCompanyForm.billing_contact_email} onChange={e => setEditCompanyForm(p => ({ ...p, billing_contact_email: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Plan</Label>
+                <Select value={editCompanyForm.plan} onValueChange={v => setEditCompanyForm(p => ({ ...p, plan: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="trial">Trial</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Seat Limit</Label>
+                <Input type="number" value={editCompanyForm.seat_limit} onChange={e => setEditCompanyForm(p => ({ ...p, seat_limit: e.target.value }))} />
+              </div>
+              <Button className="w-full" onClick={handleSaveCompany} disabled={savingCompany || !editCompanyForm.name.trim()}>
+                {savingCompany ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
