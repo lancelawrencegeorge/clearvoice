@@ -411,11 +411,7 @@ export default function Guide() {
     addBullet('ClearVoice app (PWA) — PWA installation is a per-user browser action; no enterprise policy exists to force-install it');
     addBullet('Chrome extension (unpacked) — the current "Load unpacked" Developer Mode approach cannot be force-deployed');
     addSpace();
-    addH3('What Would Enable Full IT Push');
-    addBullet('Publish the extension to the Chrome Web Store (or a private Chrome Enterprise store) — IT can then force-install it via Chrome enterprise policy (ExtensionInstallForcelist)');
-    addBullet('Deploy the audio driver via standard software distribution (Intune / Jamf / SCCM)');
-    addBullet('Pre-configure auto-start URLs and suppression settings via Chrome managed storage policy');
-    addBody('Summary: IT can handle the driver today, but each agent still needs to manually install the app or extension. Publishing to the Chrome Web Store would unlock full silent deployment.', 10);
+    addBody('Summary: IT can handle the driver today, but each agent still needs to manually install the app or extension.', 10);
     addSpace();
 
     addDivider();
@@ -667,14 +663,6 @@ export default function Guide() {
               <ul className="space-y-1 text-muted-foreground">
                 <li>⚠️ <strong>ClearVoice app (PWA)</strong> — PWA installation is a per-user browser action; no enterprise policy exists to force-install it</li>
                 <li>⚠️ <strong>Chrome extension (unpacked)</strong> — the current "Load unpacked" Developer Mode approach cannot be force-deployed</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-medium text-sm mb-2 text-primary">What Would Enable Full IT Push</h3>
-              <ul className="space-y-1 text-muted-foreground">
-                <li>🚀 <strong>Publish the extension to the Chrome Web Store</strong> (or a private Chrome Enterprise store) — IT can then force-install it via Chrome enterprise policy (<code className="bg-secondary px-1 rounded text-xs">ExtensionInstallForcelist</code>)</li>
-                <li>🚀 <strong>Deploy the audio driver</strong> via standard software distribution (Intune / Jamf / SCCM)</li>
-                <li>🚀 <strong>Pre-configure settings</strong> via Chrome managed storage policy</li>
               </ul>
             </div>
             <p className="text-xs text-muted-foreground italic pt-2 border-t border-border">
