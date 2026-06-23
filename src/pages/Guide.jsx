@@ -306,6 +306,24 @@ export default function Guide() {
     addBody('ClearVoice runs as an installable web app. Install it once and it runs in its own window, staying active throughout your calls. All audio is processed locally on your device.');
     addSpace();
     addDivider();
+    addH2('Before You Begin: Super User Setup');
+    addBody('Before agents can use ClearVoice, your company\'s Super User (admin) must register and complete onboarding first. This sets up the company domain and enables user invitations.');
+    addSpace();
+    addH3('Step 1: Super User Registration');
+    addBullet('The Super User receives an invite email from the platform owner');
+    addBullet('They click the link and sign in with their work email');
+    addBullet('On first login, they are guided through onboarding — this includes setting the company email domain (e.g. acme.com)');
+    addBullet('The domain controls data isolation — only users with a matching email domain will see the company\'s data');
+    addSpace();
+    addH3('Step 2: Invite Agents');
+    addBullet('Once onboarding is complete, the Super User goes to the Billing Dashboard');
+    addBullet('They click "Invite Agent" and enter each agent\'s work email');
+    addBullet('Agents receive an invite email and complete their own onboarding (profile + softphone setup)');
+    addBullet('The Super User can also bulk-import agents via CSV from the Import page');
+    addSpace();
+    addBody('Only after the Super User has registered and set the domain can agents be invited.', 10);
+    addSpace();
+    addDivider();
 
     addH2('Option A: Install the ClearVoice App (Recommended)');
     addBody('The app installs as a standalone window — harder to accidentally close than a browser tab, and your settings persist between sessions.');
@@ -463,6 +481,35 @@ export default function Guide() {
             Download PDF
           </Button>
         </div>
+
+        {/* Before You Begin */}
+        <section className="border border-border rounded-xl p-6 space-y-4 mb-8">
+          <h2 className="text-lg font-semibold">Before You Begin: Super User Setup</h2>
+          <p className="text-sm text-muted-foreground">
+            Before agents can use ClearVoice, your company's Super User (admin) must register and complete onboarding first. This sets up the company domain and enables user invitations.
+          </p>
+          <div className="space-y-4 text-sm">
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 1: Super User Registration</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>The Super User receives an invite email from the platform owner</li>
+                <li>They click the link and sign in with their work email</li>
+                <li>On first login, they are guided through onboarding — this includes setting the company email domain (e.g. <strong>acme.com</strong>)</li>
+                <li>The domain controls data isolation — only users with a matching email domain will see the company's data</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-medium text-sm mb-2">Step 2: Invite Agents</h3>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Once onboarding is complete, the Super User goes to the <strong>Billing Dashboard</strong></li>
+                <li>They click <strong>"Invite Agent"</strong> and enter each agent's work email</li>
+                <li>Agents receive an invite email and complete their own onboarding (profile + softphone setup)</li>
+                <li>The Super User can also bulk-import agents via CSV from the <strong>Import</strong> page</li>
+              </ul>
+            </div>
+            <p className="text-primary text-xs">✅ Only after the Super User has registered and set the domain can agents be invited.</p>
+          </div>
+        </section>
 
         {/* Option A: PWA Install */}
         <section className="border border-primary/30 rounded-xl p-6 space-y-6 mb-8 bg-primary/5">
