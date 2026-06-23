@@ -222,7 +222,7 @@ export default function Onboarding() {
                 </div>
                 <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 text-sm text-muted-foreground">
                   <p className="font-medium text-foreground mb-1">📋 What to do next</p>
-                  <p>After setup, download the ClearVoice Chrome extension from your admin and follow the installation guide at <strong>/guide</strong>.</p>
+                  <p>After setup, install the ClearVoice app from the Dashboard (Install button) and set up the virtual audio cable — see the full guide at <strong>/guide</strong>.</p>
                 </div>
               </div>
             )}
@@ -239,7 +239,7 @@ export default function Onboarding() {
                 </p>
                 <div className="bg-secondary/50 rounded-xl p-4 text-sm text-left space-y-2">
                   <p className="font-medium">Quick start checklist:</p>
-                  {['Install the Chrome extension (see /guide)', 'Open your softphone in Chrome', 'Click Start in ClearVoice popup', 'Make a test call and compare quality'].map(item => (
+                  {['Install the ClearVoice app (Install button on Dashboard)', 'Set up the virtual audio cable (see /guide)', 'Set your softphone mic to the virtual cable', 'Click Start in ClearVoice and make a test call'].map(item => (
                     <div key={item} className="flex items-center gap-2 text-muted-foreground">
                       <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span>{item}</span>
