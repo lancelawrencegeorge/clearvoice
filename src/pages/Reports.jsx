@@ -19,18 +19,23 @@ export default function Reports() {
   const [users, setUsers] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [filterCompany, setFilterCompany] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
+    if (!user) return;
+    
+    setLoading(true);
+    setError(null);
+    
     Promise.all([
       base44.entities.Company.list(),
       base44.entities.User.list(),
       base44.entities.SessionLog.list('-session_start', 500),
     ]).then(([c, u, s]) => {
       setCompanies(c);
-      // For managers, only show their own company
       const filteredUsers = user?.role === 'manager'
         ? u.filter(x => x.company_id === user.company_id)
         : u;
@@ -38,8 +43,12 @@ export default function Reports() {
       setSessions(s);
       if (user?.role === 'manager') setFilterCompany(user.company_id || 'all');
       setLoading(false);
+    }).catch(err => {
+      console.error('Reports data load failed:', err);
+      setError(err.message || 'Failed to load data');
+      setLoading(false);
     });
-  }, []);
+  }, [user]);
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -90,9 +99,22 @@ export default function Reports() {
     );
   }
 
+  if (!user) return null;
+  
   if (loading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
+        <h2 className="text-lg font-semibold">Failed to Load Reports</h2>
+        <p className="text-muted-foreground text-sm mt-1">{error}</p>
+        <button onClick={() => navigate(0)} className="text-primary text-sm mt-4 inline-block">Retry</button>
+      </div>
     </div>
   );
 
