@@ -77,27 +77,48 @@ export const AuthProvider = ({ children }) => {
   const checkUserAuth = async () => {
     try {
       setIsLoadingAuth(true);
-      // Use the SDK's own auth check first — it reads the token from its
-      // internal storage (set by the login redirect) regardless of
-      // whether appParams.token was populated at module load time.
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        // Set authenticated FIRST, before calling me(). If me() throws
-        // (e.g. transient network error), we must NOT flip back to
-        // unauthenticated — that creates a sign-in loop because the
-        // token is still valid and the login redirect bounces back.
-        setIsAuthenticated(true);
-        try {
-          const currentUser = await base44.auth.me();
-          setUser(currentUser);
-        } catch (meError) {
-          console.error('Failed to fetch user data:', meError);
-          // Keep isAuthenticated true; user stays null. Pages that
-          // need user data call base44.auth.me() themselves.
-        }
-      } else {
+
+      // The SDK's isAuthenticated() calls me() internally and returns
+      // false for ANY failure (401, 403, 500, network…).  That's too
+      // aggressive: a user with a valid token who hits a transient 403
+      // (e.g. User-entity RLS on a brand-new account with no domain yet)
+      // gets bounced to the landing page, clicks Sign In, gets redirected
+      // back with the same valid token, and loops forever.
+      //
+      // Instead: a token in localStorage means the user went through
+      // login.  Treat them as authenticated and only flip back to
+      // unauthenticated on a hard 401 (invalid/expired token).
+      const storedToken =
+        window.localStorage.getItem('base44_access_token') ||
+        window.localStorage.getItem('token');
+
+      if (!storedToken) {
         setIsAuthenticated(false);
+        setUser(null);
+        setIsLoadingAuth(false);
+        setAuthChecked(true);
+        return;
       }
+
+      // Token exists — optimistically authenticated.
+      setIsAuthenticated(true);
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (meError) {
+        console.error('me() failed after login:', meError);
+        // 401 = token is genuinely invalid/expired → not authenticated.
+        // Anything else (403, 500, network) → keep the user logged in;
+        // pages call base44.auth.me() themselves and can retry.
+        if (meError.status === 401) {
+          setIsAuthenticated(false);
+          setUser(null);
+          window.localStorage.removeItem('base44_access_token');
+          window.localStorage.removeItem('token');
+        }
+        // else: stay authenticated, user stays null for now
+      }
+
       setIsLoadingAuth(false);
       setAuthChecked(true);
     } catch (error) {
