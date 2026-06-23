@@ -10,6 +10,8 @@ import { Upload, Download, AlertCircle, CheckCircle2, XCircle, Users, ChevronRig
 
 const ROLES = ['user', 'manager', 'admin'];
 const ALLOWED_ROLES = ['admin', 'super_user'];
+const ROLE_LABELS = { admin: 'Super User', super_user: 'Company Admin', manager: 'Manager', user: 'User' };
+const roleLabel = (role) => ROLE_LABELS[role] || role;
 
 function parseCSV(text) {
   const lines = text.trim().split('\n').filter(Boolean);
@@ -170,7 +172,7 @@ export default function BulkImport() {
                     </SelectTrigger>
                     <SelectContent>
                       {ROLES.map(r => (
-                        <SelectItem key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</SelectItem>
+                        <SelectItem key={r} value={r}>{roleLabel(r)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -228,7 +230,7 @@ export default function BulkImport() {
                         <tr key={i} className={`border-b border-border/20 last:border-0 ${row._errors.length ? 'bg-destructive/5' : ''}`}>
                           <td className="px-5 py-2.5 font-mono text-xs">{row.email || <span className="text-destructive italic">missing</span>}</td>
                           <td className="px-5 py-2.5">
-                            <Badge variant="outline" className="text-xs capitalize">{row.role || defaultRole}</Badge>
+                            <Badge variant="outline" className="text-xs">{roleLabel(row.role || defaultRole)}</Badge>
                           </td>
                           <td className="px-5 py-2.5 text-muted-foreground text-xs">{row.job_title || '—'}</td>
                           <td className="px-5 py-2.5">
@@ -325,7 +327,7 @@ export default function BulkImport() {
                   { role: 'admin', desc: 'Full access including billing and user management.' },
                 ].map(r => (
                   <div key={r.role}>
-                    <Badge variant="outline" className="mb-1 capitalize">{r.role}</Badge>
+                    <Badge variant="outline" className="mb-1">{roleLabel(r.role)}</Badge>
                     <p className="text-xs text-muted-foreground">{r.desc}</p>
                   </div>
                 ))}

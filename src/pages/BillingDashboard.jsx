@@ -98,7 +98,7 @@ export default function BillingDashboard() {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
           <h2 className="text-lg font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground text-sm mt-1">You need admin or super user access to view billing.</p>
+          <p className="text-muted-foreground text-sm mt-1">You need Super User or Company Admin access to view billing.</p>
           <Link to="/" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
         </div>
       </div>

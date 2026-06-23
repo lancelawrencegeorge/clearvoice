@@ -13,6 +13,8 @@ import { Link } from 'react-router-dom';
 
 const ALLOWED_ROLES = ['admin', 'super_user'];
 const EDITABLE_ROLES = ['user', 'manager', 'super_user'];
+const ROLE_LABELS = { admin: 'Super User', super_user: 'Company Admin', manager: 'Manager', user: 'User' };
+const roleLabel = (role) => ROLE_LABELS[role] || role;
 
 export default function UserManagement() {
   const { user } = useAuth();
@@ -43,7 +45,7 @@ export default function UserManagement() {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
           <h2 className="text-lg font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground text-sm mt-1">You need admin or super user access to manage users.</p>
+          <p className="text-muted-foreground text-sm mt-1">You need Super User or Company Admin access to manage users.</p>
           <Link to="/" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
         </div>
       </div>
@@ -169,8 +171,8 @@ export default function UserManagement() {
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="user">User</SelectItem>
               <SelectItem value="manager">Manager</SelectItem>
-              <SelectItem value="super_user">Super User</SelectItem>
-              {isAdmin && <SelectItem value="admin">Admin</SelectItem>}
+              <SelectItem value="super_user">Company Admin</SelectItem>
+                                  {isAdmin && <SelectItem value="admin">Super User</SelectItem>}
             </SelectContent>
           </Select>
         </div>
@@ -198,7 +200,7 @@ export default function UserManagement() {
                     </td>
                     <td className="px-5 py-3 text-muted-foreground text-xs">{companyName(u.company_id)}</td>
                     <td className="px-5 py-3">
-                      <Badge variant="outline" className={`text-xs capitalize ${roleColors[u.role] || roleColors.user}`}>{u.role}</Badge>
+                      <Badge variant="outline" className={`text-xs ${roleColors[u.role] || roleColors.user}`}>{roleLabel(u.role)}</Badge>
                     </td>
                     <td className="px-5 py-3">
                       {u.is_active === false ? (
@@ -257,7 +259,7 @@ export default function UserManagement() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {EDITABLE_ROLES.map(r => (
-                      <SelectItem key={r} value={r} className="capitalize">{r.replace('_', ' ')}</SelectItem>
+                      <SelectItem key={r} value={r}>{roleLabel(r)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
