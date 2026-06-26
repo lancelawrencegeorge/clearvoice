@@ -4,16 +4,36 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Loader2, Activity, Building2 } from "lucide-react";
+import { Users, Clock, Loader2, Activity, Building2, AlertCircle } from "lucide-react";
+import { getCurrentAgent } from "@/lib/customAuth";
 
 export default function Admin() {
+  const [currentAgent, setCurrentAgent] = useState(null);
+  const [authChecking, setAuthChecking] = useState(true);
   const [sessions, setSessions] = useState([]);
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    loadData();
+    const cached = getCurrentAgent();
+    if (!cached) {
+      setAuthChecking(false);
+      return;
+    }
+    setCurrentAgent(cached);
+    base44.entities.Agent.get(cached.id)
+      .then((fresh) => setCurrentAgent(fresh))
+      .catch(() => {})
+      .finally(() => setAuthChecking(false));
   }, []);
+
+  useEffect(() => {
+    if (currentAgent?.role === "admin" && !dataLoaded) {
+      setDataLoaded(true);
+      loadData();
+    }
+  }, [currentAgent, dataLoaded]);
 
   const loadData = async () => {
     try {
@@ -60,6 +80,27 @@ export default function Admin() {
     });
     return Object.values(map).sort((a, b) => b.total - a.total);
   };
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!currentAgent || currentAgent.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
+          <h2 className="text-lg font-semibold">Access Denied</h2>
+          <p className="text-muted-foreground text-sm mt-1">This area is restricted to the platform owner.</p>
+          <Link to="/dashboard" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

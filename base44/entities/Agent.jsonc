@@ -31,10 +31,11 @@
       "type": "string",
       "enum": [
         "agent",
-        "super_user"
+        "super_user",
+        "admin"
       ],
       "default": "agent",
-      "description": "Account role - super_user gets admin navigation"
+      "description": "Account role - admin is platform owner, super_user manages their tenant"
     },
     "last_login": {
       "type": "string",

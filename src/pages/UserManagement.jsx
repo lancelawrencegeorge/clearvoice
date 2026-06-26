@@ -162,7 +162,7 @@ export default function UserManagement() {
           <div>
             <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← Dashboard</Link>
             <h1 className="text-2xl font-bold mt-3">User Management</h1>
-            <p className="text-muted-foreground text-sm mt-1">Manage all agents across tenants</p>
+            <p className="text-muted-foreground text-sm mt-1">Manage agents in your tenant</p>
           </div>
         </div>
 

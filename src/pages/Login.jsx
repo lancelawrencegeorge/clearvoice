@@ -31,7 +31,7 @@ export default function Login() {
       if (agents.length > 0) {
         const agent = agents[0];
         if (agent.status === "Suspended") {
-          setError("This account has been suspended. Contact your administrator.");
+          setError("This account has been suspended. Contact your super user.");
           setLoading(false);
           return;
         }

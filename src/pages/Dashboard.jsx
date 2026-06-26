@@ -89,20 +89,26 @@ export default function Dashboard() {
             <span className="font-bold text-lg">ClearVoice</span>
           </div>
           <div className="flex items-center gap-4">
-            {agent.role === "super_user" && (
+            {(agent.role === "super_user" || agent.role === "admin") && (
               <nav className="flex items-center gap-1">
-                <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                  <ShieldCheck className="w-4 h-4" />
-                  Admin
-                </Link>
-                <Link to="/reports" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                  <BarChart3 className="w-4 h-4" />
-                  Reports
-                </Link>
-                <Link to="/users" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                  <Users className="w-4 h-4" />
-                  Users
-                </Link>
+                {agent.role === "admin" && (
+                  <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                    <ShieldCheck className="w-4 h-4" />
+                    Admin
+                  </Link>
+                )}
+                {agent.role === "super_user" && (
+                  <>
+                    <Link to="/reports" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                      <BarChart3 className="w-4 h-4" />
+                      Reports
+                    </Link>
+                    <Link to="/users" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                      <Users className="w-4 h-4" />
+                      Users
+                    </Link>
+                  </>
+                )}
               </nav>
             )}
             <Button variant="outline" onClick={handleSignOut} disabled={signingOut}>
