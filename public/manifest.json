@@ -1,24 +1,37 @@
 {
   "name": "ClearVoice – Noise Suppression",
   "short_name": "ClearVoice",
-  "description": "Real-time noise suppression for crystal-clear calls",
+  "description": "Zero-latency noise suppression",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#0c0f14",
-  "theme_color": "#0c0f14",
+  "orientation": "portrait",
+  "background_color": "#0f0f12",
+  "theme_color": "#6366f1",
   "icons": [
     {
-      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png"
+      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png",
+      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
