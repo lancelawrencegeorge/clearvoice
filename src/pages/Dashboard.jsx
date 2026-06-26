@@ -86,7 +86,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             {agent.role === "super_user" && (
-              <nav className="hidden md:flex items-center gap-1">
+              <nav className="flex items-center gap-1">
                 <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
                   <ShieldCheck className="w-4 h-4" />
                   Admin
