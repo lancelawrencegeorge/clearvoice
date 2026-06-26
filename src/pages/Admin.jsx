@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AudioLines, Users, Clock, Loader2, Activity } from "lucide-react";
+import { Users, Clock, Loader2, Activity } from "lucide-react";
 
 export default function Admin() {
   const [sessions, setSessions] = useState([]);
@@ -48,9 +48,11 @@ export default function Admin() {
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-              <AudioLines className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img
+              src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png"
+              alt="ClearVoice"
+              className="w-9 h-9 rounded-lg object-cover"
+            />
             <span className="font-bold text-lg">ClearVoice Admin</span>
           </div>
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">

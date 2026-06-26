@@ -1,29 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useAuth } from '@/lib/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Search, Users, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
-import { Link, useNavigate } from 'react-router-dom';
-
-const ALLOWED_ROLES = ['admin', 'super_user', 'manager'];
+import { formatDistanceToNow } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { getCurrentAgent } from '@/lib/customAuth';
 
 export default function Reports() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  const [companies, setCompanies] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
-  const [filterCompany, setFilterCompany] = useState('all');
+  const [filterTenant, setFilterTenant] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const currentAgent = getCurrentAgent();
 
   const loadData = () => {
     setLoading(true);
@@ -33,19 +28,13 @@ export default function Reports() {
     );
     Promise.race([
       Promise.all([
-        base44.entities.Company.list(),
-        base44.entities.User.list(),
-        base44.entities.SessionLog.list('-session_start', 500),
+        base44.entities.Agent.list('-created_date', 500),
+        base44.entities.Session.list('-login_at', 500),
       ]),
       timeout,
-    ]).then(([c, u, s]) => {
-      setCompanies(c);
-      const filteredUsers = user?.role === 'manager'
-        ? u.filter(x => x.company_id === user.company_id)
-        : u;
-      setUsers(filteredUsers);
+    ]).then(([a, s]) => {
+      setAgents(a);
       setSessions(s);
-      if (user?.role === 'manager') setFilterCompany(user.company_id || 'all');
       setLoading(false);
     }).catch(err => {
       console.error('Reports data load failed:', err);
@@ -55,64 +44,45 @@ export default function Reports() {
   };
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
     loadData();
-  }, [user]);
+  }, []);
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const agentUsers = users.filter(u => u.role === 'user');
+  const tenants = [...new Set(agents.map(a => a.tenant_domain).filter(Boolean))];
 
-  const enriched = agentUsers.map(u => {
-    const userSessions = sessions.filter(s => s.user_id === u.id);
-    const lastSession = userSessions.sort((a, b) => new Date(b.session_start) - new Date(a.session_start))[0];
-    const sessionsThisMonth = userSessions.filter(s => s.session_start && new Date(s.session_start) > thirtyDaysAgo).length;
+  const enriched = agents.map(a => {
+    const userSessions = sessions.filter(s => s.agent_id === a.id);
+    const lastSession = userSessions.sort((x, y) => new Date(y.login_at) - new Date(x.login_at))[0];
+    const sessionsThisMonth = userSessions.filter(s => s.login_at && new Date(s.login_at) > thirtyDaysAgo).length;
     const minutesThisMonth = userSessions
-      .filter(s => s.session_start && new Date(s.session_start) > thirtyDaysAgo)
+      .filter(s => s.login_at && new Date(s.login_at) > thirtyDaysAgo)
       .reduce((sum, s) => sum + (s.duration_minutes || 0), 0);
-    const isActiveRecently = u.last_active_date && new Date(u.last_active_date) > sevenDaysAgo;
-    const company = companies.find(c => c.id === u.company_id);
-    return { ...u, lastSession, sessionsThisMonth, minutesThisMonth: Math.round(minutesThisMonth), isActiveRecently, company };
+    const lastActive = a.last_login || lastSession?.login_at;
+    const isActiveRecently = lastActive && new Date(lastActive) > sevenDaysAgo;
+    return { ...a, lastSession, sessionsThisMonth, minutesThisMonth: Math.round(minutesThisMonth), lastActive, isActiveRecently };
   });
 
-  const filtered = enriched.filter(u => {
+  const filtered = enriched.filter(a => {
     const matchSearch = search === '' ||
-      (u.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.email || '').toLowerCase().includes(search.toLowerCase());
-    const matchCompany = filterCompany === 'all' || u.company_id === filterCompany;
+      (a.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (a.email || '').toLowerCase().includes(search.toLowerCase());
+    const matchTenant = filterTenant === 'all' || a.tenant_domain === filterTenant;
     const matchStatus = filterStatus === 'all' ||
-      (filterStatus === 'active' && u.isActiveRecently) ||
-      (filterStatus === 'inactive' && !u.isActiveRecently) ||
-      (filterStatus === 'never' && !u.last_active_date);
-    return matchSearch && matchCompany && matchStatus;
+      (filterStatus === 'active' && a.isActiveRecently) ||
+      (filterStatus === 'inactive' && !a.isActiveRecently) ||
+      (filterStatus === 'never' && !a.lastActive);
+    return matchSearch && matchTenant && matchStatus;
   });
 
   const stats = {
-    total: agentUsers.length,
-    activeWeek: agentUsers.filter(u => u.last_active_date && new Date(u.last_active_date) > sevenDaysAgo).length,
-    neverActive: agentUsers.filter(u => !u.last_active_date).length,
-    inactive: agentUsers.filter(u => u.last_active_date && new Date(u.last_active_date) <= sevenDaysAgo).length,
+    total: agents.length,
+    activeWeek: enriched.filter(a => a.isActiveRecently).length,
+    neverActive: enriched.filter(a => !a.lastActive).length,
+    inactive: enriched.filter(a => a.lastActive && !a.isActiveRecently).length,
   };
 
-  if (user && !ALLOWED_ROLES.includes(user.role)) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
-          <h2 className="text-lg font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground text-sm mt-1">You don't have permission to view reports.</p>
-          <Link to="/" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) return null;
-  
   if (loading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
@@ -133,14 +103,12 @@ export default function Reports() {
   return (
     <div className="min-h-screen bg-background p-6 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Dashboard</Link>
+          <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← Dashboard</Link>
           <h1 className="text-2xl font-bold mt-3">Agent Usage Report</h1>
           <p className="text-muted-foreground text-sm mt-1">See which agents are using ClearVoice and when they were last active.</p>
         </div>
 
-        {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Agents', value: stats.total, icon: Users, color: '' },
@@ -162,7 +130,6 @@ export default function Reports() {
           ))}
         </div>
 
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-5">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -173,19 +140,17 @@ export default function Reports() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          {user?.role !== 'manager' && (
-            <Select value={filterCompany} onValueChange={setFilterCompany}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="All companies" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Companies</SelectItem>
-                {companies.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+          <Select value={filterTenant} onValueChange={setFilterTenant}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="All tenants" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Tenants</SelectItem>
+              {tenants.map(t => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All statuses" />
@@ -199,14 +164,13 @@ export default function Reports() {
           </Select>
         </div>
 
-        {/* Table */}
         <Card className="bg-card/80 border-border/50 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border/50 text-muted-foreground text-xs uppercase tracking-wider">
                   <th className="text-left px-5 py-3 font-medium">Agent</th>
-                  {user?.role !== 'manager' && <th className="text-left px-5 py-3 font-medium">Company</th>}
+                  <th className="text-left px-5 py-3 font-medium">Tenant</th>
                   <th className="text-left px-5 py-3 font-medium">Status</th>
                   <th className="text-left px-5 py-3 font-medium">Last Active</th>
                   <th className="text-right px-5 py-3 font-medium">Sessions (30d)</th>
@@ -222,37 +186,34 @@ export default function Reports() {
                     </td>
                   </tr>
                 ) : (
-                  filtered.map(u => (
-                    <tr key={u.id} className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors">
+                  filtered.map(a => (
+                    <tr key={a.id} className="border-b border-border/30 last:border-0 hover:bg-secondary/20 transition-colors">
                       <td className="px-5 py-3.5">
-                        <p className="font-medium">{u.full_name || '—'}</p>
-                        <p className="text-xs text-muted-foreground">{u.email}</p>
-                        {u.job_title && <p className="text-xs text-muted-foreground/60">{u.job_title}</p>}
+                        <p className="font-medium">{a.full_name || '—'}</p>
+                        <p className="text-xs text-muted-foreground">{a.email}</p>
                       </td>
-                      {user?.role !== 'manager' && (
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Building2 className="w-3.5 h-3.5 shrink-0" />
-                            <span className="text-sm">{u.company?.name || <span className="italic opacity-50">Unassigned</span>}</span>
-                          </div>
-                        </td>
-                      )}
                       <td className="px-5 py-3.5">
-                        {!u.last_active_date ? (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <Building2 className="w-3.5 h-3.5 shrink-0" />
+                          <span className="text-sm">{a.tenant_domain || '—'}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {!a.lastActive ? (
                           <Badge variant="outline" className="text-destructive border-destructive/30 bg-destructive/5 text-xs">Never Used</Badge>
-                        ) : u.isActiveRecently ? (
+                        ) : a.isActiveRecently ? (
                           <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 text-xs">● Active</Badge>
                         ) : (
                           <Badge variant="outline" className="text-yellow-400 border-yellow-400/30 bg-yellow-400/5 text-xs">Inactive</Badge>
                         )}
                       </td>
                       <td className="px-5 py-3.5 text-muted-foreground text-sm">
-                        {u.last_active_date
-                          ? formatDistanceToNow(new Date(u.last_active_date), { addSuffix: true })
+                        {a.lastActive
+                          ? formatDistanceToNow(new Date(a.lastActive), { addSuffix: true })
                           : <span className="italic opacity-50">—</span>}
                       </td>
-                      <td className="px-5 py-3.5 text-right font-medium">{u.sessionsThisMonth}</td>
-                      <td className="px-5 py-3.5 text-right text-muted-foreground">{u.minutesThisMonth}m</td>
+                      <td className="px-5 py-3.5 text-right font-medium">{a.sessionsThisMonth}</td>
+                      <td className="px-5 py-3.5 text-right text-muted-foreground">{a.minutesThisMonth}m</td>
                     </tr>
                   ))
                 )}
