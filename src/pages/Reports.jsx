@@ -33,7 +33,10 @@ export default function Reports() {
       ]),
       timeout,
     ]).then(([a, s]) => {
-      setAgents(a);
+      const scoped = currentAgent?.tenant_domain
+        ? a.filter(x => x.tenant_domain === currentAgent.tenant_domain)
+        : a;
+      setAgents(scoped);
       setSessions(s);
       setLoading(false);
     }).catch(err => {
@@ -140,17 +143,6 @@ export default function Reports() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <Select value={filterTenant} onValueChange={setFilterTenant}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="All tenants" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tenants</SelectItem>
-              {tenants.map(t => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All statuses" />
