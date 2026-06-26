@@ -96,7 +96,7 @@ export default function Login() {
           <img
             src="https://media.base44.com/images/public/69dfcacd77821fcbc01329c8/734894b05_icon-128.png"
             alt="ClearVoice"
-            className="w-24 h-24 object-contain mx-auto mb-4"
+            className="w-24 h-24 object-cover rounded-2xl mx-auto mb-4"
           />
           <h1 className="text-3xl font-bold tracking-tight">ClearVoice</h1>
           <p className="text-muted-foreground mt-2">Zero-latency noise suppression</p>
