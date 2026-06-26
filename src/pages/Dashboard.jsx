@@ -1,321 +1,177 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Mic, Headphones, Volume2, ShieldCheck } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/lib/AuthContext';
-import { LogOut } from 'lucide-react';
-import { useAudioEngine } from '@/lib/useAudioEngine';
-import StatusIndicator from '@/components/audio/StatusIndicator';
-import ChannelCard from '@/components/audio/ChannelCard';
-import ControlBar from '@/components/audio/ControlBar';
-import SessionInfo from '@/components/audio/SessionInfo';
-import AudioVisualizer from '@/components/audio/AudioVisualizer';
-import TestPanel from '@/components/audio/TestPanel';
-import TrialBanner from '@/components/TrialBanner';
-import InstallPrompt from '@/components/InstallPrompt';
-import { usePWA, isStandalone } from '@/lib/usePWA';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2 } from "lucide-react";
+import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const [agent, setAgent] = useState(null);
+  const [suppressionActive, setSuppressionActive] = useState(false);
+  const [suppressionLevel, setSuppressionLevel] = useState(75);
+  const [loginTime, setLoginTime] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(user => {
-      if (user && !user.onboarding_complete) {
-        navigate('/onboarding');
-      }
-    });
-  }, []);
-
-  const {
-    status,
-    error,
-    audioLevel,
-    frequencyData,
-    suppressionLevel,
-    start,
-    stop,
-    pause,
-    resume,
-    changeSuppressionLevel,
-    changeGain
-  } = useAudioEngine();
-
-  const [sessionStart, setSessionStart] = useState(null);
-  const sessionStartRef = useRef(null);
-  const [agentGain, setAgentGain] = useState(() => {
-    try { const s = localStorage.getItem('clearvoice_agent_gain'); return s ? Number(s) : 1.0; } catch { return 1.0; }
-  });
-  const [customerGain, setCustomerGain] = useState(() => {
-    try { const s = localStorage.getItem('clearvoice_customer_gain'); return s ? Number(s) : 1.0; } catch { return 1.0; }
-  });
-  const [customerSuppression, setCustomerSuppression] = useState(70);
-  const { canInstall, promptInstall } = usePWA();
-
-  const isActive = status === 'active';
-
-  const handleStart = useCallback(async () => {
-    await start();
-    const now = Date.now();
-    setSessionStart(now);
-    sessionStartRef.current = now;
-    // Update last_active_date on the user
-    base44.auth.me().then(user => {
-      if (user) base44.auth.updateMe({ last_active_date: new Date().toISOString() });
-    });
-  }, [start]);
-
-  const handleStop = useCallback(() => {
-    stop();
-    // Log the session
-    if (sessionStartRef.current) {
-      const durationMs = Date.now() - sessionStartRef.current;
-      const durationMinutes = durationMs / 60000;
-      base44.auth.me().then(user => {
-        if (user) {
-          base44.entities.SessionLog.create({
-            user_id: user.id,
-            user_email: user.email,
-            company_id: user.company_id || '',
-            company_name: user.company_name || '',
-            domain: user.domain || (user.email ? user.email.split('@')[1] : ''),
-            session_start: new Date(sessionStartRef.current).toISOString(),
-            session_end: new Date().toISOString(),
-            duration_minutes: Math.round(durationMinutes * 10) / 10,
-            suppression_level: suppressionLevel
-          });
-          base44.auth.updateMe({ last_active_date: new Date().toISOString() });
-        }
-      });
-      sessionStartRef.current = null;
+    const a = getCurrentAgent();
+    if (!a) {
+      navigate("/", { replace: true });
+      return;
     }
-    setSessionStart(null);
-  }, [stop, suppressionLevel]);
+    setAgent(a);
+    setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+  }, [navigate]);
 
-  const handleAgentGainChange = useCallback((v) => {
-    setAgentGain(v);
-    try { localStorage.setItem('clearvoice_agent_gain', String(v)); } catch {}
-    changeGain(v);
-  }, [changeGain]);
-
-  // Auto-stop + log session when tab/window closes (so agents never need to click Stop)
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (sessionStartRef.current) {
-        const durationMs = Date.now() - sessionStartRef.current;
-        const durationMinutes = durationMs / 60000;
-        base44.auth.me().then(user => {
-          if (user) {
-            base44.entities.SessionLog.create({
-              user_id: user.id,
-              user_email: user.email,
-              company_id: user.company_id || '',
-              company_name: user.company_name || '',
-              domain: user.domain || (user.email ? user.email.split('@')[1] : ''),
-              session_start: new Date(sessionStartRef.current).toISOString(),
-              session_end: new Date().toISOString(),
-              duration_minutes: Math.round(durationMinutes * 10) / 10,
-              suppression_level: suppressionLevel
-            });
-          }
+    if (!loginTime) return;
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((new Date() - loginTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [loginTime]);
+
+  const formatDuration = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    const sessionId = getCurrentSessionId();
+    if (sessionId && loginTime) {
+      const now = new Date();
+      const duration = Math.max(1, Math.round((now - loginTime) / 60000));
+      try {
+        await base44.entities.Session.update(sessionId, {
+          logout_at: now.toISOString(),
+          duration_minutes: duration,
         });
-        sessionStartRef.current = null;
+      } catch (err) {
+        console.error("Failed to update session:", err);
       }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [suppressionLevel]);
+    }
+    clearAuth();
+    navigate("/", { replace: true });
+  };
 
-  // Auto-resume on tab focus — only when running as installed PWA (standalone)
-  // Browsers require a user gesture for mic access, so we resume only if the
-  // engine was previously active in this session (user already granted mic).
-  useEffect(() => {
-    if (!isStandalone()) return;
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && status === 'paused') {
-        resume();
-      }
-    };
-    const handleFocus = () => {
-      if (status === 'paused') resume();
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('focus', handleFocus);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [status, resume]);
+  if (!agent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Ambient glow */}
-      {isActive && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 rounded-full blur-[120px] animate-pulse-glow" />
+      <header className="border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+              <AudioLines className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-lg">ClearVoice</span>
+          </div>
+          <Button variant="outline" onClick={handleSignOut} disabled={signingOut}>
+            <Power className="w-4 h-4 mr-2" />
+            {signingOut ? "Signing out..." : "Sign Out"}
+          </Button>
         </div>
-      )}
+      </header>
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-            <div className="flex items-center gap-4">
-              <img src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png" alt="ClearVoice" className="w-12 h-12 rounded-2xl object-cover" />
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">Welcome, {agent.full_name}</h1>
+          <p className="text-muted-foreground mt-1">Your noise suppression session is ready.</p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-primary" />
+                Noise Suppression
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between p-6 rounded-xl bg-secondary/50">
+                <div>
+                  <p className="font-medium text-lg">
+                    Suppression {suppressionActive ? "Active" : "Inactive"}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {suppressionActive
+                      ? "Filtering background noise in real-time"
+                      : "Toggle to start filtering noise"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  {suppressionActive && (
+                    <div className="w-3 h-3 rounded-full bg-primary animate-pulse-glow" />
+                  )}
+                  <Switch
+                    checked={suppressionActive}
+                    onCheckedChange={setSuppressionActive}
+                  />
+                </div>
+              </div>
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium">Suppression Level</label>
+                  <span className="text-sm text-muted-foreground">{suppressionLevel}%</span>
+                </div>
+                <Slider
+                  value={[suppressionLevel]}
+                  onValueChange={(v) => setSuppressionLevel(v[0])}
+                  max={100}
+                  step={5}
+                  disabled={!suppressionActive}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-primary" />
+                Session Info
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                  ClearVoice
-                </h1>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Real-time noise suppression for crystal-clear calls
+                <p className="text-sm text-muted-foreground">Session Duration</p>
+                <p className="text-xl font-mono font-bold">{formatDuration(elapsed)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Login Time</p>
+                <p className="text-sm">{loginTime?.toLocaleTimeString()}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="text-sm flex items-center gap-1.5 truncate">
+                  <Mail className="w-3 h-3 shrink-0" />
+                  {agent.email}
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {user && ['admin', 'super_user', 'manager'].includes(user.role) && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Link to="/reports" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Reports</Link>
-                  <Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Analytics</Link>
-                  {['admin', 'super_user'].includes(user.role) && (
-                    <Link to="/billing" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Billing</Link>
-                  )}
-                  {['admin', 'super_user'].includes(user.role) && (
-                    <Link to="/users" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Users</Link>
-                  )}
-                  {['admin', 'super_user'].includes(user.role) && (
-                    <Link to="/bulk-import" className="text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-secondary">Import</Link>
-                  )}
-                </div>
-              )}
-              <button onClick={() => logout()} className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md hover:bg-secondary" title="Logout">
-                <LogOut className="w-4 h-4" />
-              </button>
-              <StatusIndicator status={status} />
-            </div>
-          </div>
-        </motion.div>
-
-        <TrialBanner user={user} />
-
-        {/* PWA Install Prompt */}
-        <InstallPrompt canInstall={canInstall} onInstall={promptInstall} />
-
-        {/* Error Alert */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
-            >
-              <strong>Error:</strong> {error}
-              <p className="text-xs mt-1 text-destructive/80">
-                Please ensure microphone access is granted in your browser settings.
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Main Visualizer */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 p-6 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              Audio Output
-            </h2>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Local processing only</span>
-            </div>
-          </div>
-          <AudioVisualizer
-            frequencyData={frequencyData}
-            isActive={isActive}
-            height={140}
-          />
-        </motion.div>
-
-        {/* Controls */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="flex justify-center mb-8"
-        >
-          <ControlBar
-            status={status}
-            onStart={handleStart}
-            onStop={handleStop}
-            onPause={pause}
-            onResume={resume}
-          />
-        </motion.div>
-
-        {/* Channel Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
-        >
-          <ChannelCard
-            title="Agent (Outbound)"
-            icon={Mic}
-            isActive={isActive}
-            audioLevel={audioLevel}
-            frequencyData={frequencyData}
-            suppressionLevel={suppressionLevel}
-            onSuppressionChange={changeSuppressionLevel}
-            gain={agentGain}
-            onGainChange={handleAgentGainChange}
-          />
-          <ChannelCard
-            title="Customer (Inbound)"
-            icon={Headphones}
-            isActive={isActive}
-            audioLevel={isActive ? audioLevel * 0.7 : 0}
-            frequencyData={isActive ? frequencyData.slice(0, frequencyData.length / 2) : new Uint8Array(0)}
-            suppressionLevel={customerSuppression}
-            onSuppressionChange={setCustomerSuppression}
-            gain={customerGain}
-            onGainChange={setCustomerGain}
-          />
-        </motion.div>
-
-        {/* Session Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mb-8"
-        >
-          <SessionInfo status={status} startTime={sessionStart} />
-        </motion.div>
-
-        {/* A/B Test Panel */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <TestPanel isEngineActive={isActive} />
-        </motion.div>
-
-        {/* Footer */}
-        <div className="mt-12 text-center text-xs text-muted-foreground/50">
-          <p>All audio processed locally in your browser. No data leaves your device.</p>
+              <div>
+                <p className="text-sm text-muted-foreground">Tenant</p>
+                <p className="text-sm flex items-center gap-1.5">
+                  <Building className="w-3 h-3 shrink-0" />
+                  {agent.tenant_domain || "—"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

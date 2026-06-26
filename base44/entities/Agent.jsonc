@@ -1,0 +1,46 @@
+{
+  "name": "Agent",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Agent's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Agent email (login identity)"
+    },
+    "company": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "tenant_domain": {
+      "type": "string",
+      "description": "Email domain used for tenant isolation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Suspended"
+      ],
+      "default": "Active",
+      "description": "Account status"
+    },
+    "last_login": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last login timestamp"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ],
+  "rls": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  }
+}

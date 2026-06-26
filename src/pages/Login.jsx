@@ -1,125 +1,217 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
-import AuthLayout from "@/components/AuthLayout";
-import MicrosoftIcon from "@/components/MicrosoftIcon";
+import { AudioLines, Mail, Loader2, User, Building, ArrowLeft } from "lucide-react";
+import { getCurrentAgent, setCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [company, setCompany] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState("email");
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    const agent = getCurrentAgent();
+    if (agent) navigate("/dashboard", { replace: true });
+  }, [navigate]);
+
+  const handleContinue = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = "/";
+      const normalizedEmail = email.toLowerCase().trim();
+      const agents = await base44.entities.Agent.filter({ email: normalizedEmail });
+      if (agents.length > 0) {
+        const agent = agents[0];
+        if (agent.status === "Suspended") {
+          setError("This account has been suspended. Contact your administrator.");
+          setLoading(false);
+          return;
+        }
+        await base44.entities.Agent.update(agent.id, {
+          last_login: new Date().toISOString(),
+        });
+        const session = await base44.entities.Session.create({
+          agent_id: agent.id,
+          agent_email: agent.email,
+          agent_name: agent.full_name,
+          tenant_domain: agent.tenant_domain,
+          login_at: new Date().toISOString(),
+          app_version: "1.0.0",
+        });
+        setCurrentAgent({ ...agent, last_login: new Date().toISOString() }, session.id);
+        navigate("/dashboard", { replace: true });
+      } else {
+        setMode("register");
+        setLoading(false);
+      }
     } catch (err) {
-      setError(err.message || "Invalid email or password");
-    } finally {
+      setError(err.message || "Something went wrong. Please try again.");
       setLoading(false);
     }
   };
 
-  const handleMicrosoft = () => {
-    base44.auth.loginWithProvider("microsoft", "/");
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const normalizedEmail = email.toLowerCase().trim();
+      const tenantDomain = getTenantDomain(normalizedEmail);
+      const agent = await base44.entities.Agent.create({
+        full_name: fullName,
+        email: normalizedEmail,
+        company,
+        tenant_domain: tenantDomain,
+        status: "Active",
+        last_login: new Date().toISOString(),
+      });
+      const session = await base44.entities.Session.create({
+        agent_id: agent.id,
+        agent_email: agent.email,
+        agent_name: agent.full_name,
+        tenant_domain: agent.tenant_domain,
+        login_at: new Date().toISOString(),
+        app_version: "1.0.0",
+      });
+      setCurrentAgent(agent, session.id);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthLayout
-      icon={LogIn}
-      title="Welcome back"
-      subtitle="Log in to your account"
-      footer={
-        <>
-          Don't have an account?{" "}
-          <Link to="/register" className="text-primary font-medium hover:underline">
-            Create one
-          </Link>
-        </>
-      }
-    >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleMicrosoft}
-      >
-        <MicrosoftIcon className="w-5 h-5 mr-2" />
-        Continue with Microsoft
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
+            <AudioLines className="w-8 h-8 text-primary-foreground" />
           </div>
+          <h1 className="text-3xl font-bold tracking-tight">ClearVoice</h1>
+          <p className="text-muted-foreground mt-2">Zero-latency noise suppression</p>
         </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-          {loading ? (
+
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
+          {mode === "email" ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Logging in...
+              <h2 className="text-xl font-semibold mb-2">Sign in</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                Enter your email to continue. New users will be prompted to create an account.
+              </p>
+              {error && (
+                <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                  {error}
+                </div>
+              )}
+              <form onSubmit={handleContinue} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      autoFocus
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10 h-12"
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    "Continue"
+                  )}
+                </Button>
+              </form>
             </>
           ) : (
-            "Log in"
+            <>
+              <h2 className="text-xl font-semibold mb-2">Create your account</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                No account found for <span className="text-foreground font-medium">{email}</span>. Let's set you up.
+              </p>
+              {error && (
+                <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                  {error}
+                </div>
+              )}
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      autoFocus
+                      placeholder="Jane Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-10 h-12"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company</Label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="company"
+                      type="text"
+                      placeholder="Acme Inc."
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      className="pl-10 h-12"
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => { setMode("email"); setError(""); }}
+                  className="w-full text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-1"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  Back
+                </button>
+              </form>
+            </>
           )}
-        </Button>
-      </form>
-    </AuthLayout>
+        </div>
+
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          By continuing, you agree to our Terms of Service and Privacy Policy.
+        </p>
+      </div>
+    </div>
   );
 }

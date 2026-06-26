@@ -1,0 +1,50 @@
+{
+  "name": "Session",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "description": "Reference to the Agent"
+    },
+    "agent_email": {
+      "type": "string",
+      "description": "Agent email (denormalized)"
+    },
+    "agent_name": {
+      "type": "string",
+      "description": "Agent name (denormalized)"
+    },
+    "tenant_domain": {
+      "type": "string",
+      "description": "Tenant domain (denormalized)"
+    },
+    "login_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Session login timestamp"
+    },
+    "logout_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Session logout timestamp"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Session duration in minutes"
+    },
+    "app_version": {
+      "type": "string",
+      "description": "App version used during session"
+    }
+  },
+  "required": [
+    "agent_id",
+    "login_at"
+  ],
+  "rls": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  }
+}
