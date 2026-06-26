@@ -94,7 +94,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <img
-            src="https://media.base44.com/images/public/69dfcacd77821fcbc01329c8/734894b05_icon-128.png"
+            src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png"
             alt="ClearVoice"
             className="w-24 h-24 object-cover rounded-2xl mx-auto mb-4"
           />
