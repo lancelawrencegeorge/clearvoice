@@ -5,17 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2 } from "lucide-react";
+import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle } from "lucide-react";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
+import { useAudioEngine } from "@/lib/useAudioEngine";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [agent, setAgent] = useState(null);
-  const [suppressionActive, setSuppressionActive] = useState(false);
-  const [suppressionLevel, setSuppressionLevel] = useState(75);
   const [loginTime, setLoginTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
+  const { status, error, audioLevel, suppressionLevel, start, stop, changeSuppressionLevel } = useAudioEngine();
+  const suppressionActive = status === 'active' || status === 'connecting';
+  const isConnecting = status === 'connecting';
 
   useEffect(() => {
     const a = getCurrentAgent();
@@ -104,7 +106,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between p-6 rounded-xl bg-secondary/50">
                 <div>
                   <p className="font-medium text-lg">
-                    Suppression {suppressionActive ? "Active" : "Inactive"}
+                    Suppression {isConnecting ? "Starting…" : suppressionActive ? "Active" : "Inactive"}
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     {suppressionActive
@@ -118,7 +120,8 @@ export default function Dashboard() {
                   )}
                   <Switch
                     checked={suppressionActive}
-                    onCheckedChange={setSuppressionActive}
+                    disabled={isConnecting}
+                    onCheckedChange={(checked) => checked ? start() : stop()}
                   />
                 </div>
               </div>
@@ -129,12 +132,34 @@ export default function Dashboard() {
                 </div>
                 <Slider
                   value={[suppressionLevel]}
-                  onValueChange={(v) => setSuppressionLevel(v[0])}
+                  onValueChange={(v) => changeSuppressionLevel(v[0])}
                   max={100}
                   step={5}
                   disabled={!suppressionActive}
                 />
               </div>
+
+              {error && (
+                <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {suppressionActive && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium">Live Audio Level</label>
+                    <span className="text-sm text-muted-foreground">{isConnecting ? 'Starting…' : 'Processing'}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-75"
+                      style={{ width: `${Math.min(100, audioLevel * 200)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
