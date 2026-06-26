@@ -15,9 +15,10 @@ const ROLE_LABELS = { super_user: 'Super User', agent: 'Agent' };
 const roleLabel = (role) => ROLE_LABELS[role] || role;
 
 export default function UserManagement() {
-  const currentAgent = getCurrentAgent();
+  const [currentAgent, setCurrentAgent] = useState(null);
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authChecking, setAuthChecking] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [editing, setEditing] = useState(null);
@@ -25,6 +26,19 @@ export default function UserManagement() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const cached = getCurrentAgent();
+    if (!cached) {
+      setAuthChecking(false);
+      return;
+    }
+    setCurrentAgent(cached);
+    base44.entities.Agent.get(cached.id)
+      .then((fresh) => setCurrentAgent(fresh))
+      .catch(() => {})
+      .finally(() => setAuthChecking(false));
+  }, []);
 
   const loadData = () => {
     setLoading(true);
@@ -44,9 +58,22 @@ export default function UserManagement() {
       });
   };
 
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   useEffect(() => {
-    loadData();
-  }, []);
+    if (currentAgent?.role === 'super_user' && !dataLoaded) {
+      setDataLoaded(true);
+      loadData();
+    }
+  }, [currentAgent, dataLoaded]);
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!currentAgent || currentAgent.role !== 'super_user') {
     return (
