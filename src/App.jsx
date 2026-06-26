@@ -6,6 +6,8 @@ import { AuthProvider } from '@/lib/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
+import Reports from './pages/Reports';
+import UserManagement from './pages/UserManagement';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/users" element={<UserManagement />} />
           </Routes>
         </Router>
         <Toaster />

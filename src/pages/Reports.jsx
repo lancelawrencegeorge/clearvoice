@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Search, Users, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -24,16 +25,19 @@ export default function Reports() {
   const [filterCompany, setFilterCompany] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  useEffect(() => {
-    if (!user) return;
-    
+  const loadData = () => {
     setLoading(true);
     setError(null);
-    
-    Promise.all([
-      base44.entities.Company.list(),
-      base44.entities.User.list(),
-      base44.entities.SessionLog.list('-session_start', 500),
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000)
+    );
+    Promise.race([
+      Promise.all([
+        base44.entities.Company.list(),
+        base44.entities.User.list(),
+        base44.entities.SessionLog.list('-session_start', 500),
+      ]),
+      timeout,
     ]).then(([c, u, s]) => {
       setCompanies(c);
       const filteredUsers = user?.role === 'manager'
@@ -48,6 +52,14 @@ export default function Reports() {
       setError(err.message || 'Failed to load data');
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    loadData();
   }, [user]);
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -113,7 +125,7 @@ export default function Reports() {
         <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
         <h2 className="text-lg font-semibold">Failed to Load Reports</h2>
         <p className="text-muted-foreground text-sm mt-1">{error}</p>
-        <button onClick={() => navigate(0)} className="text-primary text-sm mt-4 inline-block">Retry</button>
+        <Button onClick={loadData} className="mt-4">Retry</Button>
       </div>
     </div>
   );

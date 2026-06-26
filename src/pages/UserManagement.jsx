@@ -28,15 +28,33 @@ export default function UserManagement() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    Promise.all([
-      base44.entities.User.list(),
-      base44.entities.Company.list(),
+  const [error, setError] = useState(null);
+
+  const loadData = () => {
+    setLoading(true);
+    setError(null);
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000)
+    );
+    Promise.race([
+      Promise.all([
+        base44.entities.User.list(),
+        base44.entities.Company.list(),
+      ]),
+      timeout,
     ]).then(([u, c]) => {
       setUsers(u);
       setCompanies(c);
       setLoading(false);
+    }).catch(err => {
+      console.error('User data load failed:', err);
+      setError(err.message || 'Failed to load data');
+      setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   if (!user || !ALLOWED_ROLES.includes(user.role)) {
@@ -111,6 +129,19 @@ export default function UserManagement() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
+          <h2 className="text-lg font-semibold">Failed to Load Users</h2>
+          <p className="text-muted-foreground text-sm mt-1">{error}</p>
+          <Button onClick={loadData} className="mt-4">Retry</Button>
+        </div>
       </div>
     );
   }
