@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic } from "lucide-react";
+import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic, ShieldCheck, BarChart3, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
 

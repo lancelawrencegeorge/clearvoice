@@ -27,6 +27,15 @@
       "default": "Active",
       "description": "Account status"
     },
+    "role": {
+      "type": "string",
+      "enum": [
+        "agent",
+        "super_user"
+      ],
+      "default": "agent",
+      "description": "Account role - super_user gets admin navigation"
+    },
     "last_login": {
       "type": "string",
       "format": "date-time",
