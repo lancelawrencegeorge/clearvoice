@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle } from "lucide-react";
+import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic } from "lucide-react";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
 
@@ -59,6 +58,7 @@ export default function Dashboard() {
         console.error("Failed to update session:", err);
       }
     }
+    stop();
     clearAuth();
     navigate("/", { replace: true });
   };
@@ -111,19 +111,22 @@ export default function Dashboard() {
                   <p className="text-sm text-muted-foreground mt-1">
                     {suppressionActive
                       ? "Filtering background noise in real-time"
-                      : "Toggle to start filtering noise"}
+                      : "Click to activate your microphone and start filtering"}
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  {suppressionActive && (
+                {suppressionActive ? (
+                  <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-primary animate-pulse-glow" />
-                  )}
-                  <Switch
-                    checked={suppressionActive}
-                    disabled={isConnecting}
-                    onCheckedChange={(checked) => checked ? start() : stop()}
-                  />
-                </div>
+                    <span className="text-sm font-medium text-primary">
+                      {isConnecting ? "Connecting…" : "Live"}
+                    </span>
+                  </div>
+                ) : (
+                  <Button onClick={start} disabled={isConnecting}>
+                    <Mic className="w-4 h-4 mr-2" />
+                    Start Session
+                  </Button>
+                )}
               </div>
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-3">
