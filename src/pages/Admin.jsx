@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Loader2, Activity } from "lucide-react";
+import { Users, Clock, Loader2, Activity, Building2 } from "lucide-react";
 
 export default function Admin() {
   const [sessions, setSessions] = useState([]);
@@ -41,6 +41,24 @@ export default function Admin() {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${m}m`;
+  };
+
+  const tenantStats = () => {
+    const map = {};
+    agents.forEach((a) => {
+      const t = a.tenant_domain || "(unassigned)";
+      if (!map[t]) map[t] = { tenant: t, total: 0, active: 0, suspended: 0, sessions: 0, minutes: 0 };
+      map[t].total++;
+      if (a.status === "Suspended") map[t].suspended++;
+      else map[t].active++;
+    });
+    sessions.forEach((s) => {
+      const t = s.tenant_domain || "(unassigned)";
+      if (!map[t]) map[t] = { tenant: t, total: 0, active: 0, suspended: 0, sessions: 0, minutes: 0 };
+      map[t].sessions++;
+      map[t].minutes += s.duration_minutes || 0;
+    });
+    return Object.values(map).sort((a, b) => b.total - a.total);
   };
 
   return (
@@ -111,6 +129,46 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Tenant Billing Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tenant</TableHead>
+                      <TableHead className="text-right">Total Seats</TableHead>
+                      <TableHead className="text-right">Active</TableHead>
+                      <TableHead className="text-right">Suspended</TableHead>
+                      <TableHead className="text-right">Sessions</TableHead>
+                      <TableHead className="text-right">Usage</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tenantStats().length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                          No tenants yet.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      tenantStats().map((t) => (
+                        <TableRow key={t.tenant}>
+                          <TableCell className="font-medium">{t.tenant}</TableCell>
+                          <TableCell className="text-right font-bold">{t.total}</TableCell>
+                          <TableCell className="text-right text-primary">{t.active}</TableCell>
+                          <TableCell className="text-right text-destructive">{t.suspended}</TableCell>
+                          <TableCell className="text-right">{t.sessions}</TableCell>
+                          <TableCell className="text-right text-muted-foreground">{formatDuration(t.minutes)}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
