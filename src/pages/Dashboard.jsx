@@ -27,6 +27,10 @@ export default function Dashboard() {
     }
     setAgent(a);
     setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+    // Fetch latest agent data to ensure role is current
+    base44.entities.Agent.get(a.id).then((fresh) => {
+      setAgent(fresh);
+    }).catch(() => {});
   }, [navigate]);
 
   useEffect(() => {
