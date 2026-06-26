@@ -93,9 +93,11 @@ export default function Login() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <AudioLines className="w-8 h-8 text-primary-foreground" />
-          </div>
+          <img
+            src="https://media.base44.com/images/public/69dfcacd77821fcbc01329c8/734894b05_icon-128.png"
+            alt="ClearVoice"
+            className="w-24 h-24 object-contain mx-auto mb-4"
+          />
           <h1 className="text-3xl font-bold tracking-tight">ClearVoice</h1>
           <p className="text-muted-foreground mt-2">Zero-latency noise suppression</p>
         </div>
