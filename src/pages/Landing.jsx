@@ -45,13 +45,17 @@ const STATS = [
   { value: '10+', label: 'Softphone integrations' },
 ];
 
+const TIERS = [
+  { range: '0–50 seats', price: 'R110' },
+  { range: '51–100 seats', price: 'R95' },
+  { range: '101–250 seats', price: 'R85' },
+  { range: '250+ seats', price: 'R75' },
+];
+
 const PLAN = {
-  price: 'R95',
-  per: '/seat/month (ex VAT)',
-  trial: '1 month free · 10 seats included',
   features: [
-    '10 seats free for 1 month',
-    'Then R95/seat/month (ex VAT)',
+    '7-day free trial · no credit card',
+    'Volume pricing from R110/seat/month',
     'Real-time noise suppression',
     'Dual-channel processing',
     'Usage analytics & reports',
@@ -221,14 +225,22 @@ export default function Landing() {
           <FadeIn>
             <div className="relative flex flex-col p-8 rounded-2xl border border-primary/50 bg-primary/5 shadow-[0_0_60px_-10px_hsl(185,80%,55%,0.3)]">
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap">
-                1 Month Free Trial · No Credit Card Required
+                7-Day Free Trial · No Credit Card Required
               </div>
               <div className="text-center mb-8 mt-2">
                 <div className="flex items-end justify-center gap-2 mb-2">
-                  <span className="text-6xl font-extrabold">R95</span>
+                  <span className="text-6xl font-extrabold">R110</span>
                   <span className="text-muted-foreground text-base mb-2">/seat/month (ex VAT)</span>
                 </div>
-                <p className="text-primary font-semibold">Start with 10 seats free for 1 month</p>
+                <p className="text-primary font-semibold">Starting price · volume discounts apply</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-8">
+                {TIERS.map(t => (
+                  <div key={t.range} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card/50">
+                    <span className="text-xs text-muted-foreground">{t.range}</span>
+                    <span className="text-lg font-bold">{t.price}</span>
+                  </div>
+                ))}
               </div>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {PLAN.features.map(f => (
@@ -246,7 +258,7 @@ export default function Landing() {
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-4">
-                Onboarding handled by your company admin · R95/seat/month after trial
+                Onboarding handled by your company admin · volume pricing reduces per-seat cost as you scale
               </p>
             </div>
           </FadeIn>
