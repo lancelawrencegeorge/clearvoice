@@ -397,35 +397,36 @@ export default function Guide() {
     addSpace();
     addH3('What Requires Manual Action Per Agent (Today)');
     addBullet('ClearVoice app (PWA) — PWA installation is a per-user browser action; no enterprise policy exists to force-install it');
-    addBullet('Chrome extension (unpacked) — the current "Load unpacked" Developer Mode approach cannot be force-deployed');
+    addBullet('Desktop app installer — standard .exe install; IT can package and deploy it via SCCM, Intune, or Group Policy');
+    addBullet('PWA installation — per-user browser action; no enterprise policy exists to force-install it yet');
     addSpace();
-    addBody('Summary: IT can handle the driver today, but each agent still needs to manually install the app or extension.', 10);
+    addBody('Summary: IT can handle the driver today, and the desktop installer can be centrally deployed. The browser/PWA version still requires each agent to install manually.', 10);
     addSpace();
 
     addDivider();
     addH2('What to Look Out For');
 
     addH3('Signs the test is working correctly');
-    addBullet('The visualizer in the popup shows audio activity when you speak');
+    addBullet('The audio visualizer shows activity when you speak');
     addBullet('The status indicator shows "Active" (not "Idle")');
-    addBullet('Background noise is clearly reduced in the Clean recording vs Raw');
+    addBullet('Background noise is clearly reduced when you toggle suppression on');
     addBullet('Your voice remains natural and clear — not robotic or muffled');
     addBullet('No noticeable audio delay (latency should be under ~20ms)');
     addSpace();
 
     addH3('Common issues to watch for');
-    addBullet('Extension loads but audio doesn\'t activate — click "Start" before joining the call, or refresh and try again');
-    addBullet('No difference between Raw and Clean — check the suppression slider is above 50%');
+    addBullet('Suppression doesn\'t activate — click "Start Session" before joining the call, or refresh and retry');
+    addBullet('No suppression effect — check the suppression slider is above 50%');
     addBullet('Voice sounds robotic — lower the suppression slider (try 60–70%) for a better balance');
-    addBullet('Popup shows an error — right-click the extension icon → "Inspect popup" and send us the console output');
-    addBullet('Extension not working on your softphone — confirm your softphone URL and let us know');
+    addBullet('Mic access not granted — check your browser\'s microphone permissions and site settings');
+    addBullet('Not working on your softphone — confirm your platform URL and let us know');
     addSpace();
 
     addDivider();
     addH2('Sending Us Feedback');
     addBody('Please share the following after your test:');
     addBullet('Which softphone platform you tested on');
-    addBullet('A/B recordings (if captured)');
+    addBullet('A/B comparison notes (suppression on vs off)');
     addBullet('Any errors or unexpected behaviour');
     addBullet('Your overall audio quality rating (1–5)');
     addSpace(20);
@@ -639,11 +640,12 @@ export default function Guide() {
               <h3 className="font-medium text-sm mb-2 text-amber-500">What Requires Manual Action Per Agent (Today)</h3>
               <ul className="space-y-1 text-muted-foreground">
                 <li>⚠️ <strong>ClearVoice app (PWA)</strong> — PWA installation is a per-user browser action; no enterprise policy exists to force-install it</li>
-                <li>⚠️ <strong>Chrome extension (unpacked)</strong> — the current "Load unpacked" Developer Mode approach cannot be force-deployed</li>
+                <li>⚠️ <strong>Desktop app installer</strong> — standard .exe install; IT can package and deploy it via SCCM, Intune, or Group Policy</li>
+                <li>⚠️ <strong>PWA installation</strong> — PWA is a per-user browser action; no enterprise policy exists to force-install it yet</li>
               </ul>
             </div>
             <p className="text-xs text-muted-foreground italic pt-2 border-t border-border">
-              Summary: IT can handle the driver today, but each agent still needs to manually install the app or extension. Publishing to the Chrome Web Store would unlock full silent deployment.
+              Summary: IT can handle the driver today, and the desktop installer can be centrally deployed. The browser/PWA version still requires each agent to install manually.
             </p>
           </section>
 
@@ -654,7 +656,7 @@ export default function Guide() {
               <ul className="space-y-1 text-muted-foreground">
                 <li>🟢 The visualizer shows audio activity when you speak</li>
                 <li>🟢 Status indicator shows <strong>"Active"</strong></li>
-                <li>🟢 Background noise is clearly reduced in Clean vs Raw recording</li>
+                <li>🟢 Background noise is clearly reduced when you toggle suppression on</li>
                 <li>🟢 Your voice sounds natural — not robotic or muffled</li>
                 <li>🟢 No noticeable audio delay (under ~20ms)</li>
               </ul>
@@ -663,10 +665,10 @@ export default function Guide() {
               <h3 className="font-medium text-sm mb-2 text-destructive">Common issues to watch for</h3>
               <ul className="space-y-1 text-muted-foreground">
                 <li>🔴 <strong>Audio doesn't activate</strong> — click "Start" before joining the call, or refresh and retry</li>
-                <li>🔴 <strong>No difference in recordings</strong> — check suppression slider is above 50%</li>
+                <li>🔴 <strong>No suppression effect</strong> — check the suppression slider is above 50%</li>
                 <li>🔴 <strong>Voice sounds robotic</strong> — lower suppression to 60–70%</li>
-                <li>🔴 <strong>Popup shows an error</strong> — right-click icon → "Inspect popup" and send us the console output</li>
-                <li>🔴 <strong>Not working on your softphone</strong> — let us know your platform URL</li>
+                <li>🔴 <strong>Mic access not granted</strong> — check your browser's microphone permissions and site settings</li>
+                <li>🔴 <strong>Not working on your softphone</strong> — confirm your platform URL and let us know</li>
               </ul>
             </div>
           </section>
@@ -675,7 +677,7 @@ export default function Guide() {
             <h2 className="text-lg font-semibold mb-3">Sending Us Feedback</h2>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
               <li>Which softphone platform you tested on</li>
-              <li>A/B recordings (if captured)</li>
+              <li>A/B comparison notes (suppression on vs off)</li>
               <li>Any errors or unexpected behaviour</li>
               <li>Your overall audio quality rating (1–5)</li>
             </ul>
