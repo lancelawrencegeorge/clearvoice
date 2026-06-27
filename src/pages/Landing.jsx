@@ -106,9 +106,9 @@ export default function Landing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('desktop') === 'true') {
-      navigate('/login', { replace: true });
+      window.location.replace('/login');
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
