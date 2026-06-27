@@ -26,7 +26,17 @@ export default function Dashboard() {
       return;
     }
     setAgent(a);
-    setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+    // Use the session's login_at as the authoritative login time
+    const sessionId = getCurrentSessionId();
+    if (sessionId) {
+      base44.entities.Session.get(sessionId).then((session) => {
+        setLoginTime(new Date(session.login_at));
+      }).catch(() => {
+        setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+      });
+    } else {
+      setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+    }
     // Fetch latest agent data to ensure role is current
     base44.entities.Agent.get(a.id).then(async (fresh) => {
       setAgent(fresh);
