@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Power, Loader2, FileText, Download, FileCheck, Monitor, ListChecks, Wrench, Trash2, ArrowLeft, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Power, Loader2, FileText, Download, FileCheck, Monitor, ListChecks, Wrench, Trash2, ArrowLeft, ExternalLink, CheckCircle2, Headphones, ArrowRight, Mic, AudioLines, User } from "lucide-react";
 import { getCurrentAgent, clearAuth } from "@/lib/customAuth";
 
 const PDF_URL = "https://base44.app/api/apps/69dfcacd77821fcbc01329c8/files/mp/public/69dfcacd77821fcbc01329c8/fa779b224_ClearVoice_IT_Deployment_Guide.pdf";
@@ -257,6 +257,88 @@ export default function ITSupport() {
                   <li>Check the <strong>Playback</strong> tab for <strong>CABLE Input</strong>.</li>
                   <li>Speak into the mic — the ClearVoice level meter should respond, and OmniVoice should receive clean audio.</li>
                 </ol>
+              </AccordionContent>
+            </AccordionItem>
+          </Card>
+
+          {/* Audio Setup for Headset Users */}
+          <Card>
+            <AccordionItem value="headset" className="border-b-0 px-4">
+              <AccordionTrigger className="text-base font-semibold">
+                <span className="flex items-center gap-2">
+                  <Headphones className="w-5 h-5 text-primary" />
+                  Audio Setup for Headset Users
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-5">
+                  <div>
+                    <p className="font-medium mb-2 text-primary">How the Audio Chain Works</p>
+                    <p className="text-sm text-muted-foreground">
+                      Your physical microphone captures your voice → ClearVoice applies real-time noise suppression → the cleaned audio is sent to <strong>CABLE Output</strong> (a virtual microphone) → OmniVoice picks up that virtual mic → the customer hears clean, noise-free audio.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-medium mb-3 text-primary">Audio Flow Diagram</p>
+                    <div className="flex flex-wrap items-center gap-2 p-4 rounded-xl bg-secondary/50">
+                      <div className="flex flex-col items-center gap-1.5 min-w-[90px]">
+                        <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                          <Mic className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-xs text-center font-medium">Physical Headset Mic</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex flex-col items-center gap-1.5 min-w-[90px]">
+                        <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                          <AudioLines className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-xs text-center font-medium">ClearVoice</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex flex-col items-center gap-1.5 min-w-[90px]">
+                        <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                          <FileCheck className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-xs text-center font-medium">CABLE Output</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex flex-col items-center gap-1.5 min-w-[90px]">
+                        <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                          <Headphones className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-xs text-center font-medium">OmniVoice</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex flex-col items-center gap-1.5 min-w-[90px]">
+                        <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-xs text-center font-medium">Customer</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="font-medium mb-2 text-primary">OmniVoice Settings for Headset Users</p>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Microphone:</strong> Set to <strong>CABLE Output (VB-Audio Virtual Cable)</strong> — this receives the denoised audio from ClearVoice.</span></li>
+                      <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Speaker / Headphones:</strong> Set to your headset (e.g. HONOR CHOICE, Jabra, Plantronics, or any USB/Bluetooth headset).</span></li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-medium mb-2 text-primary">Key Point</p>
+                    <p className="text-sm text-muted-foreground">
+                      Headphones are <strong>output only</strong> — they carry the customer's voice to your ears and do <strong>not</strong> interfere with VB-Cable at all. VB-Cable only handles the microphone input path (your voice → ClearVoice → OmniVoice).
+                    </p>
+                  </div>
+
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span>Agents using headsets get the best experience — clean mic input through VB-Cable while hearing the customer clearly through their headset.</span>
+                  </div>
+                </div>
               </AccordionContent>
             </AccordionItem>
           </Card>
