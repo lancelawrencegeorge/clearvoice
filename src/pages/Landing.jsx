@@ -125,7 +125,7 @@ export default function Landing() {
             <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
           </nav>
           <div className="flex items-center gap-3">
-            <Button size="sm" onClick={() => base44.auth.redirectToLogin(window.location.href)}>
+            <Button size="sm" onClick={() => navigate('/login')}>
               Sign In
             </Button>
           </div>
@@ -156,7 +156,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="gap-2 px-8 text-base"
-                onClick={() => base44.auth.redirectToLogin(window.location.href)}
+                onClick={() => navigate('/login')}
               >
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
@@ -262,7 +262,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="w-full text-base gap-2"
-                onClick={() => base44.auth.redirectToLogin(window.location.href)}
+                onClick={() => navigate('/login')}
               >
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
@@ -286,7 +286,7 @@ export default function Landing() {
             <Button
               size="lg"
               className="gap-2 px-10 text-base"
-              onClick={() => base44.auth.redirectToLogin(window.location.href)}
+              onClick={() => navigate('/login')}
             >
               Request a Demo <ChevronRight className="w-4 h-4" />
             </Button>
@@ -294,7 +294,7 @@ export default function Landing() {
               size="lg"
               variant="outline"
               className="gap-2 px-10 text-base"
-              onClick={() => base44.auth.redirectToLogin(window.location.href)}
+              onClick={() => navigate('/login')}
             >
               Sign In
             </Button>
