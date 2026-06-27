@@ -97,12 +97,6 @@ function GridBg() {
 }
 
 export default function Landing() {
-  const [authed, setAuthed] = useState(false);
-
-  useEffect(() => {
-    base44.auth.isAuthenticated().then(setAuthed);
-  }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* NAV */}
@@ -118,15 +112,9 @@ export default function Landing() {
             <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
           </nav>
           <div className="flex items-center gap-3">
-            {authed ? (
-              <Link to="/dashboard">
-                <Button size="sm" className="gap-1.5">Dashboard <ChevronRight className="w-3.5 h-3.5" /></Button>
-              </Link>
-            ) : (
-              <Button size="sm" onClick={() => base44.auth.redirectToLogin(window.location.href)}>
-                Sign In
-              </Button>
-            )}
+            <Button size="sm" onClick={() => base44.auth.redirectToLogin(window.location.href)}>
+              Sign In
+            </Button>
           </div>
         </div>
       </header>
@@ -155,9 +143,9 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="gap-2 px-8 text-base"
-                onClick={() => authed ? window.location.href = '/' : base44.auth.redirectToLogin(window.location.href)}
+                onClick={() => base44.auth.redirectToLogin(window.location.href)}
               >
-                {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
+                Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
               <Link to="/guide">
                 <Button size="lg" variant="outline" className="gap-2 px-8 text-base">
@@ -253,9 +241,9 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="w-full text-base gap-2"
-                onClick={() => authed ? window.location.href = '/' : base44.auth.redirectToLogin(window.location.href)}
+                onClick={() => base44.auth.redirectToLogin(window.location.href)}
               >
-                {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
+                Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-4">
                 Onboarding handled by your company admin · R95/seat/month after trial
@@ -277,9 +265,9 @@ export default function Landing() {
             <Button
               size="lg"
               className="gap-2 px-10 text-base"
-              onClick={() => authed ? window.location.href = '/' : base44.auth.redirectToLogin(window.location.href)}
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
             >
-              {authed ? 'Go to Dashboard' : 'Request a Demo'} <ChevronRight className="w-4 h-4" />
+              Request a Demo <ChevronRight className="w-4 h-4" />
             </Button>
             <Button
               size="lg"
