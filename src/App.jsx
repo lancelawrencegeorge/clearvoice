@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Reports from './pages/Reports';
 import UserManagement from './pages/UserManagement';
+import ITSupport from './pages/ITSupport';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/it-support" element={<ITSupport />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
