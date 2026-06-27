@@ -10,6 +10,8 @@ import Admin from './pages/Admin';
 import Reports from './pages/Reports';
 import UserManagement from './pages/UserManagement';
 import ITSupport from './pages/ITSupport';
+import Onboarding from './pages/Onboarding';
+import Guide from './pages/Guide';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/it-support" element={<ITSupport />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/guide" element={<Guide />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

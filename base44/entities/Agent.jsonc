@@ -37,6 +37,11 @@
       "default": "agent",
       "description": "Account role - admin is platform owner, super_user manages their tenant"
     },
+    "onboarding_complete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the super user has completed company onboarding"
+    },
     "last_login": {
       "type": "string",
       "format": "date-time",

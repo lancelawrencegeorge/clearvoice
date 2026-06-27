@@ -28,8 +28,14 @@ export default function Dashboard() {
     setAgent(a);
     setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
     // Fetch latest agent data to ensure role is current
-    base44.entities.Agent.get(a.id).then((fresh) => {
+    base44.entities.Agent.get(a.id).then(async (fresh) => {
       setAgent(fresh);
+      try {
+        const companies = await base44.entities.Company.filter({ domain: fresh.tenant_domain });
+        if (companies.length === 0) {
+          navigate("/onboarding", { replace: true });
+        }
+      } catch (e) {}
     }).catch(() => {});
   }, [navigate]);
 
