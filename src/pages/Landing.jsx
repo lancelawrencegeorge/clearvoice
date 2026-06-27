@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { motion, useInView } from 'framer-motion';
 import { Volume2, Zap, ShieldCheck, Headphones, BarChart3, Users, ChevronRight, CheckCircle2, Globe, Cpu, Wifi } from 'lucide-react';
@@ -101,6 +101,15 @@ function GridBg() {
 }
 
 export default function Landing() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('desktop') === 'true') {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* NAV */}
