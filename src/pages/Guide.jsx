@@ -388,47 +388,6 @@ export default function Guide() {
     addSpace();
 
     addDivider();
-    addH2('Option C: Browser Extension (Advanced / Fallback)');
-    addBody('For environments where the installable app isn\'t suitable, ClearVoice can also be loaded as a Chrome extension. This is intended for advanced users and IT-led pilots.');
-    addSpace();
-
-    addH3('What You\'ll Need');
-    addBullet('Google Chrome (or Chromium-based browser: Edge, Brave, Arc)');
-    addBullet('The ClearVoice extension folder (provided as a .zip — unzip it first)');
-    addBullet('Access to your softphone platform in the browser');
-    addSpace();
-
-    addH3('Step 1: Install the Extension');
-    addBullet('Open Chrome and go to chrome://extensions');
-    addBullet('Toggle "Developer mode" ON (top-right corner)');
-    addBullet('Click "Load unpacked"');
-    addBullet('Select the ClearVoice folder you unzipped');
-    addBullet('The ClearVoice icon should appear in your Chrome toolbar');
-    addBody('✅ Success check: The extension card shows no errors and the icon is visible in the toolbar.', 10);
-    addSpace();
-
-    addH3('Step 2: Pin the Extension');
-    addBullet('Click the puzzle piece icon in the Chrome toolbar');
-    addBullet('Find ClearVoice and click the pin icon next to it');
-    addBullet('The ClearVoice icon should now be permanently visible');
-    addSpace();
-
-    addH3('Step 3: Run a Test Call');
-    addBullet('Open your softphone in Chrome (e.g. Genesys, Twilio Flex, RingCentral, etc.)');
-    addBullet('Click the ClearVoice icon in the toolbar — the popup should open');
-    addBullet('Click "Start" to activate noise suppression');
-    addBullet('Make a test call (internal call to a colleague works fine)');
-    addBullet('Have the other person confirm audio quality');
-    addSpace();
-
-    addH3('Step 4: A/B Test (Admin Build Only)');
-    addBullet('In the ClearVoice popup, click "A/B Test"');
-    addBullet('Click "Record Raw" — speak for ~10 seconds with background noise present');
-    addBullet('Click "Record Clean" — repeat the same speech with ClearVoice active');
-    addBullet('Play both recordings back and compare the difference');
-    addSpace();
-
-    addDivider();
     addH2('Enterprise / IT-Managed Deployment');
     addBody('For larger contact centres, IT can automate most of the setup across all agent machines. Here is what can and cannot be pushed centrally today:');
     addSpace();
@@ -642,98 +601,7 @@ export default function Guide() {
           </div>
         </section>
 
-        {/* Option B: Browser Extension */}
-        <div className="mb-3 flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Option C — Advanced / Fallback</span>
-        </div>
-        <h2 className="text-lg font-semibold mb-3">Browser Extension</h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          For environments where the installable app isn't suitable, ClearVoice can also be loaded as a Chrome extension. Intended for advanced users and IT-led pilots.
-        </p>
-
-        {/* Extension Downloads */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="border border-border rounded-xl p-5 space-y-3">
-            <div>
-              <p className="font-semibold text-sm">Agent Build</p>
-              <p className="text-xs text-muted-foreground mt-1">No A/B test. For production rollout to agents.</p>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.html', POPUP_HTML_AGENT)}>
-                <Download className="w-3 h-3" /> popup.html
-              </Button>
-              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.js', POPUP_JS_AGENT)}>
-                <Download className="w-3 h-3" /> popup.js
-              </Button>
-            </div>
-          </div>
-          <div className="border border-primary/30 rounded-xl p-5 space-y-3 bg-primary/5">
-            <div>
-              <p className="font-semibold text-sm">Admin Build</p>
-              <p className="text-xs text-muted-foreground mt-1">Includes 🔬 A/B test. For QA and admin testing only.</p>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.html', POPUP_HTML_ADMIN)}>
-                <Download className="w-3 h-3" /> popup.html
-              </Button>
-              <Button size="sm" variant="outline" className="flex-1 gap-1 text-xs" onClick={() => downloadFile('popup.js', POPUP_JS_ADMIN)}>
-                <Download className="w-3 h-3" /> popup.js
-              </Button>
-            </div>
-          </div>
-        </div>
-
         <div className="space-y-8 text-sm leading-relaxed">
-          <section>
-            <h3 className="font-medium text-sm mb-2 text-muted-foreground uppercase tracking-wide">What You'll Need</h3>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Google Chrome (or Chromium-based browser: Edge, Brave, Arc)</li>
-              <li>The ClearVoice extension folder (provided as a .zip — unzip it first)</li>
-              <li>Access to your softphone platform in the browser</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="font-medium text-sm mb-2">Step 1: Install the Extension</h3>
-            <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-              <li>Open Chrome and go to <code className="bg-secondary px-1 rounded text-xs">chrome://extensions</code></li>
-              <li>Toggle <strong>"Developer mode"</strong> ON (top-right corner)</li>
-              <li>Click <strong>"Load unpacked"</strong></li>
-              <li>Select the ClearVoice folder you unzipped</li>
-              <li>The ClearVoice icon should appear in your Chrome toolbar</li>
-            </ol>
-            <p className="mt-2 text-primary text-xs">✅ Success check: The extension card shows no errors and the icon is visible in the toolbar.</p>
-          </section>
-
-          <section>
-            <h3 className="font-medium text-sm mb-2">Step 2: Pin the Extension</h3>
-            <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-              <li>Click the puzzle piece icon (🧩) in the Chrome toolbar</li>
-              <li>Find ClearVoice and click the pin icon next to it</li>
-              <li>The ClearVoice icon should now be permanently visible</li>
-            </ol>
-          </section>
-
-          <section>
-            <h3 className="font-medium text-sm mb-2">Step 3: Run a Test Call</h3>
-            <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-              <li>Open your softphone in Chrome (e.g. Genesys, Twilio Flex, RingCentral, etc.)</li>
-              <li>Click the ClearVoice icon in the toolbar — the popup should open</li>
-              <li>Click <strong>"Start"</strong> to activate noise suppression</li>
-              <li>Make a test call (internal call to a colleague works fine)</li>
-              <li>Have the other person confirm audio quality</li>
-            </ol>
-          </section>
-
-          <section>
-            <h3 className="font-medium text-sm mb-2">Step 4: A/B Test (Admin Build Only)</h3>
-            <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-              <li>In the ClearVoice popup, click <strong>"A/B Test"</strong></li>
-              <li>Click <strong>"Record Raw"</strong> — speak for ~10 seconds with background noise present</li>
-              <li>Click <strong>"Record Clean"</strong> — repeat the same speech with ClearVoice active</li>
-              <li>Play both recordings back and compare</li>
-            </ol>
-          </section>
 
           <section className="border border-primary/30 rounded-xl p-5 space-y-4 bg-primary/5">
             <h2 className="text-lg font-semibold">Enterprise / IT-Managed Deployment</h2>
