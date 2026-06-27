@@ -325,17 +325,28 @@ export default function Guide() {
     addSpace();
     addDivider();
 
-    addH2('Option A: Install the ClearVoice App (Recommended)');
-    addBody('The app installs as a standalone window — harder to accidentally close than a browser tab, and your settings persist between sessions.');
+    addH2('Installation Options');
+    addBody('Choose one of the two ways to run ClearVoice. Both use the same noise suppression engine.');
     addSpace();
 
-    addH3('Step 1: Install the App');
-    addBullet('Open the ClearVoice link in Chrome or Edge (Chromium-based browser required)');
+    addH3('Option A: Desktop App (Recommended)');
+    addBody('Install the ClearVoice desktop app for the best experience — standalone window, auto-updates, and persistent settings.');
+    addSpace();
+    addH3('Step 1: Download & Install');
+    addBullet('Download the installer: https://github.com/lancelawrencegeorge/clearvoice/releases/download/v1.0.0/ClearVoice.Setup.1.0.0.exe');
+    addBullet('Run ClearVoice Setup 1.0.0.exe');
+    addBullet('ClearVoice installs and launches automatically');
+    addBullet('Pin it to your taskbar for quick access');
+    addBody('✅ Success check: ClearVoice opens as a standalone desktop app.', 10);
+    addSpace();
+
+    addH3('Option B: Browser Version');
+    addBody('Use ClearVoice directly in your browser — no install required.');
+    addSpace();
+    addBullet('Open https://clearvoice.africa in Chrome or Edge');
     addBullet('Sign in with your work email');
-    addBullet('On the Dashboard, click the "Install" button in the banner at the top');
-    addBullet('Confirm the install prompt — ClearVoice opens in its own window');
-    addBullet('Pin it to your taskbar / dock for quick access');
-    addBody('✅ Success check: ClearVoice opens in a standalone window (no browser address bar).', 10);
+    addBullet('Optionally install it as a PWA: click the Install button in the browser address bar');
+    addBody('✅ Success check: ClearVoice opens in your browser tab.', 10);
     addSpace();
 
     addH3('Step 2: Set Up Virtual Audio Cable (One-Time, IT Required)');
@@ -377,7 +388,7 @@ export default function Guide() {
     addSpace();
 
     addDivider();
-    addH2('Option B: Browser Extension (Advanced / Fallback)');
+    addH2('Option C: Browser Extension (Advanced / Fallback)');
     addBody('For environments where the installable app isn\'t suitable, ClearVoice can also be loaded as a Chrome extension. This is intended for advanced users and IT-led pilots.');
     addSpace();
 
@@ -511,30 +522,61 @@ export default function Guide() {
           </div>
         </section>
 
-        {/* Option A: PWA Install */}
-        <section className="border border-primary/30 rounded-xl p-6 space-y-6 mb-8 bg-primary/5">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-primary">Option A — Recommended</span>
-          </div>
+        {/* Installation Options */}
+        <section className="space-y-6 mb-8">
           <div>
-            <h2 className="text-lg font-semibold mb-2">Install the ClearVoice App</h2>
-            <p className="text-sm text-muted-foreground">
-              Installs as a standalone window — harder to accidentally close than a browser tab, and your settings persist between sessions.
-            </p>
+            <h2 className="text-lg font-semibold mb-1">Installation Options</h2>
+            <p className="text-sm text-muted-foreground">Choose one of the two ways to run ClearVoice. Both use the same noise suppression engine.</p>
           </div>
 
-          <div className="space-y-4 text-sm">
-            <div>
-              <h3 className="font-medium text-sm mb-2">Step 1: Install the App</h3>
-              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                <li>Open the ClearVoice link in <strong>Chrome</strong> or <strong>Edge</strong></li>
-                <li>Sign in with your work email</li>
-                <li>On the Dashboard, click the <strong>"Install"</strong> button in the banner at the top</li>
-                <li>Confirm the install prompt — ClearVoice opens in its own window</li>
-                <li>Pin it to your taskbar / dock for quick access</li>
-              </ol>
-              <p className="mt-2 text-primary text-xs">✅ Success check: ClearVoice opens in a standalone window (no browser address bar).</p>
+          {/* Option A: Desktop App */}
+          <div className="border border-primary/30 rounded-xl p-6 space-y-4 bg-primary/5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Option A — Recommended</span>
             </div>
+            <div>
+              <h3 className="text-base font-semibold mb-1">Desktop App</h3>
+              <p className="text-sm text-muted-foreground">
+                Install the ClearVoice desktop app for the best experience — standalone window, auto-updates, and persistent settings.
+              </p>
+            </div>
+            <div className="text-sm">
+              <h4 className="font-medium text-sm mb-2">Step 1: Download &amp; Install</h4>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>Download the installer: <a href="https://github.com/lancelawrencegeorge/clearvoice/releases/download/v1.0.0/ClearVoice.Setup.1.0.0.exe" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">ClearVoice Setup 1.0.0.exe</a></li>
+                <li>Run <strong>ClearVoice Setup 1.0.0.exe</strong></li>
+                <li>ClearVoice installs and launches automatically</li>
+                <li>Pin it to your taskbar for quick access</li>
+              </ol>
+              <p className="mt-2 text-primary text-xs">✅ Success check: ClearVoice opens as a standalone desktop app.</p>
+            </div>
+          </div>
+
+          {/* Option B: Browser Version */}
+          <div className="border border-border rounded-xl p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Option B</span>
+            </div>
+            <div>
+              <h3 className="text-base font-semibold mb-1">Browser Version</h3>
+              <p className="text-sm text-muted-foreground">
+                Use ClearVoice directly in your browser — no install required.
+              </p>
+            </div>
+            <div className="text-sm">
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>Open <strong>https://clearvoice.africa</strong> in Chrome or Edge</li>
+                <li>Sign in with your work email</li>
+                <li>You can optionally install it as a PWA: click the <strong>Install</strong> button in the browser address bar</li>
+              </ol>
+              <p className="mt-2 text-primary text-xs">✅ Success check: ClearVoice opens in your browser tab.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Shared Setup Steps */}
+        <section className="border border-border rounded-xl p-6 space-y-6 mb-8">
+          <div className="space-y-4 text-sm">
 
             <div>
               <h3 className="font-medium text-sm mb-2">Step 2: Set Up Virtual Audio Cable</h3>
@@ -602,7 +644,7 @@ export default function Guide() {
 
         {/* Option B: Browser Extension */}
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Option B — Advanced / Fallback</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Option C — Advanced / Fallback</span>
         </div>
         <h2 className="text-lg font-semibold mb-3">Browser Extension</h2>
         <p className="text-sm text-muted-foreground mb-6">
