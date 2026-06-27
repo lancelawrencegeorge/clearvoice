@@ -16,10 +16,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("email");
 
-  useEffect(() => {
-    const agent = getCurrentAgent();
-    if (agent) navigate("/dashboard", { replace: true });
-  }, [navigate]);
+
 
   const handleContinue = async (e) => {
     e.preventDefault();
