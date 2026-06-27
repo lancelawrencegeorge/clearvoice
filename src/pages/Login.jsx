@@ -107,8 +107,8 @@ export default function Login() {
             <>
               <h2 className="text-xl font-semibold mb-2">Sign in</h2>
               <p className="text-sm text-muted-foreground mb-6">
-                Enter your email to continue. New users will be prompted to create an account.
-              </p>
+                 Choose an option below.
+               </p>
               {error && (
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                   {error}
@@ -133,14 +133,26 @@ export default function Login() {
                   </div>
                 </div>
                 <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Checking...
-                    </>
-                  ) : (
-                    "Continue"
-                  )}
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  "Sign In — My account already exists"
+                )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-12 font-medium"
+                  disabled={loading || !email.trim()}
+                  onClick={(e) => {
+                    if (!email.trim()) { setError("Enter your email first."); return; }
+                    handleRegister(e);
+                  }}
+                >
+                  Register — New user
                 </Button>
               </form>
             </>
