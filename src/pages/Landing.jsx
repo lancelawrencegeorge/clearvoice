@@ -258,7 +258,7 @@ export default function Landing() {
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-4">
-                Onboarding handled by your company admin · volume pricing reduces per-seat cost as you scale
+                All prices exclude VAT · onboarding handled by your company admin · volume pricing reduces per-seat cost as you scale
               </p>
             </div>
           </FadeIn>

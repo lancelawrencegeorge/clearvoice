@@ -230,7 +230,7 @@ export default function Onboarding() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3">Per seat per month. Price reduces as your team grows.</p>
+                  <p className="text-xs text-muted-foreground mt-3">All prices exclude VAT. Per seat per month — price reduces as your team grows.</p>
                 </div>
               </div>
             )}
