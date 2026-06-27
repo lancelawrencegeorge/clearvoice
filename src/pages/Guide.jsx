@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Info } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 const POPUP_HTML_AGENT = `<!DOCTYPE html>
@@ -480,6 +480,26 @@ export default function Guide() {
             <p className="text-primary text-xs">✅ Only after the Super User has registered and set the domain can agents be invited.</p>
           </div>
         </section>
+
+        {/* What to Expect */}
+        <div className="mb-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Info className="w-5 h-5 text-blue-400 shrink-0" />
+            <h2 className="text-lg font-semibold">What to Expect — Noise Suppression Performance</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            ClearVoice uses AI-powered noise suppression to significantly reduce background noise on your calls. Here's what you can realistically expect:
+          </p>
+          <ul className="space-y-1.5 text-sm text-muted-foreground mb-4">
+            <li className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span><span><strong className="text-foreground">Keyboard / typing noise:</strong> 70–80% reduction</span></li>
+            <li className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span><span><strong className="text-foreground">HVAC / air conditioning hum:</strong> 75–80% reduction</span></li>
+            <li className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span><span><strong className="text-foreground">General office chatter:</strong> 60–75% reduction</span></li>
+            <li className="flex items-start gap-2"><span className="text-blue-400 mt-0.5">•</span><span><strong className="text-foreground">Loud environments (TV, crowds):</strong> 50–65% reduction</span></li>
+          </ul>
+          <p className="text-sm text-muted-foreground">
+            <span className="text-amber-500">⚠️</span> ClearVoice does not eliminate noise 100%. Typical real-world suppression is 60–80%, which delivers a significant improvement in call clarity for most contact centre environments. For best results, use a quality closed-back headset and close unnecessary applications during calls.
+          </p>
+        </div>
 
         {/* Installation Options */}
         <section className="space-y-6 mb-8">
