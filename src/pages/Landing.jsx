@@ -134,7 +134,7 @@ export default function Landing() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-medium mb-6">
               <Wifi className="w-3 h-3" />
-              Real-time · In-browser · Zero cloud latency
+              Real-time · Desktop app · Zero cloud latency
             </div>
             <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
               Crystal-clear calls.<br />
