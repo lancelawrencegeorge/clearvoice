@@ -202,10 +202,7 @@ export default function Onboarding() {
                     />
                   </div>
                 </div>
-                <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 text-sm text-muted-foreground space-y-1">
-                  <p className="font-medium text-foreground flex items-center gap-2"><Globe className="w-4 h-4 text-primary" /> How data isolation works</p>
-                  <p>All agents, session logs and company data will only be visible to people signed in with a <strong>@{form.domain || 'yourdomain.com'}</strong> email address.</p>
-                </div>
+
               </div>
             )}
 
