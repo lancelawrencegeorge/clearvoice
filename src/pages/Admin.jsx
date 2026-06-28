@@ -4,10 +4,13 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Loader2, Activity, AlertCircle, Filter } from "lucide-react";
+import { Users, Clock, Loader2, Activity, AlertCircle, Filter, Download, FileText, Calendar } from "lucide-react";
 import { getCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TenantBilling from "@/components/admin/TenantBilling";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { exportBillingPDF, exportBillingCSV } from "@/lib/billingExport";
 
 export default function Admin() {
   const [currentAgent, setCurrentAgent] = useState(null);
@@ -18,6 +21,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [tenantFilter, setTenantFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
     const cached = getCurrentAgent();
@@ -85,10 +90,19 @@ export default function Admin() {
     return Array.from(set).sort();
   }, [agents, companies, sessions]);
 
-  const filteredSessions = useMemo(() =>
-    tenantFilter === "all" ? sessions : sessions.filter((s) => s.tenant_domain === tenantFilter),
-    [sessions, tenantFilter]
-  );
+  const filteredSessions = useMemo(() => {
+    let result = sessions;
+    if (tenantFilter !== "all") result = result.filter((s) => s.tenant_domain === tenantFilter);
+    if (dateFrom) {
+      const from = new Date(dateFrom + "T00:00:00");
+      result = result.filter((s) => new Date(s.login_at) >= from);
+    }
+    if (dateTo) {
+      const to = new Date(dateTo + "T23:59:59");
+      result = result.filter((s) => new Date(s.login_at) <= to);
+    }
+    return result;
+  }, [sessions, tenantFilter, dateFrom, dateTo]);
   const filteredAgents = useMemo(() =>
     tenantFilter === "all" ? agents : agents.filter((a) => a.tenant_domain === tenantFilter),
     [agents, tenantFilter]
@@ -97,6 +111,30 @@ export default function Admin() {
     tenantFilter === "all" ? companies : companies.filter((c) => c.domain === tenantFilter),
     [companies, tenantFilter]
   );
+
+  const tenantLabel = tenantFilter === "all" ? "All Tenants" : tenantFilter;
+
+  const handleExportPDF = () => {
+    exportBillingPDF({
+      agents: filteredAgents,
+      companies: filteredCompanies,
+      sessions: filteredSessions,
+      dateFrom,
+      dateTo,
+      tenantLabel,
+    });
+  };
+
+  const handleExportCSV = () => {
+    exportBillingCSV({
+      agents: filteredAgents,
+      companies: filteredCompanies,
+      sessions: filteredSessions,
+      dateFrom,
+      dateTo,
+      tenantLabel,
+    });
+  };
 
   if (authChecking) {
     return (
@@ -144,22 +182,38 @@ export default function Admin() {
           </div>
         ) : (
           <div className="space-y-8">
-            {currentAgent?.role === "admin" && tenantOptions.length > 0 && (
-              <div className="flex items-center gap-3">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <Select value={tenantFilter} onValueChange={setTenantFilter}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue placeholder="All tenants" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All tenants</SelectItem>
-                    {tenantOptions.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-wrap items-center gap-3">
+              {currentAgent?.role === "admin" && tenantOptions.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <Select value={tenantFilter} onValueChange={setTenantFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All tenants" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All tenants</SelectItem>
+                      {tenantOptions.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-40" />
+                <span className="text-muted-foreground text-sm">to</span>
+                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
               </div>
-            )}
+              <div className="flex items-center gap-2 ml-auto">
+                <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                  <FileText className="w-4 h-4" /> PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                  <Download className="w-4 h-4" /> CSV
+                </Button>
+              </div>
+            </div>
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
