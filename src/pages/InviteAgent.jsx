@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, Building2, CheckCircle2, Plus, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { UserPlus, Building2, CheckCircle2, Plus, AlertCircle, RefreshCw, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { getCurrentAgent, getTenantDomain } from '@/lib/customAuth';
 
 const ALLOWED_ROLES = ['admin', 'super_user'];
 
 export default function InviteAgent() {
+  const navigate = useNavigate();
   const currentAgent = getCurrentAgent();
   const [companies, setCompanies] = useState([]);
   const [email, setEmail] = useState('');
@@ -42,12 +43,23 @@ export default function InviteAgent() {
 
   if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="text-center max-w-sm">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
-          <h2 className="text-lg font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground text-sm mt-1">You need Super User or Admin access to invite users.</p>
-          <Link to="/dashboard" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
+          <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+          <p className="text-muted-foreground text-sm mb-6">
+            Your session appears to have stale credentials. Refresh your session to continue.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => { localStorage.clear(); navigate('/login'); }} variant="outline" className="gap-2">
+              <LogOut className="w-4 h-4" />
+              Re-login
+            </Button>
+            <Button onClick={() => window.location.reload()} className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
     );
