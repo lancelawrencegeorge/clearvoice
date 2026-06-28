@@ -170,7 +170,7 @@ export class NoiseSuppressionEngine {
     // Analyser for visualization
     this.analyserNode = this.audioContext.createAnalyser();
     this.analyserNode.fftSize = 256;
-    this.analyserNode.smoothingTimeConstant = 0.8;
+    this.analyserNode.smoothingTimeConstant = 0.5;
 
     // Route processed audio to a MediaStream destination, then play it through
     // an <audio> element so we can choose the output device via setSinkId().
