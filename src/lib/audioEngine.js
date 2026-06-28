@@ -201,6 +201,18 @@ export class NoiseSuppressionEngine {
       throw new Error('Audio output playback failed — ' + e.message);
     }
 
+    // Diagnostic: verify the audio chain is actually live
+    if (this.audioContext.state !== 'running') {
+      throw new Error('Audio engine is ' + this.audioContext.state + ' — try clicking Start Session again.');
+    }
+    const tracks = this.micStream.getAudioTracks();
+    if (tracks.length === 0) {
+      throw new Error('No microphone track found — check your mic permission.');
+    }
+    if (!tracks[0].enabled || tracks[0].muted) {
+      throw new Error('Microphone is muted or disabled — unmute it in Windows sound settings.');
+    }
+
     this.isActive = true;
     return this.micStream;
   }
