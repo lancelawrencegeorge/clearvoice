@@ -123,6 +123,13 @@ export class NoiseSuppressionEngine {
       latencyHint: 'interactive'
     });
 
+    // Resume immediately while we still have the user-gesture context from the
+    // button click — later async calls (addModule, getUserMedia permission
+    // prompt) can lose that context and leave the context suspended.
+    if (this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
+    }
+
     // Load the worklet from a Blob URL (no separate file needed)
     const blob = new Blob([WORKLET_CODE], { type: 'application/javascript' });
     const workletUrl = URL.createObjectURL(blob);
