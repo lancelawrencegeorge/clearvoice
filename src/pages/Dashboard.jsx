@@ -216,10 +216,10 @@ export default function Dashboard() {
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-medium">Suppression Level</label>
-                  <span className="text-sm text-muted-foreground">{suppressionLevel}%</span>
+                  <span className="text-sm text-muted-foreground">{Math.max(5, Math.min(95, suppressionLevel))}%</span>
                 </div>
                 <Slider
-                  value={[suppressionLevel]}
+                  value={[Math.max(5, Math.min(95, suppressionLevel))]}
                   onValueChange={(v) => changeSuppressionLevel(v[0])}
                   max={100}
                   step={5}

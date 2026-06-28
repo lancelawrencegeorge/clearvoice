@@ -8,7 +8,8 @@ export function useAudioEngine() {
   const [suppressionLevel, setSuppressionLevel] = useState(() => {
     try {
       const saved = localStorage.getItem('clearvoice_suppression');
-      return saved ? Number(saved) : 70;
+      const val = saved ? Number(saved) : 70;
+      return Math.max(5, Math.min(95, isNaN(val) ? 70 : val));
     } catch { return 70; }
   });
   const [frequencyData, setFrequencyData] = useState(new Uint8Array(0));
@@ -50,7 +51,9 @@ export function useAudioEngine() {
     setError(null);
 
     const engine = new NoiseSuppressionEngine();
-    engine.setSuppressionLevel(suppressionLevel);
+    // Clamp to the safe range (5-95%) before signalling the worklet.
+    const startLevel = Math.max(5, Math.min(95, suppressionLevel));
+    engine.setSuppressionLevel(startLevel);
 
     try {
       await engine.initialize({
@@ -95,10 +98,13 @@ export function useAudioEngine() {
   }, []);
 
   const changeSuppressionLevel = useCallback((level) => {
-    setSuppressionLevel(level);
-    try { localStorage.setItem('clearvoice_suppression', String(level)); } catch {}
+    // Guard: never let suppression drop below 5% or rise above 95% —
+    // 0% = pure dry (noise) and 100% distorts, so clamp to the safe range.
+    const safeLevel = Math.max(5, Math.min(95, level));
+    setSuppressionLevel(safeLevel);
+    try { localStorage.setItem('clearvoice_suppression', String(safeLevel)); } catch {}
     if (engineRef.current) {
-      engineRef.current.setSuppressionLevel(level);
+      engineRef.current.setSuppressionLevel(safeLevel);
     }
   }, []);
 
