@@ -241,7 +241,7 @@ export default function Dashboard() {
                     onValueChange={changeOutputDevice}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Default speakers" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="default">Default speakers</SelectItem>
