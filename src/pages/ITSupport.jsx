@@ -191,6 +191,38 @@ export default function ITSupport() {
             </AccordionItem>
           </Card>
 
+          {/* Account & Role Flow */}
+          <Card>
+            <AccordionItem value="roles" className="border-b-0 px-4">
+              <AccordionTrigger className="text-base font-semibold">
+                <span className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-primary" />
+                  Account &amp; Role Flow
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 text-sm">
+                  <p className="text-muted-foreground">How accounts are created across the ClearVoice system:</p>
+                  <div className="grid grid-cols-3 gap-3 mt-3">
+                    <div className="border border-primary/30 bg-primary/5 rounded-lg p-3">
+                      <p className="font-semibold text-primary text-xs mb-1">Platform Owner (Admin)</p>
+                      <p className="text-xs text-muted-foreground">Invites Super Users. Manages billing, plans, seat limits &amp; invoices. Full tenant visibility.</p>
+                    </div>
+                    <div className="border border-border rounded-lg p-3">
+                      <p className="font-semibold text-xs mb-1">Super User (Client Admin)</p>
+                      <p className="text-xs text-muted-foreground">Invited → registers. Onboards company (sets domain). Invites agents individually or bulk CSV.</p>
+                    </div>
+                    <div className="border border-border rounded-lg p-3">
+                      <p className="font-semibold text-xs mb-1">Agent</p>
+                      <p className="text-xs text-muted-foreground">Invited → registers. Or bulk imported (record exists, sets password on first login). Installs ClearVoice + driver.</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">💡 Agents always log in with email + password. Bulk-imported agents skip registration — their account already exists.</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Card>
+
           {/* Step-by-step install */}
           <Card>
             <AccordionItem value="install" className="border-b-0 px-4">

@@ -306,6 +306,33 @@ export default function Guide() {
     addBody('ClearVoice runs as an installable web app. Install it once and it runs in its own window, staying active throughout your calls. All audio is processed locally on your device.');
     addSpace();
     addDivider();
+    addH2('Account & Role Flow');
+    addBody('This diagram explains how accounts are created and who manages what:');
+    addSpace();
+    addH3('Platform Owner (ClearVoice Admin)');
+    addBullet('Invites Super Users at each client company');
+    addBullet('Manages billing, plans, seat limits, and invoices across all tenants');
+    addBullet('Has full visibility into all companies');
+    addSpace();
+    addH3('Super User (Client Company Admin)');
+    addBullet('Receives an invite email from the platform owner and registers with a work email + password');
+    addBullet('Completes company onboarding (sets the email domain, e.g. acme.com)');
+    addBullet('Invites agents into their company via individual invitations or bulk CSV import');
+    addBullet('Manages their own company agents, reports, and billing details');
+    addSpace();
+    addH3('Agent');
+    addBullet('Receives an invite email from their Super User and registers with their work email + password');
+    addBullet('Installs the ClearVoice desktop app and VB-Cable (with IT help)');
+    addBullet('Uses ClearVoice for daily call noise suppression');
+    addSpace();
+    addH3('Bulk Import (CSV)');
+    addBullet('The Super User uploads a CSV with agent names and work emails');
+    addBullet('All agent records are created instantly — accounts already exist in the system');
+    addBullet('Agents log in for the first time and choose a password; no invite email needed');
+    addSpace();
+    addBody('Note: Agents always log in with email + password. With individual invitations they register first; with bulk import the account already exists and they just set a password on first login.', 10);
+    addSpace();
+    addDivider();
     addH2('Before You Begin: Super User Setup');
     addBody('Before agents can use ClearVoice, your company\'s Super User (admin) must register and complete onboarding first. This sets up the company domain and enables user invitations.');
     addSpace();
@@ -510,6 +537,43 @@ export default function Guide() {
             </div>
             <p className="text-primary text-xs">✅ Only after the Super User has registered and set the domain can agents be invited.</p>
           </div>
+        </section>
+
+        {/* Account & Role Flow */}
+        <section className="border border-border rounded-xl p-6 space-y-4 mb-8">
+          <h2 className="text-lg font-semibold">Account &amp; Role Flow</h2>
+          <p className="text-sm text-muted-foreground">
+            This diagram explains how accounts are created in ClearVoice and who manages what at each level.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="border border-primary/30 bg-primary/5 rounded-xl p-4 space-y-2">
+              <h3 className="font-semibold text-sm text-primary">Platform Owner (Admin)</h3>
+              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground">
+                <li>Invites Super Users at each client company</li>
+                <li>Manages billing, plans, seat limits &amp; invoices</li>
+                <li>Full visibility into all tenants</li>
+              </ul>
+            </div>
+            <div className="border border-border rounded-xl p-4 space-y-2">
+              <h3 className="font-semibold text-sm">Super User (Client Admin)</h3>
+              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground">
+                <li>Receives invite from owner → registers with email + password</li>
+                <li>Completes onboarding (sets company domain)</li>
+                <li>Invites agents individually or via bulk CSV import</li>
+              </ul>
+            </div>
+            <div className="border border-border rounded-xl p-4 space-y-2">
+              <h3 className="font-semibold text-sm">Agent</h3>
+              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground">
+                <li>Invited by Super User → registers with email + password</li>
+                <li>Or bulk imported: record created, sets password on first login</li>
+                <li>Installs ClearVoice + VB-Cable, uses daily suppression</li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            💡 Agents always log in with email + password. Bulk-imported agents skip the registration step — their account already exists in the system.
+          </p>
         </section>
 
         {/* What to Expect */}
