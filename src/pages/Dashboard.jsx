@@ -124,7 +124,7 @@ export default function Dashboard() {
                   <UserPlus className="w-4 h-4" />
                   Invite
                 </Link>
-                {agent.role === "admin" && (
+                {(agent.role === "admin" || agent.role === "super_user") && (
                   <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
                     <ShieldCheck className="w-4 h-4" />
                     Admin

@@ -75,7 +75,7 @@ export default function Admin() {
     );
   }
 
-  if (!currentAgent || currentAgent.role !== "admin") {
+  if (!currentAgent || !["admin", "super_user"].includes(currentAgent.role)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
