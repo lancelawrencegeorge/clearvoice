@@ -325,11 +325,11 @@ export default function Guide() {
     addSpace();
     addDivider();
 
-    addH2('Installation Options');
-    addBody('Choose one of the two ways to run ClearVoice. Both use the same noise suppression engine.');
+    addH2('Installation');
+    addBody('ClearVoice runs as a desktop app — a standalone window that stays active throughout your calls and can\'t be accidentally closed like a browser tab.');
     addSpace();
 
-    addH3('Option A: Desktop App (Recommended)');
+    addH3('Desktop App (Recommended)');
     addBody('Install the ClearVoice desktop app for the best experience — standalone window, auto-updates, and persistent settings.');
     addSpace();
     addH3('Step 1: Download & Install');
@@ -338,15 +338,6 @@ export default function Guide() {
     addBullet('ClearVoice installs and launches automatically');
     addBullet('Pin it to your taskbar for quick access');
     addBody('✅ Success check: ClearVoice opens as a standalone desktop app.', 10);
-    addSpace();
-
-    addH3('Option B: Browser Version');
-    addBody('Use ClearVoice directly in your browser — no install required.');
-    addSpace();
-    addBullet('Open https://clearvoice.africa in Chrome or Edge');
-    addBullet('Sign in with your work email');
-    addBullet('Optionally install it as a PWA: click the Install button in the browser address bar');
-    addBody('✅ Success check: ClearVoice opens in your browser tab.', 10);
     addSpace();
 
     addH3('Step 2: Set Up Virtual Audio Cable (One-Time, IT Required)');
@@ -396,11 +387,9 @@ export default function Guide() {
     addBullet('Chrome managed storage policy — pre-configure auto-start URLs and suppression settings for all users');
     addSpace();
     addH3('What Requires Manual Action Per Agent (Today)');
-    addBullet('ClearVoice app (PWA) — PWA installation is a per-user browser action; no enterprise policy exists to force-install it');
     addBullet('Desktop app installer — standard .exe install; IT can package and deploy it via SCCM, Intune, or Group Policy');
-    addBullet('PWA installation — per-user browser action; no enterprise policy exists to force-install it yet');
     addSpace();
-    addBody('Summary: IT can handle the driver today, and the desktop installer can be centrally deployed. The browser/PWA version still requires each agent to install manually.', 10);
+    addBody('Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy.', 10);
     addSpace();
 
     addDivider();
@@ -505,14 +494,14 @@ export default function Guide() {
         {/* Installation Options */}
         <section className="space-y-6 mb-8">
           <div>
-            <h2 className="text-lg font-semibold mb-1">Installation Options</h2>
-            <p className="text-sm text-muted-foreground">Choose one of the two ways to run ClearVoice. Both use the same noise suppression engine.</p>
+            <h2 className="text-lg font-semibold mb-1">Installation</h2>
+            <p className="text-sm text-muted-foreground">ClearVoice runs as a desktop app — a standalone window that stays active throughout your calls and can't be accidentally closed like a browser tab.</p>
           </div>
 
           {/* Option A: Desktop App */}
           <div className="border border-primary/30 rounded-xl p-6 space-y-4 bg-primary/5">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Option A — Recommended</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Recommended</span>
             </div>
             <div>
               <h3 className="text-base font-semibold mb-1">Desktop App</h3>
@@ -532,26 +521,7 @@ export default function Guide() {
             </div>
           </div>
 
-          {/* Option B: Browser Version */}
-          <div className="border border-border rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Option B</span>
-            </div>
-            <div>
-              <h3 className="text-base font-semibold mb-1">Browser Version</h3>
-              <p className="text-sm text-muted-foreground">
-                Use ClearVoice directly in your browser — no install required.
-              </p>
-            </div>
-            <div className="text-sm">
-              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                <li>Open <strong>https://clearvoice.africa</strong> in Chrome or Edge</li>
-                <li>Sign in with your work email</li>
-                <li>You can optionally install it as a PWA: click the <strong>Install</strong> button in the browser address bar</li>
-              </ol>
-              <p className="mt-2 text-primary text-xs">✅ Success check: ClearVoice opens in your browser tab.</p>
-            </div>
-          </div>
+
         </section>
 
         {/* Shared Setup Steps */}
@@ -639,13 +609,11 @@ export default function Guide() {
             <div>
               <h3 className="font-medium text-sm mb-2 text-amber-500">What Requires Manual Action Per Agent (Today)</h3>
               <ul className="space-y-1 text-muted-foreground">
-                <li>⚠️ <strong>ClearVoice app (PWA)</strong> — PWA installation is a per-user browser action; no enterprise policy exists to force-install it</li>
                 <li>⚠️ <strong>Desktop app installer</strong> — standard .exe install; IT can package and deploy it via SCCM, Intune, or Group Policy</li>
-                <li>⚠️ <strong>PWA installation</strong> — PWA is a per-user browser action; no enterprise policy exists to force-install it yet</li>
               </ul>
             </div>
             <p className="text-xs text-muted-foreground italic pt-2 border-t border-border">
-              Summary: IT can handle the driver today, and the desktop installer can be centrally deployed. The browser/PWA version still requires each agent to install manually.
+              Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy.
             </p>
           </section>
 
