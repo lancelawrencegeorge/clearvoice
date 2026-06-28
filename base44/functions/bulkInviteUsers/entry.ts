@@ -91,13 +91,15 @@ Deno.serve(async (req) => {
                 const existing = await base44.asServiceRole.entities.Agent.filter({ email });
                 if (existing.length === 0) {
                     const namePart = email.split('@')[0];
+                    const agentRole = role === 'super_user' ? 'super_user' : 'agent';
                     await base44.asServiceRole.entities.Agent.create({
                         full_name: namePart.charAt(0).toUpperCase() + namePart.slice(1),
                         email,
                         company: company.name,
                         tenant_domain: companyDomain,
-                        role: 'agent',
+                        role: agentRole,
                         status: 'Active',
+                        onboarding_complete: false,
                     });
                 }
                 await base44.users.inviteUser(email, role);

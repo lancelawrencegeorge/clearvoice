@@ -18,9 +18,13 @@ export default function InviteAgent() {
   const [companyId, setCompanyId] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [showNewCompany, setShowNewCompany] = useState(false);
+  const [inviteRole, setInviteRole] = useState('user');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  const isAdmin = currentAgent?.role === 'admin';
+  const isSuperUser = currentAgent?.role === 'super_user';
 
   useEffect(() => {
     if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) return;
@@ -74,7 +78,7 @@ export default function InviteAgent() {
     setLoading(true);
     try {
       await base44.functions.invoke('bulkInviteUsers', {
-        users: [{ email, role: 'user' }],
+        users: [{ email, role: inviteRole }],
         company_id: companyId,
         agent_id: currentAgent.id,
       });
@@ -94,7 +98,11 @@ export default function InviteAgent() {
         <div className="mb-8">
           <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← Back to Dashboard</Link>
           <h1 className="text-2xl font-bold mt-4">Invite Agent</h1>
-          <p className="text-muted-foreground text-sm mt-1">Send an invite and assign the agent to a company.</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {isAdmin
+              ? 'Invite a new tenant super user or add agents to an existing company.'
+              : 'Send an invite and assign the agent to your company.'}
+          </p>
         </div>
 
         {success ? (
@@ -124,6 +132,22 @@ export default function InviteAgent() {
                   required
                 />
               </div>
+
+              {isAdmin && (
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <p className="text-xs text-muted-foreground mb-2">Choose <strong>Super User</strong> to create a new tenant who can manage their own company. Choose <strong>Agent</strong> to add to an existing company.</p>
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">Agent</SelectItem>
+                      <SelectItem value="super_user">Super User (Tenant Admin)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>Assign to Company</Label>
