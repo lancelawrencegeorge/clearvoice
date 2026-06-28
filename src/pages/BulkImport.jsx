@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { getTenantDomain } from '@/lib/customAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -53,7 +54,8 @@ export default function BulkImport() {
       base44.entities.Company.list().then(list => {
         // Super users are locked to their own company (by domain)
         if (user.role === 'super_user') {
-          const mine = list.filter(c => c.domain === user.domain);
+          const domain = getTenantDomain(user.email);
+          const mine = list.filter(c => c.domain === domain);
           setCompanies(mine);
           if (mine[0]) setSelectedCompany(mine[0].id);
         } else {
