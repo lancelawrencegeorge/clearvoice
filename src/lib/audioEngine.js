@@ -140,6 +140,12 @@ export class NoiseSuppressionEngine {
       }
     });
 
+    // Resume the AudioContext — it may start suspended, especially after the
+    // async addModule/getUserMedia calls lose the user-gesture context.
+    if (this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
+    }
+
     this.sourceNode = this.audioContext.createMediaStreamSource(this.micStream);
 
     // RNNoise AudioWorklet node
@@ -172,6 +178,7 @@ export class NoiseSuppressionEngine {
 
     // <audio> element routes the cleaned stream to the selected output device
     this.outputAudioElement = new Audio();
+    this.outputAudioElement.volume = 1.0;
     this.outputAudioElement.srcObject = this.streamDestination.stream;
     if (outputDeviceId && typeof this.outputAudioElement.setSinkId === 'function') {
       try {
