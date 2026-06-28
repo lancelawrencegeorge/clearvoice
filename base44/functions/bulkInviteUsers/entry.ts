@@ -41,6 +41,22 @@ Deno.serve(async (req) => {
         const failed = [];
         const validRoleForRole = (r) => (r && allowedRoles.includes(r) ? r : 'user');
 
+        // Seat limit enforcement: count existing agents in this tenant
+        const seatLimit = company.seat_limit ?? 20;
+        if (companyDomain) {
+            const existingAgents = await base44.asServiceRole.entities.Agent.filter({ tenant_domain: companyDomain });
+            const activeAgents = existingAgents.filter(a => a.status !== 'Suspended');
+            const validNewUsers = users.filter(u => {
+                const email = (u.email || '').trim().toLowerCase();
+                return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            });
+            if (activeAgents.length + validNewUsers.length > seatLimit) {
+                return Response.json({
+                    error: `Seat limit reached. Your plan allows ${seatLimit} agents and you currently have ${activeAgents.length}. Remove or suspend agents before inviting more.`,
+                }, { status: 403 });
+            }
+        }
+
         for (const entry of users) {
             const email = (entry.email || '').trim().toLowerCase();
             const role = validRoleForRole(entry.role);

@@ -73,7 +73,7 @@ export default function Onboarding() {
         plan: 'trial',
         trial_start_date: now.toISOString(),
         trial_end_date: trialEnd.toISOString(),
-        seat_limit: 50,
+        seat_limit: 20,
         is_active: true,
       });
 
