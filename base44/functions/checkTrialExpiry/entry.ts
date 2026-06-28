@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: company.billing_contact_email,
             subject: 'Your ClearVoice trial has ended',
-            body: `Hi,\n\nYour 1-month free trial for ${company.name} has ended.\n\nTo continue using ClearVoice at R95/seat/month (ex VAT), please contact us to activate your subscription.\n\nYour team currently has access suspended. Reach out to us to restore access.\n\nThe ClearVoice Team`
+            body: `Hi,\n\nYour free trial for ${company.name} has ended.\n\nTo continue using ClearVoice at R95/seat/month (ex VAT), contact us to activate your subscription.\n\nYour team currently has access suspended. Reach out to us at support@clearvoice.africa to restore access.\n\nThe ClearVoice Team`
           });
         }
         results.expired.push(company.name);
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: company.billing_contact_email,
             subject: `Your ClearVoice trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`,
-            body: `Hi,\n\nYour ClearVoice free trial for ${company.name} ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}.\n\nAfter your trial, ClearVoice is billed at R95/seat/month (ex VAT).\n\nContact us before your trial ends to set up your subscription and avoid any interruption.\n\nThe ClearVoice Team`
+            body: `Hi,\n\nYour ClearVoice free trial for ${company.name} ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}.\n\nAfter your trial, ClearVoice is billed at R95/seat/month (ex VAT).\n\nContact us at support@clearvoice.africa before your trial ends to set up your subscription and avoid any interruption.\n\nThe ClearVoice Team`
           });
         }
         results.warned.push(company.name);

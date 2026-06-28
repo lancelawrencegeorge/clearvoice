@@ -46,6 +46,8 @@ Total Due: ${formatZAR(invoice.total_charge)}
 
 Please process payment within 30 days.
 
+Questions? Contact us at support@clearvoice.africa.
+
 Regards,
 ClearVoice Billing`;
 
