@@ -247,7 +247,13 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Login Time</p>
-                <p className="text-sm">{loginTime?.toLocaleTimeString()}</p>
+                <p className="text-sm">
+                  {loginTime?.toLocaleString('en-ZA', {
+                    timeZone: 'Africa/Johannesburg',
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  })}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Email</p>
