@@ -64,7 +64,7 @@ export default function Onboarding() {
     try {
       const now = new Date();
       const trialEnd = new Date(now);
-      trialEnd.setDate(trialEnd.getDate() + 7);
+      trialEnd.setDate(trialEnd.getDate() + 14);
 
       const company = await base44.entities.Company.create({
         name: form.company_name.trim(),
@@ -155,7 +155,7 @@ export default function Onboarding() {
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground pt-2">
-                  This takes about 2 minutes. You'll set up your company, start a 7-day trial, and learn how to invite agents.
+                  This takes about 2 minutes. You'll set up your company, start a 14-day trial, and learn how to invite agents.
                 </p>
               </div>
             )}
@@ -210,14 +210,14 @@ export default function Onboarding() {
             {currentStepId === 'plan' && (
               <div className="space-y-5">
                 <div>
-                  <h2 className="text-xl font-bold">Your 7-Day Trial</h2>
+                  <h2 className="text-xl font-bold">Your 14-Day Trial</h2>
                   <p className="text-sm text-muted-foreground mt-1">No credit card required. Full access to all features during your trial.</p>
                 </div>
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <Calendar className="w-5 h-5 text-primary shrink-0" />
                   <div>
                     <p className="font-medium">Trial starts now</p>
-                    <p className="text-sm text-muted-foreground">7 days of full access · ends {new Date(Date.now() + 7 * 86400000).toLocaleDateString()}</p>
+                    <p className="text-sm text-muted-foreground">14 days of full access · ends {new Date(Date.now() + 14 * 86400000).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div>
@@ -273,7 +273,7 @@ export default function Onboarding() {
                 </div>
                 <h2 className="text-2xl font-bold">You're all set!</h2>
                 <p className="text-muted-foreground">
-                  <strong>{form.company_name || 'Your company'}</strong> is ready to go. Your 7-day trial is active.
+                  <strong>{form.company_name || 'Your company'}</strong> is ready to go. Your 14-day trial is active.
                 </p>
                 <div className="bg-secondary/50 rounded-xl p-4 text-sm text-left space-y-2">
                   <p className="font-medium">Quick start checklist:</p>

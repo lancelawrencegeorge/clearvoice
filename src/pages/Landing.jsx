@@ -54,7 +54,7 @@ const TIERS = [
 
 const PLAN = {
   features: [
-    '7-day free trial · no credit card',
+    '14-day free trial · no credit card',
     'Volume pricing from R110/seat/month',
     'Real-time noise suppression',
     'Dual-channel processing',
@@ -234,7 +234,7 @@ export default function Landing() {
           <FadeIn>
             <div className="relative flex flex-col p-8 rounded-2xl border border-primary/50 bg-primary/5 shadow-[0_0_60px_-10px_hsl(185,80%,55%,0.3)]">
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap">
-                7-Day Free Trial · No Credit Card Required
+                14-Day Free Trial · No Credit Card Required
               </div>
               <div className="mt-4 mb-2 p-3 rounded-lg border border-primary/20 bg-primary/5 text-center">
                 <p className="text-sm text-primary font-medium">Trial includes up to 20 agents</p>
