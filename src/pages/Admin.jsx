@@ -31,7 +31,7 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (currentAgent?.role === "admin" && !dataLoaded) {
+    if (["admin", "super_user"].includes(currentAgent?.role) && !dataLoaded) {
       setDataLoaded(true);
       loadData();
     }
