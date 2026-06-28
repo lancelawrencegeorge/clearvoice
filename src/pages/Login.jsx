@@ -24,7 +24,7 @@ export default function Login() {
     setLoading(true);
     try {
       const normalizedEmail = email.toLowerCase().trim();
-      const agents = await base44.entities.Agent.filter({ email: normalizedEmail });
+      const agents = await base44.entities.Agent.filter({ email: normalizedEmail }, '-created_date', 1);
       if (agents.length > 0) {
         const agent = agents[0];
         if (agent.status === "Suspended") {
@@ -62,14 +62,25 @@ export default function Login() {
     try {
       const normalizedEmail = email.toLowerCase().trim();
       const tenantDomain = getTenantDomain(normalizedEmail);
-      const agent = await base44.entities.Agent.create({
-        full_name: fullName,
-        email: normalizedEmail,
-        company,
-        tenant_domain: tenantDomain,
-        status: "Active",
-        last_login: new Date().toISOString(),
-      });
+      const existing = await base44.entities.Agent.filter({ email: normalizedEmail }, '-created_date', 1);
+      let agent;
+      if (existing.length > 0) {
+        agent = existing[0];
+        await base44.entities.Agent.update(agent.id, {
+          full_name: fullName || agent.full_name,
+          company: company || agent.company,
+          last_login: new Date().toISOString(),
+        });
+      } else {
+        agent = await base44.entities.Agent.create({
+          full_name: fullName,
+          email: normalizedEmail,
+          company,
+          tenant_domain: tenantDomain,
+          status: "Active",
+          last_login: new Date().toISOString(),
+        });
+      }
       const session = await base44.entities.Session.create({
         agent_id: agent.id,
         agent_email: agent.email,
