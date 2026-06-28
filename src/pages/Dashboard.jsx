@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic, ShieldCheck, BarChart3, Users, LifeBuoy, UserPlus, Upload, Receipt } from "lucide-react";
+import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic, ShieldCheck, BarChart3, Users, LifeBuoy, UserPlus, Upload, Receipt, Volume2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
@@ -16,7 +17,7 @@ export default function Dashboard() {
   const [sessionStartMs, setSessionStartMs] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
-  const { status, error, audioLevel, suppressionLevel, start, stop, changeSuppressionLevel } = useAudioEngine();
+  const { status, error, audioLevel, suppressionLevel, outputDevices, selectedOutputDevice, setSinkIdSupported, start, stop, changeSuppressionLevel, changeOutputDevice } = useAudioEngine();
   const suppressionActive = status === 'active' || status === 'connecting';
   const isConnecting = status === 'connecting';
 
@@ -225,6 +226,34 @@ export default function Dashboard() {
                   disabled={!suppressionActive}
                 />
               </div>
+
+              {setSinkIdSupported && (
+                <div className="mt-6">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Volume2 className="w-4 h-4" />
+                    Output Device
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1 mb-2">
+                    Select "CABLE Input" to route cleaned audio to Teams or Zoom via VB-Cable.
+                  </p>
+                  <Select
+                    value={selectedOutputDevice}
+                    onValueChange={changeOutputDevice}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Default speakers" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default speakers</SelectItem>
+                      {outputDevices.map((d) => (
+                        <SelectItem key={d.deviceId} value={d.deviceId}>
+                          {d.label || 'Unknown audio device'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {error && (
                 <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">

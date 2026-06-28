@@ -110,11 +110,14 @@ export class NoiseSuppressionEngine {
     this.analyserNode = null;
     this.gainNode = null;
     this.workletNode = null;
+    this.streamDestination = null;
+    this.outputAudioElement = null;
+    this.outputDeviceId = null;
     this.isActive = false;
     this.suppressionLevel = 70; // 0-100
   }
 
-  async initialize() {
+  async initialize({ outputDeviceId } = {}) {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
       sampleRate: 48000, // RNNoise requires 48kHz
       latencyHint: 'interactive'
@@ -156,11 +159,29 @@ export class NoiseSuppressionEngine {
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0.8;
 
-    // Chain: mic -> RNNoise worklet -> gain -> analyser -> destination
+    // Route processed audio to a MediaStream destination, then play it through
+    // an <audio> element so we can choose the output device via setSinkId().
+    this.streamDestination = this.audioContext.createMediaStreamDestination();
+    this.streamDestination.channelCount = 1;
+
+    // Chain: mic -> RNNoise worklet -> gain -> analyser -> stream destination
     this.sourceNode.connect(this.workletNode);
     this.workletNode.connect(this.gainNode);
     this.gainNode.connect(this.analyserNode);
-    this.analyserNode.connect(this.audioContext.destination);
+    this.analyserNode.connect(this.streamDestination);
+
+    // <audio> element routes the cleaned stream to the selected output device
+    this.outputAudioElement = new Audio();
+    this.outputAudioElement.srcObject = this.streamDestination.stream;
+    if (outputDeviceId && typeof this.outputAudioElement.setSinkId === 'function') {
+      try {
+        await this.outputAudioElement.setSinkId(outputDeviceId);
+        this.outputDeviceId = outputDeviceId;
+      } catch (e) {
+        console.warn('[ClearVoice] Failed to set output device:', e);
+      }
+    }
+    await this.outputAudioElement.play().catch((e) => console.warn('[ClearVoice] Output playback failed:', e));
 
     this.isActive = true;
     return this.micStream;
@@ -176,6 +197,27 @@ export class NoiseSuppressionEngine {
   setGain(value) {
     if (this.gainNode) {
       this.gainNode.gain.value = value;
+    }
+  }
+
+  async setOutputDevice(deviceId) {
+    this.outputDeviceId = deviceId;
+    if (this.outputAudioElement && typeof this.outputAudioElement.setSinkId === 'function') {
+      try {
+        await this.outputAudioElement.setSinkId(deviceId || '');
+      } catch (e) {
+        console.warn('[ClearVoice] setSinkId failed:', e);
+        throw e;
+      }
+    }
+  }
+
+  static async listOutputDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices.filter((d) => d.kind === 'audiooutput');
+    } catch {
+      return [];
     }
   }
 
@@ -220,6 +262,10 @@ export class NoiseSuppressionEngine {
 
   destroy() {
     this.isActive = false;
+    if (this.outputAudioElement) {
+      this.outputAudioElement.srcObject = null;
+      this.outputAudioElement = null;
+    }
     if (this.micStream) {
       this.micStream.getTracks().forEach(track => track.stop());
     }
@@ -230,5 +276,6 @@ export class NoiseSuppressionEngine {
     this.workletNode = null;
     this.gainNode = null;
     this.analyserNode = null;
+    this.streamDestination = null;
   }
 }
