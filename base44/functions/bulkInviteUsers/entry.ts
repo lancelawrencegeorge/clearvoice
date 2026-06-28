@@ -86,7 +86,21 @@ Deno.serve(async (req) => {
             }
 
             try {
-                await base44.asServiceRole.users.inviteUser(email, role);
+                // Pre-create the Agent record so the invited user is counted in
+                // billing immediately and can log in without registering.
+                const existing = await base44.asServiceRole.entities.Agent.filter({ email });
+                if (existing.length === 0) {
+                    const namePart = email.split('@')[0];
+                    await base44.asServiceRole.entities.Agent.create({
+                        full_name: namePart.charAt(0).toUpperCase() + namePart.slice(1),
+                        email,
+                        company: company.name,
+                        tenant_domain: companyDomain,
+                        role: 'agent',
+                        status: 'Active',
+                    });
+                }
+                await base44.users.inviteUser(email, role);
                 succeeded.push({ email, role });
             } catch (err) {
                 failed.push({ email, reason: err?.message || 'Invite failed' });
