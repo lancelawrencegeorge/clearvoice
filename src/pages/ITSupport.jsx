@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Power, Loader2, FileText, Download, FileCheck, Monitor, ListChecks, Wrench, Trash2, ArrowLeft, ExternalLink, CheckCircle2, Headphones, ArrowRight, Mic, AudioLines, User } from "lucide-react";
+import { Power, Loader2, FileText, Download, FileCheck, Monitor, ListChecks, Wrench, Trash2, ArrowLeft, ExternalLink, CheckCircle2, Headphones, ArrowRight, Mic, AudioLines, User, Info } from "lucide-react";
 import { getCurrentAgent, clearAuth } from "@/lib/customAuth";
 
 const PDF_URL = "https://base44.app/api/apps/69dfcacd77821fcbc01329c8/files/mp/public/69dfcacd77821fcbc01329c8/fa779b224_ClearVoice_IT_Deployment_Guide.pdf";
@@ -213,10 +213,20 @@ export default function ITSupport() {
                   <div>
                     <p className="font-medium mb-2 text-primary">2. Install VB-Cable</p>
                     <ul className="space-y-1.5 text-sm text-muted-foreground list-disc pl-5">
-                      <li>Extract the VB-Cable ZIP to a folder.</li>
+                      <li>Download and extract VB-Cable <strong>2ch (standard) version</strong> from <strong>vb-audio.com/Cable/</strong> — only install this version, not any "16ch" variant.</li>
                       <li>Right-click <code className="px-1 py-0.5 rounded bg-secondary text-xs">VBCABLE_Setup_x64.exe</code> and select <strong>Run as administrator</strong>.</li>
                       <li>Click <strong>Install Driver</strong> and wait for confirmation.</li>
                     </ul>
+                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs space-y-1.5 mt-2">
+                      <p className="font-medium text-amber-500">⚠️ Identifying the correct VB-Cable devices</p>
+                      <p className="text-muted-foreground">After installation you'll see <strong>two active devices</strong> in Windows Sound settings:</p>
+                      <ul className="list-none space-y-1 text-muted-foreground">
+                        <li>🎧 <strong>Playback</strong> tab → "CABLE Input (VB-Audio Virtual Cable)" — ClearVoice routes cleaned audio here</li>
+                        <li>🎤 <strong>Recording</strong> tab → "CABLE Output (VB-Audio Virtual Cable)" — select this as your softphone microphone</li>
+                      </ul>
+                      <p className="text-muted-foreground">You may also see <strong>"CABLE In 16ch (VB-Audio Virtual Cable)"</strong> or similar extra entries — these are leftover driver artifacts and are <strong>disabled by default. Ignore them entirely.</strong> Always select the standard "(VB-Audio Virtual Cable)" devices, never the "16ch" variants.</p>
+                      <p className="text-muted-foreground">If incorrect devices appear, <strong>uninstall VB-Cable entirely</strong> via the setup tool, reboot, and reinstall the standard (2ch) version only.</p>
+                    </div>
                   </div>
                   <div>
                     <p className="font-medium mb-2 text-primary">3. Reboot</p>
@@ -324,6 +334,7 @@ export default function ITSupport() {
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Microphone:</strong> Set to <strong>CABLE Output (VB-Audio Virtual Cable)</strong> — this receives the denoised audio from ClearVoice.</span></li>
                       <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Speaker / Headphones:</strong> Set to your headset (e.g. HONOR CHOICE, Jabra, Plantronics, or any USB/Bluetooth headset).</span></li>
+                      <li className="flex items-start gap-2"><Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" /> <span><strong>Note on the CABLE Output volume slider:</strong> In Windows Sound Settings, the Recording tab's CABLE Output Levels slider will show <strong>0%</strong> and cannot be changed — this is <strong>normal</strong>. Audio passes through at full volume regardless of this slider.</span></li>
                     </ul>
                   </div>
 
