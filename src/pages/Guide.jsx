@@ -400,6 +400,40 @@ export default function Guide() {
     addSpace();
 
     addDivider();
+    addH2('📋 Agent Quick-Start Sheet (Print This Page)');
+    addBody('Hand this one-page guide to each agent for a 5-minute setup. No IT knowledge needed beyond the initial VB-Cable installation.');
+    addSpace();
+    addH3('Your 1-Minute Morning Routine');
+    addBullet('Open ClearVoice from your taskbar');
+    addBullet('Click "Start Session" — grant microphone permission when asked');
+    addBullet('Minimize the window (the engine stays running)');
+    addBody('That\'s it. You\'re ready for calls all day.', 10);
+    addSpace();
+    addH3('To Check It\'s Working (Quick Test)');
+    addBullet('In your softphone, look in the audio settings: your microphone should read "CABLE Output"');
+    addBullet('Make a test call and ask: "Can you hear me clearly with background noise gone?"');
+    addBullet('If your voice sounds muffled → lower the Suppression slider in ClearVoice');
+    addBullet('If background noise is still coming through → raise the Suppression slider');
+    addSpace();
+    addH3('Important Tips');
+    addBullet('ClearVoice filters YOUR microphone only — it does not filter the other caller');
+    addBullet('Choose your softphone\'s MICROPHONE (not speaker) to "CABLE Output"');
+    addBullet('Leave your SPEAKER setting on your headset so you can hear callers normally');
+    addBullet('The Windows sound "CABLE Output" volume slider will show 0% — ignore it, your audio works at full volume');
+    addBullet('Start ClearVoice BEFORE joining a call, not during');
+    addSpace();
+    addH3('Troubleshooting Checklist');
+    addBullet('☐ Is ClearVoice showing "Active" (not "Idle")?');
+    addBullet('☐ Does the audio bar move green when you speak?');
+    addBullet('☐ Is your softphone microphone set to "CABLE Output (VB-Audio Virtual Cable)"?');
+    addBullet('☐ Is your softphone SPEAKER set to your headset/microspeaker (NOT the cable)?');
+    addBullet('☐ Did you click "Start Session" in ClearVoice?');
+    addBullet('☐ Is the suppression slider above 50%?');
+    addSpace();
+    addBody('If all checks pass and it still isn\'t working: quit ClearVoice, re-open it, click Start Session, and rejoin the call.', 10);
+    addSpace();
+
+    addDivider();
     addH2('What to Look Out For');
 
     addH3('Signs the test is working correctly');
@@ -633,6 +667,64 @@ export default function Guide() {
             <p className="text-xs text-muted-foreground italic pt-2 border-t border-border">
               Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy.
             </p>
+          </section>
+
+          <section className="border border-primary bg-primary/5 rounded-xl p-5 space-y-4 border-primary/30">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <span className="text-lg">📋</span>
+              Agent Quick-Start Sheet
+              <span className="inline-block ml-auto text-[10px] font-normal uppercase tracking-wider bg-primary/20 text-primary px-2 py-0.5 rounded">Print &amp; Hand Out</span>
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Hand this one-page guide to each agent for a 5-minute setup. No IT knowledge needed beyond the initial VB-Cable installation.
+            </p>
+
+            <div className="space-y-3 text-sm">
+              <div>
+                <h3 className="font-medium text-sm mb-1">Your 1-Minute Morning Routine</h3>
+                <ol className="list-decimal list-inside space-y-0.5 text-muted-foreground">
+                  <li>Open ClearVoice from your taskbar</li>
+                  <li>Click <strong>"Start Session"</strong> — grant microphone permission when asked</li>
+                  <li>Minimize the window (the engine stays running)</li>
+                </ol>
+                <p className="mt-1 text-primary text-xs">That's it. You're ready for calls all day.</p>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-sm mb-1">Quick Test (Check It's Working)</h3>
+                <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+                  <li>In your softphone audio settings, confirm microphone is set to <strong>"CABLE Output"</strong></li>
+                  <li>Make a test call — "Can you hear me with background noise gone?"</li>
+                  <li>If muffled → <strong>lower</strong> the Suppression slider</li>
+                  <li>If noisy → <strong>raise</strong> the Suppression slider</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-sm mb-1">Important Tips</h3>
+                <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+                  <li>ClearVoice filters <strong>your mic only</strong> — not the other caller</li>
+                  <li>Set <strong>MICROPHONE</strong> to "CABLE Output", leave <strong>SPEAKER</strong> on your headset</li>
+                  <li>The Windows CABLE Output slider at 0% is <strong>normal</strong> — audio passes at full volume</li>
+                  <li>Start ClearVoice <strong>before</strong> joining a call, not during</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-sm mb-1">Troubleshooting Checklist</h3>
+                <p className="text-xs text-muted-foreground mb-1">Go through each check:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+                  <li>☐ ClearVoice showing <strong>"Active"</strong> (not "Idle")?</li>
+                  <li>☐ Audio bar moving green when you speak?</li>
+                  <li>☐ Softphone mic set to <strong>"CABLE Output (VB-Audio Virtual Cable)"</strong>?</li>
+                  <li>☐ Softphone <strong>speaker</strong> set to headset (NOT the cable)?</li>
+                  <li>☐ Did you click <strong>"Start Session"</strong>?</li>
+                  <li>☐ Suppression slider above <strong>50%</strong>?</li>
+                </ul>
+              </div>
+
+              <p className="text-xs text-muted-foreground">Still not working? Quit ClearVoice, re-open it, click Start Session, and rejoin the call.</p>
+            </div>
           </section>
 
           <section className="border border-border rounded-xl p-5 space-y-4">
