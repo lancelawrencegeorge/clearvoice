@@ -102,7 +102,17 @@ Deno.serve(async (req) => {
                         onboarding_complete: false,
                     });
                 }
+                // Trigger the system invite for registration token (small print)
                 await base44.users.inviteUser(email, role);
+
+                // Send a branded invitation email from your company
+                await base44.asServiceRole.integrations.Core.SendEmail({
+                    to: email,
+                    from_name: requester.full_name || 'ClearVoice',
+                    subject: `You've been invited to join ${company.name} on ClearVoice`,
+                    body: `Hi there,\n\nYou've been invited by ${requester.full_name || 'your company admin'} to join ${company.name} on the ClearVoice platform.\n\nClick the link in the registration email you received from Base44 to create your account.\n\nOnce registered, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'}.\n\nBest,\nThe ClearVoice Team`
+                });
+
                 succeeded.push({ email, role });
             } catch (err) {
                 failed.push({ email, reason: err?.message || 'Invite failed' });
