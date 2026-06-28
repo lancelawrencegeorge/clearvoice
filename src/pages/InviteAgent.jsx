@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Building2, CheckCircle2, Plus, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getCurrentAgent } from '@/lib/customAuth';
+import { getCurrentAgent, getTenantDomain } from '@/lib/customAuth';
 
 const ALLOWED_ROLES = ['admin', 'super_user'];
 
@@ -24,15 +24,16 @@ export default function InviteAgent() {
 
   useEffect(() => {
     if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) return;
+    const domain = currentAgent.tenant_domain || getTenantDomain(currentAgent.email);
     base44.entities.Company.list().then(list => {
       if (currentAgent.role === 'super_user') {
-        const mine = list.filter(c => c.domain === currentAgent.tenant_domain);
+        const mine = list.filter(c => c.domain === domain || c.name === currentAgent.company);
         setCompanies(mine);
         if (mine[0]) setCompanyId(mine[0].id);
       } else {
         setCompanies(list);
       }
-    });
+    }).catch(() => {});
   }, []);
 
   if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) {
