@@ -344,9 +344,16 @@ export default function Guide() {
     addBody('ClearVoice processes audio in its own window. To route the clean audio into your softphone, a virtual audio cable driver must be installed on each agent\'s machine. This requires local admin privileges and should be deployed by the client\'s IT team.');
     addSpace();
     addH3('Windows — VB-Cable');
-    addBullet('Download VB-Cable from vb-audio.com/Cable/ (free)');
+    addBullet('Download VB-Cable from vb-audio.com/Cable/ (free) — get the standard "Virtual Audio Cable (2ch)" version');
     addBullet('Right-click the installer and "Run as administrator"');
     addBullet('Reboot the machine after installation');
+    addSpace();
+    addH3('Identifying the correct VB-Cable device');
+    addBody('After installing VB-Cable, you will see two virtual devices appear in your Windows sound settings:');
+    addBullet('Playback tab → "CABLE Input (VB-Audio Virtual Cable)" — set this as your default playback device for ClearVoice to receive audio');
+    addBullet('Recording tab → "CABLE Output (VB-Audio Virtual Cable)" — select this as your microphone in Teams / Zoom / softphone');
+    addBody('⚠️ You may see other devices like "CABLE In 16ch (VB-Audio Virtual Cable)" — these are leftover driver artifacts and are DISABLED by default. Ignore them entirely. Always select the standard "(VB-Audio Virtual Cable)" devices listed above — not the "16ch" variant. If you do not see the correct devices, uninstall VB-Cable entirely, reboot, then reinstall the standard 2-channel version only.', 10);
+    addBody('The Windows CABLE Output volume slider (Recording > Properties > Levels) will typically show 0% and cannot be changed — this is normal and does not affect audio. Audio passes through at full volume regardless.', 10);
     addSpace();
     addH3('Mac — BlackHole');
     addBullet('Download BlackHole from existential.audio/blackhole/ (free)');
@@ -538,10 +545,21 @@ export default function Guide() {
                 <div className="border border-border rounded-lg p-4 space-y-2">
                   <p className="font-medium text-sm text-foreground">Windows — VB-Cable</p>
                   <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
-                    <li>Download from <strong>vb-audio.com/Cable/</strong> (free)</li>
+                    <li>Download from <strong>vb-audio.com/Cable/</strong> (free) — get the standard <strong>"Virtual Audio Cable (2ch)"</strong> version</li>
                     <li>Right-click installer → <strong>"Run as administrator"</strong></li>
                     <li>Reboot after installation</li>
                   </ol>
+                  <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs space-y-1.5">
+                    <p className="font-medium text-amber-500">🔍 Identifying the correct devices</p>
+                    <p className="text-muted-foreground">After install you'll see two devices:</p>
+                    <ul className="list-none space-y-1 text-muted-foreground">
+                      <li>🎧 <strong>Playback</strong> tab → "CABLE Input (VB-Audio Virtual Cable)" — set as ClearVoice output</li>
+                      <li>🎤 <strong>Recording</strong> tab → "CABLE Output (VB-Audio Virtual Cable)" — select as mic in softphone</li>
+                    </ul>
+                    <p className="text-muted-foreground"><strong>Ignore</strong> any "CABLE In 16ch (VB-Audio Virtual Cable)" devices — those are leftovers and stay disabled. Always pick the standard "(VB-Audio Virtual Cable)" variants, never the "16ch" ones.</p>
+                    <p className="text-muted-foreground">The CABLE Output Levels slider will show 0% and cannot be changed — this is normal and does not affect audio.</p>
+                    <p className="text-xs text-amber-500/60">If the wrong devices appear, uninstall VB-Cable entirely, reboot, and reinstall the standard (2ch) version only.</p>
+                  </div>
                 </div>
                 <div className="border border-border rounded-lg p-4 space-y-2">
                   <p className="font-medium text-sm text-foreground">Mac — BlackHole</p>
