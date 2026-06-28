@@ -41,9 +41,11 @@ export default function Dashboard() {
     base44.entities.Agent.get(a.id).then(async (fresh) => {
       setAgent(fresh);
       try {
-        const companies = await base44.entities.Company.filter({ domain: fresh.tenant_domain });
-        if (companies.length === 0) {
-          navigate("/onboarding", { replace: true });
+        if (fresh.role === "super_user" && !fresh.onboarding_complete) {
+          const companies = await base44.entities.Company.filter({ domain: fresh.tenant_domain });
+          if (companies.length === 0) {
+            navigate("/onboarding", { replace: true });
+          }
         }
       } catch (e) {}
     }).catch(() => {});
