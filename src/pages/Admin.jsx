@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Loader2, Activity, AlertCircle } from "lucide-react";
-import { getCurrentAgent } from "@/lib/customAuth";
+import { Users, Clock, Loader2, Activity, AlertCircle, Filter } from "lucide-react";
+import { getCurrentAgent, getTenantDomain } from "@/lib/customAuth";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TenantBilling from "@/components/admin/TenantBilling";
 
 export default function Admin() {
@@ -16,6 +17,7 @@ export default function Admin() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [tenantFilter, setTenantFilter] = useState("all");
 
   useEffect(() => {
     const cached = getCurrentAgent();
@@ -39,10 +41,18 @@ export default function Admin() {
 
   const loadData = async () => {
     try {
+      const isSuperUser = currentAgent.role === "super_user";
+      const domain = isSuperUser ? getTenantDomain(currentAgent.email) : null;
       const [s, a, c] = await Promise.all([
-        base44.entities.Session.list("-login_at", 200),
-        base44.entities.Agent.list("-created_date", 200),
-        base44.entities.Company.list(),
+        isSuperUser
+          ? base44.entities.Session.filter({ tenant_domain: domain }, "-login_at", 200)
+          : base44.entities.Session.list("-login_at", 200),
+        isSuperUser
+          ? base44.entities.Agent.filter({ tenant_domain: domain }, "-created_date", 200)
+          : base44.entities.Agent.list("-created_date", 200),
+        isSuperUser
+          ? base44.entities.Company.filter({ domain })
+          : base44.entities.Company.list(),
       ]);
       setSessions(s);
       setAgents(a);
@@ -66,6 +76,27 @@ export default function Admin() {
     const m = minutes % 60;
     return `${h}h ${m}m`;
   };
+
+  const tenantOptions = useMemo(() => {
+    const set = new Set();
+    agents.forEach((a) => { if (a.tenant_domain) set.add(a.tenant_domain); });
+    companies.forEach((c) => { if (c.domain) set.add(c.domain); });
+    sessions.forEach((s) => { if (s.tenant_domain) set.add(s.tenant_domain); });
+    return Array.from(set).sort();
+  }, [agents, companies, sessions]);
+
+  const filteredSessions = useMemo(() =>
+    tenantFilter === "all" ? sessions : sessions.filter((s) => s.tenant_domain === tenantFilter),
+    [sessions, tenantFilter]
+  );
+  const filteredAgents = useMemo(() =>
+    tenantFilter === "all" ? agents : agents.filter((a) => a.tenant_domain === tenantFilter),
+    [agents, tenantFilter]
+  );
+  const filteredCompanies = useMemo(() =>
+    tenantFilter === "all" ? companies : companies.filter((c) => c.domain === tenantFilter),
+    [companies, tenantFilter]
+  );
 
   if (authChecking) {
     return (
@@ -113,6 +144,22 @@ export default function Admin() {
           </div>
         ) : (
           <div className="space-y-8">
+            {currentAgent?.role === "admin" && tenantOptions.length > 0 && (
+              <div className="flex items-center gap-3">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <Select value={tenantFilter} onValueChange={setTenantFilter}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="All tenants" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All tenants</SelectItem>
+                    {tenantOptions.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
@@ -122,7 +169,7 @@ export default function Admin() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Total Agents</p>
-                      <p className="text-2xl font-bold">{agents.length}</p>
+                      <p className="text-2xl font-bold">{filteredAgents.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -135,7 +182,7 @@ export default function Admin() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Total Sessions</p>
-                      <p className="text-2xl font-bold">{sessions.length}</p>
+                      <p className="text-2xl font-bold">{filteredSessions.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -149,7 +196,7 @@ export default function Admin() {
                     <div>
                       <p className="text-sm text-muted-foreground">Total Usage</p>
                       <p className="text-2xl font-bold">
-                        {formatDuration(sessions.reduce((sum, s) => sum + (s.duration_minutes || 0), 0))}
+                        {formatDuration(filteredSessions.reduce((sum, s) => sum + (s.duration_minutes || 0), 0))}
                       </p>
                     </div>
                   </div>
@@ -157,7 +204,7 @@ export default function Admin() {
               </Card>
             </div>
 
-            <TenantBilling agents={agents} companies={companies} sessions={sessions} />
+            <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
 
             <Card>
               <CardHeader>
@@ -176,14 +223,14 @@ export default function Admin() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sessions.length === 0 ? (
+                    {filteredSessions.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                           No sessions yet.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      sessions.map((s) => (
+                      filteredSessions.map((s) => (
                         <TableRow key={s.id}>
                           <TableCell className="font-medium">{s.agent_name || "—"}</TableCell>
                           <TableCell>{s.agent_email || "—"}</TableCell>
@@ -216,14 +263,14 @@ export default function Admin() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {agents.length === 0 ? (
+                    {filteredAgents.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                           No agents yet.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      agents.map((a) => (
+                      filteredAgents.map((a) => (
                         <TableRow key={a.id}>
                           <TableCell className="font-medium">{a.full_name || "—"}</TableCell>
                           <TableCell>{a.email || "—"}</TableCell>
