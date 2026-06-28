@@ -236,6 +236,10 @@ export default function Landing() {
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap">
                 7-Day Free Trial · No Credit Card Required
               </div>
+              <div className="mt-4 mb-2 p-3 rounded-lg border border-primary/20 bg-primary/5 text-center">
+                <p className="text-sm text-primary font-medium">Trial includes up to 20 agents</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Add more seats anytime by upgrading your plan</p>
+              </div>
               <div className="text-center mb-8 mt-2">
                 <div className="flex items-end justify-center gap-2 mb-2">
                   <span className="text-6xl font-extrabold">R110</span>
