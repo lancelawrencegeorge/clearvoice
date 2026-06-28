@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic, ShieldCheck, BarChart3, Users, LifeBuoy } from "lucide-react";
+import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic, ShieldCheck, BarChart3, Users, LifeBuoy, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
@@ -120,6 +120,10 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             {(agent.role === "super_user" || agent.role === "admin") && (
               <nav className="flex items-center gap-1">
+                <Link to="/invite" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                  <UserPlus className="w-4 h-4" />
+                  Invite
+                </Link>
                 {agent.role === "admin" && (
                   <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
                     <ShieldCheck className="w-4 h-4" />

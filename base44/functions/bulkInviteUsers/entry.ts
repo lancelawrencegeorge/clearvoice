@@ -3,18 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const user = await base44.auth.me();
-        if (!user) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        // Only admin or super_user can bulk invite
-        if (!['admin', 'super_user'].includes(user.role)) {
-            return Response.json({ error: 'Forbidden: Admin or super user access required' }, { status: 403 });
-        }
-
         const body = await req.json();
-        const { users, company_id } = body;
+        const { users, company_id, agent_id } = body;
 
         if (!Array.isArray(users) || users.length === 0) {
             return Response.json({ error: 'No users provided' }, { status: 400 });
@@ -22,16 +12,35 @@ Deno.serve(async (req) => {
         if (!company_id) {
             return Response.json({ error: 'Company ID is required' }, { status: 400 });
         }
+        if (!agent_id) {
+            return Response.json({ error: 'Agent ID is required' }, { status: 400 });
+        }
 
-        // Resolve the company (RLS scopes super_user to their own domain automatically)
-        const companies = await base44.entities.Company.filter({ id: company_id });
+        // Identify the requester via the Agent entity (the app uses a custom
+        // Agent-based auth model, not Base44's built-in User auth).
+        let requester = null;
+        try {
+            const requesterAgents = await base44.asServiceRole.entities.Agent.filter({ id: agent_id });
+            requester = requesterAgents[0];
+        } catch (_e) {
+            // filter throws on invalid id — treat as not found
+        }
+        if (!requester) {
+            return Response.json({ error: 'Requester not found' }, { status: 403 });
+        }
+        if (!['admin', 'super_user'].includes(requester.role)) {
+            return Response.json({ error: 'Forbidden: Admin or super user access required' }, { status: 403 });
+        }
+
+        // Resolve the company
+        const companies = await base44.asServiceRole.entities.Company.filter({ id: company_id });
         const company = companies[0];
         if (!company) {
             return Response.json({ error: 'Company not found' }, { status: 404 });
         }
 
         // Super_users can only invite into their own tenant
-        if (user.role === 'super_user' && company.domain && user.domain !== company.domain) {
+        if (requester.role === 'super_user' && company.domain && requester.tenant_domain !== company.domain) {
             return Response.json({ error: 'You can only invite users to your own company' }, { status: 403 });
         }
 
@@ -68,7 +77,7 @@ Deno.serve(async (req) => {
             }
 
             // Domain guard: emails must match the company domain (skip for platform admin)
-            if (user.role === 'super_user' && companyDomain) {
+            if (requester.role === 'super_user' && companyDomain) {
                 const emailDomain = email.split('@')[1];
                 if (emailDomain !== companyDomain) {
                     failed.push({ email, reason: `Email domain must be @${companyDomain}` });

@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Building2, CheckCircle2, Plus, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/lib/AuthContext';
+import { getCurrentAgent } from '@/lib/customAuth';
 
 const ALLOWED_ROLES = ['admin', 'super_user'];
 
 export default function InviteAgent() {
-  const { user } = useAuth();
+  const currentAgent = getCurrentAgent();
   const [companies, setCompanies] = useState([]);
   const [email, setEmail] = useState('');
   const [companyId, setCompanyId] = useState('');
@@ -23,26 +23,26 @@ export default function InviteAgent() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!user) return;
+    if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) return;
     base44.entities.Company.list().then(list => {
-      if (user.role === 'super_user') {
-        const mine = list.filter(c => c.domain === user.domain);
+      if (currentAgent.role === 'super_user') {
+        const mine = list.filter(c => c.domain === currentAgent.tenant_domain);
         setCompanies(mine);
         if (mine[0]) setCompanyId(mine[0].id);
       } else {
         setCompanies(list);
       }
     });
-  }, [user]);
+  }, []);
 
-  if (!user || !ALLOWED_ROLES.includes(user.role)) {
+  if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
           <h2 className="text-lg font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground text-sm mt-1">You need Super User or Company Admin access to invite users.</p>
-          <Link to="/" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
+          <p className="text-muted-foreground text-sm mt-1">You need Super User or Admin access to invite users.</p>
+          <Link to="/dashboard" className="text-primary text-sm mt-4 inline-block">← Back to Dashboard</Link>
         </div>
       </div>
     );
@@ -61,7 +61,7 @@ export default function InviteAgent() {
     e.preventDefault();
     if (!email || !companyId) { setError('Please fill in all fields.'); return; }
     // Domain guard for super_user
-    if (user.role === 'super_user') {
+    if (currentAgent.role === 'super_user') {
       const company = companies.find(c => c.id === companyId);
       const emailDomain = email.split('@')[1]?.toLowerCase();
       if (company?.domain && emailDomain !== company.domain) {
@@ -72,10 +72,10 @@ export default function InviteAgent() {
     setError('');
     setLoading(true);
     try {
-      // Use the bulk function for a single invite (gets domain validation + company scoping)
       await base44.functions.invoke('bulkInviteUsers', {
         users: [{ email, role: 'user' }],
         company_id: companyId,
+        agent_id: currentAgent.id,
       });
       setSuccess(true);
       setEmail('');
@@ -91,7 +91,7 @@ export default function InviteAgent() {
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="mb-8">
-          <Link to="/billing" className="text-sm text-muted-foreground hover:text-foreground">← Back to Billing</Link>
+          <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← Back to Dashboard</Link>
           <h1 className="text-2xl font-bold mt-4">Invite Agent</h1>
           <p className="text-muted-foreground text-sm mt-1">Send an invite and assign the agent to a company.</p>
         </div>
@@ -101,12 +101,12 @@ export default function InviteAgent() {
             <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" />
             <h2 className="text-lg font-semibold mb-2">Invite Sent!</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              The agent will receive an email to join. Once they log in, assign them to <strong>{selectedCompany?.name}</strong> from the billing dashboard.
+              The agent will receive an email to join. Once they log in, they'll be assigned to <strong>{selectedCompany?.name}</strong>.
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setSuccess(false)}>Invite Another</Button>
-              <Link to="/billing" className="flex-1">
-                <Button className="w-full">View Dashboard</Button>
+              <Link to="/dashboard" className="flex-1">
+                <Button className="w-full">Back to Dashboard</Button>
               </Link>
             </div>
           </Card>
@@ -125,30 +125,30 @@ export default function InviteAgent() {
               </div>
 
               <div className="space-y-2">
-              <Label>Assign to Company</Label>
-              {!showNewCompany ? (
-                <div className="flex gap-2">
-                  <Select value={companyId} onValueChange={setCompanyId} disabled={user?.role === 'super_user'}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select a company..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {companies.map(c => (
-                        <SelectItem key={c.id} value={c.id}>
-                          <div className="flex items-center gap-2">
-                            <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
-                            {c.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {user?.role === 'admin' && (
-                    <Button type="button" variant="outline" size="icon" onClick={() => setShowNewCompany(true)} title="Add new company">
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
+                <Label>Assign to Company</Label>
+                {!showNewCompany ? (
+                  <div className="flex gap-2">
+                    <Select value={companyId} onValueChange={setCompanyId} disabled={currentAgent.role === 'super_user'}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select a company..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {companies.map(c => (
+                          <SelectItem key={c.id} value={c.id}>
+                            <div className="flex items-center gap-2">
+                              <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+                              {c.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {currentAgent.role === 'admin' && (
+                      <Button type="button" variant="outline" size="icon" onClick={() => setShowNewCompany(true)} title="Add new company">
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex gap-2">
                     <Input
