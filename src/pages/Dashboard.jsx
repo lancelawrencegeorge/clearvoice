@@ -13,6 +13,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [agent, setAgent] = useState(null);
   const [loginTime, setLoginTime] = useState(null);
+  const [sessionStartMs, setSessionStartMs] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
   const { status, error, audioLevel, suppressionLevel, start, stop, changeSuppressionLevel } = useAudioEngine();
@@ -39,11 +40,14 @@ export default function Dashboard() {
     if (sessionId) {
       base44.entities.Session.get(sessionId).then((session) => {
         setLoginTime(parseServerUTC(session.created_date || session.login_at));
+        setSessionStartMs(Date.now());
       }).catch(() => {
         setLoginTime(new Date());
+        setSessionStartMs(Date.now());
       });
     } else {
       setLoginTime(new Date());
+      setSessionStartMs(Date.now());
     }
     // Fetch latest agent data to ensure role is current
     base44.entities.Agent.get(a.id).then(async (fresh) => {
@@ -60,12 +64,12 @@ export default function Dashboard() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!loginTime) return;
+    if (!sessionStartMs) return;
     const interval = setInterval(() => {
-      setElapsed(Math.floor((new Date() - loginTime) / 1000));
+      setElapsed(Math.floor((Date.now() - sessionStartMs) / 1000));
     }, 1000);
     return () => clearInterval(interval);
-  }, [loginTime]);
+  }, [sessionStartMs]);
 
   const formatDuration = (seconds) => {
     const h = Math.floor(seconds / 3600);
@@ -77,12 +81,11 @@ export default function Dashboard() {
   const handleSignOut = async () => {
     setSigningOut(true);
     const sessionId = getCurrentSessionId();
-    if (sessionId && loginTime) {
-      const now = new Date();
-      const duration = Math.max(1, Math.round((now - loginTime) / 60000));
+    if (sessionId && sessionStartMs) {
+      const duration = Math.max(1, Math.round((Date.now() - sessionStartMs) / 60000));
       try {
         await base44.entities.Session.update(sessionId, {
-          logout_at: now.toISOString(),
+          logout_at: new Date().toISOString(),
           duration_minutes: duration,
         });
       } catch (err) {
