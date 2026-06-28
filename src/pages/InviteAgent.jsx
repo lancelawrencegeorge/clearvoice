@@ -128,7 +128,7 @@ export default function InviteAgent() {
                 <Label>Assign to Company</Label>
                 {!showNewCompany ? (
                   <div className="flex gap-2">
-                    <Select value={companyId} onValueChange={setCompanyId} disabled={currentAgent.role === 'super_user'}>
+                    <Select value={companyId} onValueChange={setCompanyId}>
                       <SelectTrigger className="flex-1">
                         <SelectValue placeholder="Select a company..." />
                       </SelectTrigger>
