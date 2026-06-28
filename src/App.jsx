@@ -14,6 +14,7 @@ import Onboarding from './pages/Onboarding';
 import Guide from './pages/Guide';
 import InviteAgent from './pages/InviteAgent';
 import BulkImport from './pages/BulkImport';
+import Invoices from './pages/Invoices';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/guide" element={<Guide />} />
             <Route path="/invite" element={<InviteAgent />} />
             <Route path="/bulk-import" element={<BulkImport />} />
+            <Route path="/invoices" element={<Invoices />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

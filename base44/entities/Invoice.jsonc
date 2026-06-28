@@ -1,0 +1,99 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "invoice_number": {
+      "type": "string",
+      "description": "Unique invoice number"
+    },
+    "tenant_domain": {
+      "type": "string",
+      "description": "Tenant domain"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "billing_month": {
+      "type": "string",
+      "description": "Billing month in YYYY-MM format"
+    },
+    "seat_count": {
+      "type": "number",
+      "description": "Number of active seats billed"
+    },
+    "price_per_seat": {
+      "type": "number",
+      "description": "Price per seat for this billing period"
+    },
+    "full_month_charge": {
+      "type": "number",
+      "description": "Full month charges"
+    },
+    "prorata_charge": {
+      "type": "number",
+      "description": "Prorata charges for mid-month joiners"
+    },
+    "total_charge": {
+      "type": "number",
+      "description": "Total invoice amount"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "paid",
+        "overdue"
+      ],
+      "default": "draft",
+      "description": "Invoice status"
+    },
+    "billing_contact_email": {
+      "type": "string",
+      "description": "Billing contact email"
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the invoice was generated"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the invoice was emailed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes"
+    }
+  },
+  "required": [
+    "invoice_number",
+    "tenant_domain",
+    "billing_month",
+    "total_charge"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
