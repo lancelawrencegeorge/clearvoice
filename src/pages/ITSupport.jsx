@@ -149,7 +149,7 @@ export default function ITSupport() {
                       <TableCell className="font-medium">ClearVoice Installer</TableCell>
                       <TableCell className="text-muted-foreground">Desktop application installer (Windows)</TableCell>
                       <TableCell>
-                        <a href="https://github.com/lancelawrencegeorge/clearvoice/releases/download/v1.1.1/ClearVoice.Setup.1.1.1.exe" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-sm">
+                        <a href="https://github.com/lancelawrencegeorge/clearvoice/releases/download/V1.1.1/ClearVoice.Setup.1.1.1.exe" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1 text-sm">
                           Download <ExternalLink className="w-3 h-3" />
                         </a>
                       </TableCell>
