@@ -188,7 +188,11 @@ export class NoiseSuppressionEngine {
         console.warn('[ClearVoice] Failed to set output device:', e);
       }
     }
-    await this.outputAudioElement.play().catch((e) => console.warn('[ClearVoice] Output playback failed:', e));
+    try {
+      await this.outputAudioElement.play();
+    } catch (e) {
+      throw new Error('Audio output playback failed — ' + e.message);
+    }
 
     this.isActive = true;
     return this.micStream;
