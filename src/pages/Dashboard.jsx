@@ -27,15 +27,22 @@ export default function Dashboard() {
     }
     setAgent(a);
     // Use the session's login_at as the authoritative login time
+    // The DB may return the ISO timestamp without a 'Z' suffix, so we
+    // explicitly treat it as UTC to avoid the browser showing UTC as local time.
+    const parseUTC = (raw) => {
+      if (!raw) return new Date();
+      const asUTC = raw.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(raw) ? raw : raw + 'Z';
+      return new Date(asUTC);
+    };
     const sessionId = getCurrentSessionId();
     if (sessionId) {
       base44.entities.Session.get(sessionId).then((session) => {
-        setLoginTime(new Date(session.login_at));
+        setLoginTime(parseUTC(session.login_at));
       }).catch(() => {
-        setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+        setLoginTime(parseUTC(a.last_login));
       });
     } else {
-      setLoginTime(a.last_login ? new Date(a.last_login) : new Date());
+      setLoginTime(parseUTC(a.last_login));
     }
     // Fetch latest agent data to ensure role is current
     base44.entities.Agent.get(a.id).then(async (fresh) => {
