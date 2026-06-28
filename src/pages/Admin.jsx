@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Loader2, Activity, AlertCircle, Filter, Download, FileText, Calendar } from "lucide-react";
+import { Users, Clock, Loader2, Activity, AlertCircle, Filter, Download, FileText, Calendar, Mail } from "lucide-react";
 import { getCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TenantBilling from "@/components/admin/TenantBilling";
@@ -169,9 +169,16 @@ export default function Admin() {
             />
             <span className="font-bold text-lg">ClearVoice Admin</span>
           </div>
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            Back to app
-          </Link>
+          <div className="flex items-center gap-4">
+            {currentAgent?.role === "admin" && (
+              <Link to="/email-templates" className="text-sm text-primary hover:underline flex items-center gap-1">
+                <Mail className="w-3.5 h-3.5" /> Email Templates
+              </Link>
+            )}
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
+              Back to app
+            </Link>
+          </div>
         </div>
       </header>
 
