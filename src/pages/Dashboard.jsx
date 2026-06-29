@@ -323,6 +323,10 @@ export default function Dashboard() {
           </Card>
         </div>
       </main>
+
+      <footer className="text-center text-xs text-muted-foreground/60 py-4 border-t border-border/30">
+        A product of Contact Centre SA
+      </footer>
     </div>
   );
 }

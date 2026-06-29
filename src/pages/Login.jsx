@@ -234,6 +234,10 @@ export default function Login() {
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
+
+      <p className="text-center text-xs text-muted-foreground/60 mt-8">
+        A product of Contact Centre SA
+      </p>
     </div>
   );
 }
