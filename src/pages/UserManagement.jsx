@@ -61,7 +61,7 @@ export default function UserManagement() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    if (currentAgent?.role === 'super_user' && !dataLoaded) {
+    if ((currentAgent?.role === 'super_user' || currentAgent?.role === 'admin') && !dataLoaded) {
       setDataLoaded(true);
       loadData();
     }
