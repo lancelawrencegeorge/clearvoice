@@ -75,7 +75,7 @@ export default function UserManagement() {
     );
   }
 
-  if (!currentAgent || currentAgent.role !== 'super_user') {
+  if (!currentAgent || (currentAgent.role !== 'super_user' && currentAgent.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
