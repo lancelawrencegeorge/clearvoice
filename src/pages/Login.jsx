@@ -108,7 +108,10 @@ export default function Login() {
           />
           <h1 className="text-3xl font-bold tracking-tight">ClearVoice</h1>
           <p className="text-muted-foreground mt-2">Zero-latency noise suppression</p>
-          <p className="text-[11px] text-primary/70 mt-4">A product of Contact Centre SA</p>
+          <p className="text-[11px] mt-4">
+            A product of <span style={{ color: '#007A4D' }}>Contact Centre</span>{' '}
+            <span style={{ color: '#FFB612', fontWeight: 700 }}>SA</span>
+          </p>
         </div>
 
         <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
