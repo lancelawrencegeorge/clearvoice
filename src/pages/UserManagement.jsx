@@ -45,9 +45,9 @@ export default function UserManagement() {
     setError(null);
     base44.entities.Agent.list('-created_date', 500)
       .then(a => {
-        const scoped = currentAgent?.tenant_domain
-          ? a.filter(x => x.tenant_domain === currentAgent.tenant_domain)
-          : a;
+        const scoped = (currentAgent?.role === 'admin' || !currentAgent?.tenant_domain)
+          ? a
+          : a.filter(x => x.tenant_domain === currentAgent.tenant_domain);
         setAgents(scoped);
         setLoading(false);
       })
