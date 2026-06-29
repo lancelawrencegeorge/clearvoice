@@ -28,6 +28,11 @@ export default class ErrorBoundary extends React.Component {
             <p className="text-sm text-muted-foreground mt-2">
               An unexpected error occurred while loading the page.
             </p>
+            {this.state.error && (
+              <pre className="mt-4 p-3 rounded-md bg-secondary text-xs text-left overflow-auto max-h-48 text-destructive-foreground whitespace-pre-wrap break-all">
+                {this.state.error.message || String(this.state.error)}
+              </pre>
+            )}
             <button
               onClick={this.handleReload}
               className="mt-4 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium"
