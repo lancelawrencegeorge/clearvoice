@@ -223,9 +223,9 @@ export default function Landing() {
                 <Ban className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Noise peaks blocked instantly</h3>
+                <h3 className="font-semibold mb-1">Neural voice separation</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Sudden loud spikes — a door slamming, a dog barking, a siren — are detected and blocked in real time before they reach the call.
+                  A recurrent neural network distinguishes speech from noise frame-by-frame — so background voices, chatter and sudden sounds are continuously suppressed while your agent's voice stays clear.
                 </p>
               </div>
             </div>
