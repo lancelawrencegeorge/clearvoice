@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/lib/AuthContext';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Login from './pages/Login';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
@@ -22,22 +23,24 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/users" element={<UserManagement />} />
-            <Route path="/it-support" element={<ITSupport />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/guide" element={<Guide />} />
-            <Route path="/invite" element={<InviteAgent />} />
-            <Route path="/bulk-import" element={<BulkImport />} />
-            <Route path="/invoices" element={<Invoices />} />
-            <Route path="/email-templates" element={<EmailTemplates />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/users" element={<UserManagement />} />
+              <Route path="/it-support" element={<ITSupport />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/guide" element={<Guide />} />
+              <Route path="/invite" element={<InviteAgent />} />
+              <Route path="/bulk-import" element={<BulkImport />} />
+              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/email-templates" element={<EmailTemplates />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ErrorBoundary>
         </Router>
         <Toaster />
       </QueryClientProvider>

@@ -50,11 +50,15 @@ export default function Dashboard() {
       setLoginTime(new Date());
       setSessionStartMs(Date.now());
     }
-    // Fetch latest agent data to ensure role is current
+    // Fetch latest agent data to ensure role is current.
+    // Guard: only update if we got a valid record back — never overwrite the
+    // localStorage agent with null/undefined, which would blank the page.
     base44.entities.Agent.get(a.id).then(async (fresh) => {
-      setAgent(fresh);
+      if (fresh && fresh.id) {
+        setAgent(fresh);
+      }
       try {
-        if (fresh.role === "super_user" && !fresh.onboarding_complete) {
+        if (fresh && fresh.role === "super_user" && !fresh.onboarding_complete) {
           const companies = await base44.entities.Company.filter({ domain: fresh.tenant_domain });
           if (companies.length === 0) {
             navigate("/onboarding", { replace: true });
