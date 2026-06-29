@@ -62,32 +62,17 @@ export default function Onboarding() {
     setSaving(true);
     setError('');
     try {
-      const now = new Date();
-      const trialEnd = new Date(now);
-      trialEnd.setDate(trialEnd.getDate() + 14);
-
-      const company = await base44.entities.Company.create({
-        name: form.company_name.trim(),
+      const response = await base44.functions.invoke('completeOnboarding', {
+        agent_id: agent.id,
+        company_name: form.company_name.trim(),
         domain: form.domain.toLowerCase().trim(),
-        billing_contact_email: form.billing_email.trim(),
-        plan: 'trial',
-        trial_start_date: now.toISOString(),
-        trial_end_date: trialEnd.toISOString(),
-        seat_limit: 20,
-        is_active: true,
+        billing_email: form.billing_email.trim(),
       });
-
-      const updated = await base44.entities.Agent.update(agent.id, {
-        role: 'super_user',
-        company: form.company_name.trim(),
-        tenant_domain: form.domain.toLowerCase().trim(),
-        onboarding_complete: true,
-      });
-
-      setCurrentAgent({ ...agent, ...updated }, getCurrentSessionId());
+      const updatedAgent = response.data?.agent || response.data;
+      setCurrentAgent({ ...agent, ...updatedAgent }, getCurrentSessionId());
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.message || 'Setup failed. Please try again.');
+      setError(err?.message || 'Setup failed. Please try again.');
       setSaving(false);
     }
   };
