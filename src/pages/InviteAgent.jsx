@@ -13,7 +13,7 @@ const ALLOWED_ROLES = ['admin', 'super_user'];
 
 export default function InviteAgent() {
   const navigate = useNavigate();
-  const [currentAgent, setCurrentAgent] = useState(getCurrentAgent());
+  const currentAgent = getCurrentAgent();
   const [companies, setCompanies] = useState([]);
   const [email, setEmail] = useState('');
   const [companyId, setCompanyId] = useState('');
@@ -28,20 +28,18 @@ export default function InviteAgent() {
   const isSuperUser = currentAgent?.role === 'super_user';
 
   useEffect(() => {
-    const agent = getCurrentAgent();
-    setCurrentAgent(agent);
-    if (!agent || !ALLOWED_ROLES.includes(agent.role)) return;
-    const domain = agent.tenant_domain || getTenantDomain(agent.email);
+    if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) return;
+    const domain = currentAgent.tenant_domain || getTenantDomain(currentAgent.email);
     base44.entities.Company.list().then(list => {
-      if (agent.role === 'super_user') {
-        const mine = list.filter(c => c.domain === domain || c.name === agent.company);
+      if (currentAgent.role === 'super_user') {
+        const mine = list.filter(c => c.domain === domain || c.name === currentAgent.company);
         setCompanies(mine);
         if (mine[0]) setCompanyId(mine[0].id);
       } else {
         setCompanies(list);
       }
     }).catch(() => {});
-  }, [currentAgent]);
+  }, [currentAgent?.id, currentAgent?.role]);
 
   if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) {
     return (
