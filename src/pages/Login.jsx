@@ -108,6 +108,7 @@ export default function Login() {
           />
           <h1 className="text-3xl font-bold tracking-tight">ClearVoice</h1>
           <p className="text-muted-foreground mt-2">Zero-latency noise suppression</p>
+          <p className="text-[11px] text-primary/70 mt-4">A product of Contact Centre SA</p>
         </div>
 
         <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
@@ -234,10 +235,6 @@ export default function Login() {
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
-
-      <p className="text-center text-xs text-muted-foreground/60 mt-8">
-        A product of Contact Centre SA
-      </p>
     </div>
   );
 }
