@@ -26,7 +26,7 @@ export function useAudioEngine() {
   const refreshOutputDevices = useCallback(async () => {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      setOutputDevices(devices.filter((d) => d.kind === 'audiooutput'));
+      setOutputDevices(devices.filter((d) => d.kind === 'audiooutput' && d.deviceId));
     } catch {}
   }, []);
 
