@@ -40,7 +40,7 @@ const FEATURES = [
 
 const STATS = [
   { value: '< 20ms', label: 'Processing latency' },
-  { value: '60–80%', label: 'Noise suppression' },
+  { value: 'Neural', label: 'Noise suppression' },
   { value: '0 bytes', label: 'Data sent to cloud' },
   { value: '10+', label: 'Softphone integrations' },
 ];
@@ -210,9 +210,9 @@ export default function Landing() {
                 <AudioWaveform className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold mb-1">60–80% noise suppression</h3>
+                <h3 className="font-semibold mb-1">Adjustable noise suppression</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  ClearVoice continuously removes 60–80% of background noise — voices, keyboard clatter, fans and chatter — keeping your agent's speech crisp and natural.
+                  A neural network continuously removes background noise — voices, keyboard clatter, fans and chatter — while your agent's speech stays clear. Suppression level is adjustable to suit any environment.
                 </p>
               </div>
             </div>
