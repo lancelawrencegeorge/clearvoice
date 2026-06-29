@@ -249,7 +249,7 @@ export default function Dashboard() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="default">Default speakers</SelectItem>
-                      {outputDevices.map((d) => (
+                      {outputDevices.filter((d) => d.deviceId).map((d) => (
                         <SelectItem key={d.deviceId} value={d.deviceId}>
                           {d.label || 'Unknown audio device'}
                         </SelectItem>
