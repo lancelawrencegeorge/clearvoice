@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useAuth } from '@/lib/AuthContext';
-import { getTenantDomain } from '@/lib/customAuth';
+import { getCurrentAgent, getTenantDomain } from '@/lib/customAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -39,7 +38,7 @@ bob@acme.com,manager,Team Lead
 carol@acme.com,user,Support Specialist`;
 
 export default function BulkImport() {
-  const { user } = useAuth();
+  const currentAgent = getCurrentAgent();
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [defaultRole, setDefaultRole] = useState('user');
@@ -50,11 +49,11 @@ export default function BulkImport() {
   const fileRef = useRef(null);
 
   useEffect(() => {
-    if (user && ALLOWED_ROLES.includes(user.role)) {
+    if (currentAgent && ALLOWED_ROLES.includes(currentAgent.role)) {
       base44.entities.Company.list().then(list => {
         // Super users are locked to their own company (by domain)
-        if (user.role === 'super_user') {
-          const domain = getTenantDomain(user.email);
+        if (currentAgent.role === 'super_user') {
+          const domain = currentAgent.tenant_domain || getTenantDomain(currentAgent.email);
           const mine = list.filter(c => c.domain === domain);
           setCompanies(mine);
           if (mine[0]) setSelectedCompany(mine[0].id);
@@ -63,9 +62,9 @@ export default function BulkImport() {
         }
       });
     }
-  }, [user]);
+  }, [currentAgent?.id]);
 
-  if (!user || !ALLOWED_ROLES.includes(user.role)) {
+  if (!currentAgent || !ALLOWED_ROLES.includes(currentAgent.role)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -152,7 +151,7 @@ export default function BulkImport() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Company</label>
-                  <Select value={selectedCompany} onValueChange={setSelectedCompany} disabled={user?.role === 'super_user'}>
+                  <Select value={selectedCompany} onValueChange={setSelectedCompany} disabled={currentAgent?.role === 'super_user'}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select company..." />
                     </SelectTrigger>
@@ -163,7 +162,7 @@ export default function BulkImport() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    {user?.role === 'super_user' ? 'Locked to your company' : 'Applied to all imported agents'}
+                    {currentAgent?.role === 'super_user' ? 'Locked to your company' : 'Applied to all imported agents'}
                   </p>
                 </div>
                 <div className="space-y-1.5">
