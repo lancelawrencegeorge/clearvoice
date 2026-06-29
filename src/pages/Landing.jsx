@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { motion, useInView } from 'framer-motion';
-import { Volume2, Zap, ShieldCheck, Headphones, BarChart3, Users, ChevronRight, CheckCircle2, Globe, Cpu, Wifi } from 'lucide-react';
+import { Volume2, Zap, ShieldCheck, Headphones, BarChart3, Users, ChevronRight, CheckCircle2, Globe, Cpu, Wifi, AudioWaveform, Ban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const FEATURES = [
@@ -40,7 +40,7 @@ const FEATURES = [
 
 const STATS = [
   { value: '< 20ms', label: 'Processing latency' },
-  { value: '95%', label: 'Noise reduction' },
+  { value: '60–80%', label: 'Noise suppression' },
   { value: '0 bytes', label: 'Data sent to cloud' },
   { value: '10+', label: 'Softphone integrations' },
 ];
@@ -198,6 +198,38 @@ export default function Landing() {
               <p className="text-sm text-muted-foreground">{s.label}</p>
             </FadeIn>
           ))}
+        </div>
+      </section>
+
+      {/* SUPPRESSION CALLOUT */}
+      <section className="py-16 px-6">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <FadeIn>
+            <div className="h-full p-6 rounded-2xl border border-border/50 bg-card/50 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <AudioWaveform className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">60–80% noise suppression</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  ClearVoice continuously removes 60–80% of background noise — voices, keyboard clatter, fans and chatter — keeping your agent's speech crisp and natural.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <div className="h-full p-6 rounded-2xl border border-border/50 bg-card/50 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <Ban className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Noise peaks blocked instantly</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Sudden loud spikes — a door slamming, a dog barking, a siren — are detected and blocked in real time before they reach the call.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
