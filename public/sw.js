@@ -1,15 +1,23 @@
-// Self-unregistering service worker — clears stale caches from previous versions
-self.addEventListener('install', (e) => {
+// Cleanup service worker — clears all old caches and unregisters itself.
+// This replaces the old caching SW that was serving stale bundles.
+self.addEventListener('install', (event) => {
   self.skipWaiting();
-  e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((key) => caches.delete(key)))
+    )
   );
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    self.registration.unregister().then(() => self.clients.claim())
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', () => {});
+self.addEventListener('fetch', (event) => {
+  // Pass through — no caching
+});
