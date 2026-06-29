@@ -128,9 +128,9 @@ export default function Onboarding() {
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
+            initial={{ x: 30 }}
+            animate={{ x: 0 }}
+            exit={{ x: -30 }}
             transition={{ duration: 0.25 }}
             className="bg-card/80 border border-border/50 rounded-2xl p-8"
           >
