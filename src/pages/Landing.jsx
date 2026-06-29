@@ -156,7 +156,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="gap-2 px-8 text-base"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/contact')}
               >
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
@@ -266,7 +266,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="w-full text-base gap-2"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/contact')}
               >
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
@@ -290,7 +290,7 @@ export default function Landing() {
             <Button
               size="lg"
               className="gap-2 px-10 text-base"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/contact')}
             >
               Request a Demo <ChevronRight className="w-4 h-4" />
             </Button>
