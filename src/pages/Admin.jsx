@@ -8,6 +8,7 @@ import { Users, Clock, Loader2, Activity, AlertCircle, Filter, Download, FileTex
 import { getCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TenantBilling from "@/components/admin/TenantBilling";
+import LiveMonitor from "@/components/admin/LiveMonitor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { exportBillingPDF, exportBillingCSV } from "@/lib/billingExport";
@@ -264,6 +265,8 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+
+            <LiveMonitor tenantFilter={tenantFilter} />
 
             <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
 

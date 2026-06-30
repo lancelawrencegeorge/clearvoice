@@ -35,6 +35,15 @@
     "app_version": {
       "type": "string",
       "description": "App version used during session"
+    },
+    "suppression_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether noise suppression is currently active in this session"
+    },
+    "suppression_level": {
+      "type": "number",
+      "description": "Current suppression level (5-95) used during this session"
     }
   },
   "required": [

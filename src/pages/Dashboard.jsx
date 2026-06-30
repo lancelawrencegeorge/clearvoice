@@ -21,6 +21,30 @@ export default function Dashboard() {
   const suppressionActive = status === 'active' || status === 'connecting';
   const isConnecting = status === 'connecting';
 
+  const updateSessionSuppression = async (active, level) => {
+    const sessionId = getCurrentSessionId();
+    if (!sessionId) return;
+    try {
+      await base44.entities.Session.update(sessionId, {
+        suppression_active: active,
+        suppression_level: level,
+      });
+    } catch (e) {
+      console.error("Failed to update suppression status:", e);
+    }
+  };
+
+  const handleStart = async () => {
+    await start();
+    await updateSessionSuppression(true, suppressionLevel);
+  };
+
+  const handleChangeSuppressionLevel = (v) => {
+    changeSuppressionLevel(v[0]);
+    if (suppressionActive) {
+      updateSessionSuppression(true, v[0]);
+    }
+  };
   useEffect(() => {
     const a = getCurrentAgent();
     if (!a) {
@@ -92,6 +116,7 @@ export default function Dashboard() {
         await base44.entities.Session.update(sessionId, {
           logout_at: new Date().toISOString(),
           duration_minutes: duration,
+          suppression_active: false,
         });
       } catch (err) {
         console.error("Failed to update session:", err);
@@ -211,7 +236,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                 ) : (
-                  <Button onClick={start} disabled={isConnecting}>
+                  <Button onClick={handleStart} disabled={isConnecting}>
                     <Mic className="w-4 h-4 mr-2" />
                     Start Session
                   </Button>
@@ -224,7 +249,7 @@ export default function Dashboard() {
                 </div>
                 <Slider
                   value={[Math.max(5, Math.min(95, suppressionLevel))]}
-                  onValueChange={(v) => changeSuppressionLevel(v[0])}
+                  onValueChange={(v) => handleChangeSuppressionLevel(v[0])}
                   max={100}
                   step={5}
                   disabled={!suppressionActive}
