@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [sessionStartMs, setSessionStartMs] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
+  const [companySuspended, setCompanySuspended] = useState(false);
   const lastActivityRef = useRef(Date.now());
   const autoSigningOutRef = useRef(false);
   const handleSignOutRef = useRef(null);
@@ -88,10 +89,15 @@ export default function Dashboard() {
         setAgent(fresh);
       }
       try {
-        if (fresh && fresh.role === "super_user" && !fresh.onboarding_complete) {
+        if (fresh && fresh.role === "super_user") {
           const companies = await base44.entities.Company.filter({ domain: fresh.tenant_domain });
-          if (companies.length === 0) {
+          if (companies.length === 0 && !fresh.onboarding_complete) {
             navigate("/onboarding", { replace: true });
+          } else if (companies.length > 0) {
+            const co = companies[0];
+            if (co.plan === "suspended" || co.trial_expired || !co.is_active) {
+              setCompanySuspended(true);
+            }
           }
         }
       } catch (e) {}
@@ -244,6 +250,18 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold">Welcome, {agent.full_name}</h1>
           <p className="text-muted-foreground mt-1">Your noise suppression session is ready.</p>
         </div>
+
+        {companySuspended && (
+          <div className="mb-6 flex items-start gap-3 p-4 rounded-xl border border-orange-500/30 bg-orange-500/10">
+            <AlertCircle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-sm text-orange-500">Action Required: Your ClearVoice access is suspended</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Your trial has ended and service has been paused. To restore access for your team, please contact our billing team at <a href="mailto:support@clearvoice.africa" className="text-primary underline">support@clearvoice.africa</a> to activate your subscription at R95/seat/month.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid gap-6 md:grid-cols-3">
           <Card className="md:col-span-2">
