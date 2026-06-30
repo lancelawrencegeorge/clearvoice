@@ -449,6 +449,9 @@ export default function Guide() {
     addBullet('The Windows sound "CABLE Output" volume slider will show 0% — ignore it, your audio works at full volume');
     addBullet('Start ClearVoice BEFORE joining a call, not during');
     addSpace();
+    addH3('Session Timeout');
+    addBody('For security, ClearVoice automatically signs you out after 2 hours of inactivity (no mouse, keyboard, scroll, or touch activity). Your session is properly closed with a logout timestamp so it won\'t appear as a stale "open" session. Simply sign back in to resume.');
+    addSpace();
     addH3('Troubleshooting Checklist');
     addBullet('☐ Is ClearVoice showing "Active" (not "Idle")?');
     addBullet('☐ Does the audio bar move green when you speak?');
@@ -772,6 +775,13 @@ export default function Guide() {
                   <li>The Windows CABLE Output slider at 0% is <strong>normal</strong> — audio passes at full volume</li>
                   <li>Start ClearVoice <strong>before</strong> joining a call, not during</li>
                 </ul>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-sm mb-1">Session Timeout</h3>
+                <p className="text-muted-foreground">
+                  For security, ClearVoice automatically signs you out after <strong>2 hours of inactivity</strong> (no mouse, keyboard, scroll, or touch activity). Your session is properly closed with a logout timestamp so it won't appear as a stale "open" session. Simply sign back in to resume.
+                </p>
               </div>
 
               <div>
