@@ -443,7 +443,7 @@ export default function Guide() {
     addBullet('If background noise is still coming through → raise the Suppression slider');
     addSpace();
     addH3('Important Tips');
-    addBullet('ClearVoice filters YOUR microphone only — it does not filter the other caller');
+    addBullet('ClearVoice filters YOUR microphone by default — use the "Customer Noise Filter" toggle to also filter the other caller\'s audio');
     addBullet('Choose your softphone\'s MICROPHONE (not speaker) to "CABLE Output"');
     addBullet('Leave your SPEAKER setting on your headset so you can hear callers normally');
     addBullet('The Windows sound "CABLE Output" volume slider will show 0% — ignore it, your audio works at full volume');
@@ -770,7 +770,7 @@ export default function Guide() {
               <div>
                 <h3 className="font-medium text-sm mb-1">Important Tips</h3>
                 <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
-                  <li>ClearVoice filters <strong>your mic only</strong> — not the other caller</li>
+                  <li>ClearVoice filters <strong>your mic</strong> by default — toggle on <strong>Customer Noise Filter</strong> to also filter the other caller\'s audio</li>
                   <li>Set <strong>MICROPHONE</strong> to "CABLE Output", leave <strong>SPEAKER</strong> on your headset</li>
                   <li>The Windows CABLE Output slider at 0% is <strong>normal</strong> — audio passes at full volume</li>
                   <li>Start ClearVoice <strong>before</strong> joining a call, not during</li>
