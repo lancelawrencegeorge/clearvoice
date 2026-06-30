@@ -115,6 +115,15 @@ export class NoiseSuppressionEngine {
     this.outputDeviceId = null;
     this.isActive = false;
     this.suppressionLevel = 70; // 0-100
+    // Customer filter (incoming audio) state
+    this.customerStream = null;
+    this.customerAudioContext = null;
+    this.customerSourceNode = null;
+    this.customerWorkletNode = null;
+    this.customerGainNode = null;
+    this.customerStreamDestination = null;
+    this.customerOutputAudioElement = null;
+    this.customerFilterActive = false;
   }
 
   async initialize({ outputDeviceId } = {}) {
@@ -242,6 +251,108 @@ export class NoiseSuppressionEngine {
     }
   }
 
+  async startCustomerFilter({ outputDeviceId } = {}) {
+    // Capture system/tab audio via getDisplayMedia — user shares their softphone tab with audio
+    const displayStream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true,
+      video: true // Required by most browsers; we stop video immediately
+    });
+
+    // Stop video tracks — we only need audio
+    displayStream.getVideoTracks().forEach(t => t.stop());
+
+    const audioTracks = displayStream.getAudioTracks();
+    if (audioTracks.length === 0) {
+      throw new Error('No audio shared — please check "Share audio" when sharing your softphone tab');
+    }
+
+    this.customerStream = new MediaStream(audioTracks);
+    this.customerAudioContext = new (window.AudioContext || window.webkitAudioContext)({
+      sampleRate: 48000,
+      latencyHint: 'interactive'
+    });
+
+    if (this.customerAudioContext.state === 'suspended') {
+      await this.customerAudioContext.resume();
+    }
+
+    // Load the RNNoise worklet (same processor as the mic path)
+    const blob = new Blob([WORKLET_CODE], { type: 'application/javascript' });
+    const workletUrl = URL.createObjectURL(blob);
+    await this.customerAudioContext.audioWorklet.addModule(workletUrl);
+    URL.revokeObjectURL(workletUrl);
+
+    this.customerSourceNode = this.customerAudioContext.createMediaStreamSource(this.customerStream);
+
+    this.customerWorkletNode = new AudioWorkletNode(this.customerAudioContext, 'rnnoise-processor', {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: [1]
+    });
+    this.customerWorkletNode.port.postMessage({ type: 'SET_LEVEL', level: this.suppressionLevel / 100 });
+
+    this.customerGainNode = this.customerAudioContext.createGain();
+    this.customerGainNode.gain.value = 1.0;
+
+    this.customerStreamDestination = this.customerAudioContext.createMediaStreamDestination();
+    this.customerStreamDestination.channelCount = 1;
+
+    this.customerSourceNode.connect(this.customerWorkletNode);
+    this.customerWorkletNode.connect(this.customerGainNode);
+    this.customerGainNode.connect(this.customerStreamDestination);
+
+    this.customerOutputAudioElement = new Audio();
+    this.customerOutputAudioElement.volume = 1.0;
+    this.customerOutputAudioElement.srcObject = this.customerStreamDestination.stream;
+
+    if (outputDeviceId && typeof this.customerOutputAudioElement.setSinkId === 'function') {
+      try {
+        await this.customerOutputAudioElement.setSinkId(outputDeviceId);
+      } catch (e) {
+        console.warn('[ClearVoice] Customer filter output device failed:', e);
+      }
+    }
+
+    try {
+      await this.customerOutputAudioElement.play();
+    } catch (e) {
+      throw new Error('Customer audio playback failed — ' + e.message);
+    }
+
+    // Handle stream end (user stops sharing or closes tab)
+    audioTracks[0].addEventListener('ended', () => {
+      this.stopCustomerFilter();
+    });
+
+    this.customerFilterActive = true;
+  }
+
+  setCustomerFilterLevel(level) {
+    if (this.customerWorkletNode) {
+      this.customerWorkletNode.port.postMessage({ type: 'SET_LEVEL', level: level / 100 });
+    }
+  }
+
+  stopCustomerFilter() {
+    if (this.customerOutputAudioElement) {
+      this.customerOutputAudioElement.srcObject = null;
+      this.customerOutputAudioElement = null;
+    }
+    if (this.customerStream) {
+      this.customerStream.getTracks().forEach(t => t.stop());
+      this.customerStream = null;
+    }
+    if (this.customerAudioContext) {
+      this.customerAudioContext.close();
+      this.customerAudioContext = null;
+    }
+    this.customerSourceNode = null;
+    this.customerWorkletNode = null;
+    this.customerGainNode = null;
+    this.customerStreamDestination = null;
+    this.customerFilterActive = false;
+  }
+
   static async listOutputDevices() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -292,6 +403,7 @@ export class NoiseSuppressionEngine {
 
   destroy() {
     this.isActive = false;
+    this.stopCustomerFilter();
     if (this.outputAudioElement) {
       this.outputAudioElement.srcObject = null;
       this.outputAudioElement = null;

@@ -20,7 +20,10 @@ export function useAudioEngine() {
     } catch { return 'default'; }
   });
   const [setSinkIdSupported] = useState(() => typeof HTMLMediaElement.prototype.setSinkId === 'function');
+  const [customerFilterActive, setCustomerFilterActive] = useState(false);
+  const [customerFilterError, setCustomerFilterError] = useState(null);
   const engineRef = useRef(null);
+  const customerEngineRef = useRef(null);
   const animFrameRef = useRef(null);
 
   const refreshOutputDevices = useCallback(async () => {
@@ -106,6 +109,9 @@ export function useAudioEngine() {
     if (engineRef.current) {
       engineRef.current.setSuppressionLevel(safeLevel);
     }
+    if (customerEngineRef.current) {
+      customerEngineRef.current.setCustomerFilterLevel(safeLevel);
+    }
   }, []);
 
   const changeGain = useCallback((value) => {
@@ -126,10 +132,46 @@ export function useAudioEngine() {
     }
   }, []);
 
+  const startCustomerFilter = useCallback(async () => {
+    setCustomerFilterError(null);
+    try {
+      const engine = new NoiseSuppressionEngine();
+      engine.setSuppressionLevel(suppressionLevel);
+      await engine.startCustomerFilter({
+        outputDeviceId: selectedOutputDevice !== 'default' ? selectedOutputDevice : undefined,
+      });
+      customerEngineRef.current = engine;
+      setCustomerFilterActive(true);
+    } catch (err) {
+      setCustomerFilterError(err.message || 'Failed to start customer filter');
+      setCustomerFilterActive(false);
+    }
+  }, [suppressionLevel, selectedOutputDevice]);
+
+  const stopCustomerFilter = useCallback(() => {
+    if (customerEngineRef.current) {
+      customerEngineRef.current.stopCustomerFilter();
+      customerEngineRef.current = null;
+    }
+    setCustomerFilterActive(false);
+  }, []);
+
+  const toggleCustomerFilter = useCallback(() => {
+    if (customerFilterActive) {
+      stopCustomerFilter();
+    } else {
+      startCustomerFilter();
+    }
+  }, [customerFilterActive, startCustomerFilter, stopCustomerFilter]);
+
   useEffect(() => {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (engineRef.current) engineRef.current.destroy();
+      if (customerEngineRef.current) {
+        customerEngineRef.current.stopCustomerFilter();
+        customerEngineRef.current = null;
+      }
     };
   }, []);
 
@@ -149,6 +191,9 @@ export function useAudioEngine() {
     changeSuppressionLevel,
     changeGain,
     changeOutputDevice,
+    customerFilterActive,
+    customerFilterError,
+    toggleCustomerFilter,
     refreshOutputDevices
   };
 }
