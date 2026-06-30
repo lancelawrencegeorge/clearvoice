@@ -44,6 +44,16 @@
       "default": false,
       "description": "Whether the trial has expired and access should be restricted"
     },
+    "trial_reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the 3-day-before reminder email has been sent"
+    },
+    "trial_expiry_email_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the trial-expired email has been sent"
+    },
     "notes": {
       "type": "string",
       "description": "Internal notes"

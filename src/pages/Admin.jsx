@@ -9,6 +9,7 @@ import { getCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TenantBilling from "@/components/admin/TenantBilling";
 import LiveMonitor from "@/components/admin/LiveMonitor";
+import TrialManagement from "@/components/admin/TrialManagement";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { exportBillingPDF, exportBillingCSV } from "@/lib/billingExport";
@@ -288,6 +289,10 @@ export default function Admin() {
             </div>
 
             <LiveMonitor tenantFilter={tenantFilter} />
+
+            {currentAgent?.role === 'admin' && (
+              <TrialManagement companies={filteredCompanies} onActionComplete={loadData} />
+            )}
 
             <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
 
