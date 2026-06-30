@@ -14,8 +14,13 @@ Deno.serve(async (req) => {
     }
 
     // Look up the agent record (service role — the Agent entity is app-managed).
-    const agents = await base44.asServiceRole.entities.Agent.filter({ id: agent_id });
-    const agent = agents[0];
+    let agent;
+    try {
+      const agents = await base44.asServiceRole.entities.Agent.filter({ id: agent_id });
+      agent = agents[0];
+    } catch (_e) {
+      // filter throws on invalid id — treat as not found
+    }
     if (!agent) {
       return Response.json({ error: 'Agent not found' }, { status: 404 });
     }

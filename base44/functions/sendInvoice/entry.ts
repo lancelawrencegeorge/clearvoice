@@ -16,8 +16,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'invoice_id required' }, { status: 400 });
     }
 
-    const invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id);
-    if (!invoice) {
+    let invoice;
+    try {
+      invoice = await base44.asServiceRole.entities.Invoice.get(invoice_id);
+    } catch (_e) {
       return Response.json({ error: 'Invoice not found' }, { status: 404 });
     }
 

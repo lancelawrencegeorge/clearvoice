@@ -20,8 +20,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'action must be "extend_trial", "activate_paid", or "deactivate"' }, { status: 400 });
     }
 
-    const company = await base44.asServiceRole.entities.Company.get(company_id);
-    if (!company) {
+    let company;
+    try {
+      company = await base44.asServiceRole.entities.Company.get(company_id);
+    } catch (_e) {
       return Response.json({ error: 'Company not found' }, { status: 404 });
     }
 
@@ -49,19 +51,22 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, action: 'extend_trial', company_id });
     }
 
-    // activate_paid
-    await base44.asServiceRole.entities.Company.update(company_id, {
-      plan: 'paid',
-      trial_expired: false,
-      is_active: true,
-    });
-
-    if (company.billing_contact_email) {
-      await base44.asServiceRole.integrations.Core.SendEmail({
-        to: company.billing_contact_email,
-        subject: 'Your ClearVoice subscription is now active',
-        body: `Hi,\n\nYour ClearVoice subscription for ${company.name} is now active.\n\nYour team can continue using ClearVoice without interruption. You'll receive monthly invoices at R95/seat/month (ex VAT).\n\nThank you for choosing ClearVoice.\n\nThe ClearVoice Team`
+    if (action === 'activate_paid') {
+      await base44.asServiceRole.entities.Company.update(company_id, {
+        plan: 'paid',
+        trial_expired: false,
+        is_active: true,
       });
+
+      if (company.billing_contact_email) {
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: company.billing_contact_email,
+          subject: 'Your ClearVoice subscription is now active',
+          body: `Hi,\n\nYour ClearVoice subscription for ${company.name} is now active.\n\nYour team can continue using ClearVoice without interruption. You'll receive monthly invoices at R95/seat/month (ex VAT).\n\nThank you for choosing ClearVoice.\n\nThe ClearVoice Team`
+        });
+      }
+
+      return Response.json({ success: true, action: 'activate_paid', company_id });
     }
 
     // deactivate
