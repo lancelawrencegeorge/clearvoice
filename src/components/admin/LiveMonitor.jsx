@@ -24,7 +24,10 @@ export default function LiveMonitor({ tenantFilter }) {
     const load = async () => {
       try {
         const all = await base44.entities.Session.list("-login_at", 500);
-        const online = all.filter((s) => !s.logout_at);
+        const cutoff = Date.now() - 8 * 60 * 60 * 1000;
+        const online = all.filter(
+          (s) => !s.logout_at && s.login_at && new Date(s.login_at).getTime() > cutoff
+        );
         setSessions(online);
       } catch (e) {
         console.error("LiveMonitor load error:", e);
