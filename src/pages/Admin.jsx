@@ -34,10 +34,13 @@ export default function Admin() {
       setAuthChecking(false);
       return;
     }
-    setCurrentAgent(cached);
+    // Only set currentAgent after fetching the fresh role from the server.
+    // Setting it from the cached value first causes a race: loadData runs
+    // with a potentially stale role, and if that (filtered) request resolves
+    // after the corrected one, it overwrites the correct unfiltered data.
     base44.entities.Agent.get(cached.id)
       .then((fresh) => setCurrentAgent(fresh))
-      .catch(() => {})
+      .catch(() => setCurrentAgent(cached))
       .finally(() => setAuthChecking(false));
   }, []);
 
