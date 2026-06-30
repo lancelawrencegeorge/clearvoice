@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Loader2, CheckCircle2, CalendarClock, AlertTriangle, Ban } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 const planBadge = (plan, isActive) => {
   if (!isActive) return <Badge variant="destructive">Deactivated</Badge>;
@@ -53,9 +54,23 @@ export default function TrialManagement({ companies, onActionComplete }) {
       }
       await base44.functions.invoke('manageTrial', payload);
       setDialog(null);
+      const actionLabel = dialog.action === 'extend_trial'
+        ? 'Trial extended'
+        : dialog.action === 'activate_paid'
+          ? 'Subscription activated'
+          : 'Company deactivated';
+      toast({
+        title: actionLabel,
+        description: `${dialog.company.name} has been updated successfully.`,
+      });
       if (onActionComplete) onActionComplete();
     } catch (err) {
       console.error('Failed to manage trial:', err);
+      toast({
+        title: 'Action failed',
+        description: err?.response?.data?.error || err?.message || 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setBusy(false);
     }
