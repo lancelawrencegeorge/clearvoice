@@ -1,9 +1,33 @@
 import React, { useState } from 'react';
-import { Headphones, Info, X } from 'lucide-react';
+import { Headphones, Info, X, MonitorUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 export default function CustomerFilter({ active, error, onToggle }) {
   const [showHelp, setShowHelp] = useState(false);
+  const [showPrep, setShowPrep] = useState(false);
+
+  const handleToggleClick = () => {
+    if (active) {
+      onToggle();
+    } else {
+      setShowPrep(true);
+    }
+  };
+
+  const handleConfirm = () => {
+    setShowPrep(false);
+    onToggle();
+  };
 
   return (
     <div className="space-y-2">
@@ -29,7 +53,7 @@ export default function CustomerFilter({ active, error, onToggle }) {
             <Info className="w-4 h-4" />
           </button>
           <button
-            onClick={onToggle}
+            onClick={handleToggleClick}
             role="switch"
             aria-checked={active}
             className={cn(
@@ -66,6 +90,36 @@ export default function CustomerFilter({ active, error, onToggle }) {
           </p>
         </div>
       )}
+
+      <AlertDialog open={showPrep} onOpenChange={setShowPrep}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <MonitorUp className="w-5 h-5 text-primary" />
+              </div>
+              <AlertDialogTitle>Connect Caller Audio</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription>
+              When you continue, your browser will show a "Share your screen" dialog.
+              Follow these steps to connect the caller's audio:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground my-2">
+            <li>Select the <strong className="text-foreground">Chrome Tab</strong> option at the top.</li>
+            <li>Click on your softphone / calling app tab.</li>
+            <li>Turn <strong className="text-foreground">ON</strong> the "Also share tab audio" toggle at the bottom.</li>
+            <li>Click <strong className="text-foreground">Share</strong>.</li>
+          </ol>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirm}>
+              <MonitorUp className="w-4 h-4" />
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
