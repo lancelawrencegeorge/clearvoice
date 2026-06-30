@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Loader2, Activity, AlertCircle, Filter, Download, FileText, Calendar, Mail } from "lucide-react";
+import { Users, Clock, Loader2, Activity, AlertCircle, Filter, Download, FileText, Calendar, Mail, Trash2 } from "lucide-react";
 import { getCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import TenantBilling from "@/components/admin/TenantBilling";
@@ -12,6 +12,7 @@ import LiveMonitor from "@/components/admin/LiveMonitor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { exportBillingPDF, exportBillingCSV } from "@/lib/billingExport";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function Admin() {
   const [currentAgent, setCurrentAgent] = useState(null);
@@ -20,10 +21,12 @@ export default function Admin() {
   const [agents, setAgents] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [loadedRole, setLoadedRole] = useState(null);
   const [tenantFilter, setTenantFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const cached = getCurrentAgent();
@@ -39,11 +42,12 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (["admin", "super_user"].includes(currentAgent?.role) && !dataLoaded) {
-      setDataLoaded(true);
+    if (["admin", "super_user"].includes(currentAgent?.role) && loadedRole !== currentAgent.role) {
+      setLoadedRole(currentAgent.role);
+      setLoading(true);
       loadData();
     }
-  }, [currentAgent, dataLoaded]);
+  }, [currentAgent, loadedRole]);
 
   const loadData = async () => {
     try {
@@ -135,6 +139,20 @@ export default function Admin() {
       dateTo,
       tenantLabel,
     });
+  };
+
+  const handleDeleteSession = async () => {
+    if (!sessionToDelete) return;
+    setDeleting(true);
+    try {
+      await base44.entities.Session.delete(sessionToDelete.id);
+      setSessions((prev) => prev.filter((s) => s.id !== sessionToDelete.id));
+      setSessionToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete session:", err);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (authChecking) {
@@ -284,12 +302,13 @@ export default function Admin() {
                       <TableHead>Login</TableHead>
                       <TableHead>Logout</TableHead>
                       <TableHead>Duration</TableHead>
+                      <TableHead className="w-10"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredSessions.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                           No sessions yet.
                         </TableCell>
                       </TableRow>
@@ -302,6 +321,11 @@ export default function Admin() {
                           <TableCell className="text-sm">{formatDate(s.login_at)}</TableCell>
                           <TableCell className="text-sm">{formatDate(s.logout_at)}</TableCell>
                           <TableCell>{formatDuration(s.duration_minutes)}</TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="icon" onClick={() => setSessionToDelete(s)}>
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -356,6 +380,27 @@ export default function Admin() {
           </div>
         )}
       </main>
+
+      <AlertDialog open={!!sessionToDelete} onOpenChange={(open) => !open && setSessionToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the session for {sessionToDelete?.agent_name || "this agent"} ({sessionToDelete?.agent_email || ""}). This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteSession}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
