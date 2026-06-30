@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
 
+const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [agent, setAgent] = useState(null);
@@ -17,6 +19,9 @@ export default function Dashboard() {
   const [sessionStartMs, setSessionStartMs] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
+  const lastActivityRef = useRef(Date.now());
+  const autoSigningOutRef = useRef(false);
+  const handleSignOutRef = useRef(null);
   const { status, error, audioLevel, suppressionLevel, outputDevices, selectedOutputDevice, setSinkIdSupported, start, stop, changeSuppressionLevel, changeOutputDevice } = useAudioEngine();
   const suppressionActive = status === 'active' || status === 'connecting';
   const isConnecting = status === 'connecting';
@@ -126,6 +131,37 @@ export default function Dashboard() {
     clearAuth();
     navigate("/", { replace: true });
   };
+
+  // Keep ref updated so the inactivity interval always calls the latest version
+  useEffect(() => {
+    handleSignOutRef.current = handleSignOut;
+  });
+
+  // Track user activity (mouse, keyboard, scroll, touch)
+  useEffect(() => {
+    const resetActivity = () => {
+      lastActivityRef.current = Date.now();
+    };
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, resetActivity, { passive: true }));
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetActivity));
+    };
+  }, []);
+
+  // Check inactivity every 10 seconds; auto sign-out after threshold
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (
+        !autoSigningOutRef.current &&
+        Date.now() - lastActivityRef.current >= INACTIVITY_TIMEOUT_MS
+      ) {
+        autoSigningOutRef.current = true;
+        handleSignOutRef.current();
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!agent) {
     return (
