@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
 
-const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+const INACTIVITY_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 export default function Dashboard() {
   const navigate = useNavigate();
