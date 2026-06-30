@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Loader2, CheckCircle2, CalendarClock, AlertTriangle } from 'lucide-react';
+import { Loader2, CheckCircle2, CalendarClock, AlertTriangle, Ban } from 'lucide-react';
 
-const planBadge = (plan) => {
+const planBadge = (plan, isActive) => {
+  if (!isActive) return <Badge variant="destructive">Deactivated</Badge>;
   if (plan === 'paid') return <Badge className="bg-green-600 hover:bg-green-600">Paid</Badge>;
   if (plan === 'suspended') return <Badge variant="destructive">Suspended</Badge>;
   return <Badge variant="secondary">Trial</Badge>;
@@ -25,9 +26,7 @@ export default function TrialManagement({ companies, onActionComplete }) {
   const [extendDate, setExtendDate] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const trialCompanies = companies.filter(
-    (c) => c.plan === 'trial' || c.plan === 'suspended' || c.trial_expired
-  );
+  const trialCompanies = companies;
 
   const openExtend = (company) => {
     const defaultDate = new Date();
@@ -38,6 +37,10 @@ export default function TrialManagement({ companies, onActionComplete }) {
 
   const openActivate = (company) => {
     setDialog({ company, action: 'activate_paid' });
+  };
+
+  const openDeactivate = (company) => {
+    setDialog({ company, action: 'deactivate' });
   };
 
   const handleConfirm = async () => {
@@ -69,7 +72,7 @@ export default function TrialManagement({ companies, onActionComplete }) {
       <CardContent>
         {trialCompanies.length === 0 ? (
           <p className="text-sm text-muted-foreground py-6 text-center">
-            No trial or suspended companies.
+            No companies found.
           </p>
         ) : (
           <Table>
@@ -90,7 +93,7 @@ export default function TrialManagement({ companies, onActionComplete }) {
                   <TableRow key={c.id}>
                     <TableCell className="font-medium">{c.name}</TableCell>
                     <TableCell className="text-sm">{c.domain || '—'}</TableCell>
-                    <TableCell>{planBadge(c.plan)}</TableCell>
+                    <TableCell>{planBadge(c.plan, c.is_active)}</TableCell>
                     <TableCell className="text-sm">
                       {c.trial_end_date
                         ? new Date(c.trial_end_date).toLocaleDateString('en-ZA')
@@ -113,19 +116,37 @@ export default function TrialManagement({ companies, onActionComplete }) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openExtend(c)}
-                        >
-                          Extend Trial
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => openActivate(c)}
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Activate Paid
-                        </Button>
+                        {c.is_active ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openExtend(c)}
+                            >
+                              Extend Trial
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => openActivate(c)}
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Activate Paid
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => openDeactivate(c)}
+                            >
+                              <Ban className="w-3.5 h-3.5" /> Deactivate
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => openActivate(c)}
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Reactivate
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -142,16 +163,22 @@ export default function TrialManagement({ companies, onActionComplete }) {
             <AlertDialogTitle>
               {dialog?.action === 'extend_trial'
                 ? `Extend trial for ${dialog?.company?.name}?`
-                : `Activate paid subscription for ${dialog?.company?.name}?`}
+                : dialog?.action === 'activate_paid'
+                  ? `Activate paid subscription for ${dialog?.company?.name}?`
+                  : `Deactivate ${dialog?.company?.name}?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {dialog?.action === 'extend_trial' ? (
                 <>
                   Select the new trial end date. The company will remain on the trial plan and all reminder flags will be reset.
                 </>
-              ) : (
+              ) : dialog?.action === 'activate_paid' ? (
                 <>
                   This will move the company to the <strong>paid</strong> plan at R95/seat/month and restore access immediately.
+                </>
+              ) : (
+                <>
+                  This will <strong>immediately suspend</strong> access for this company. All agents will be blocked from logging in. A deactivation email will be sent to the billing contact.
                 </>
               )}
             </AlertDialogDescription>
@@ -169,9 +196,13 @@ export default function TrialManagement({ companies, onActionComplete }) {
           )}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm} disabled={busy || (dialog?.action === 'extend_trial' && !extendDate)}>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              disabled={busy || (dialog?.action === 'extend_trial' && !extendDate)}
+              className={dialog?.action === 'deactivate' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+            >
               {busy && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              Confirm
+              {dialog?.action === 'deactivate' ? 'Deactivate' : 'Confirm'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

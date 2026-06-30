@@ -16,8 +16,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'company_id required' }, { status: 400 });
     }
 
-    if (!['extend_trial', 'activate_paid'].includes(action)) {
-      return Response.json({ error: 'action must be "extend_trial" or "activate_paid"' }, { status: 400 });
+    if (!['extend_trial', 'activate_paid', 'deactivate'].includes(action)) {
+      return Response.json({ error: 'action must be "extend_trial", "activate_paid", or "deactivate"' }, { status: 400 });
     }
 
     const company = await base44.asServiceRole.entities.Company.get(company_id);
@@ -64,7 +64,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    return Response.json({ success: true, action: 'activate_paid', company_id });
+    // deactivate
+    await base44.asServiceRole.entities.Company.update(company_id, {
+      plan: 'suspended',
+      trial_expired: true,
+      is_active: false,
+    });
+
+    if (company.billing_contact_email) {
+      await base44.asServiceRole.integrations.Core.SendEmail({
+        to: company.billing_contact_email,
+        subject: 'Your ClearVoice access has been deactivated',
+        body: `Hi,\n\nAccess to ClearVoice for ${company.name} has been deactivated.\n\nIf this was unexpected or you'd like to resume service, please contact us at support@clearvoice.africa.\n\nThe ClearVoice Team`
+      });
+    }
+
+    return Response.json({ success: true, action: 'deactivate', company_id });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
