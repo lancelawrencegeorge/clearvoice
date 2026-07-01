@@ -223,16 +223,16 @@ export default function Dashboard() {
                   </>
                 )}
                 {agent.role === "admin" && (
-                  <>
-                    <Link to="/it-support" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                      <LifeBuoy className="w-4 h-4" />
-                      IT Support
-                    </Link>
-                    <Link to="/invoices" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                      <Receipt className="w-4 h-4" />
-                      Invoices
-                    </Link>
-                  </>
+                  <Link to="/it-support" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                    <LifeBuoy className="w-4 h-4" />
+                    IT Support
+                  </Link>
+                )}
+                {agent.role === "admin" && (
+                  <Link to="/invoices" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                    <Receipt className="w-4 h-4" />
+                    Invoices
+                  </Link>
                 )}
               </nav>
             )}

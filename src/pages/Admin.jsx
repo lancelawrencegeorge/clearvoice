@@ -235,14 +235,16 @@ export default function Admin() {
                 <span className="text-muted-foreground text-sm">to</span>
                 <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
               </div>
-              <div className="flex items-center gap-2 ml-auto">
-                <Button variant="outline" size="sm" onClick={handleExportPDF}>
-                  <FileText className="w-4 h-4" /> PDF
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                  <Download className="w-4 h-4" /> CSV
-                </Button>
-              </div>
+              {currentAgent?.role === "admin" && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                    <FileText className="w-4 h-4" /> PDF
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                    <Download className="w-4 h-4" /> CSV
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
@@ -294,7 +296,9 @@ export default function Admin() {
               <TrialManagement companies={filteredCompanies} onActionComplete={loadData} />
             )}
 
-            <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
+            {currentAgent?.role === 'admin' && (
+              <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
+            )}
 
             <Card>
               <CardHeader>
