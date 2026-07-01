@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
 
-// Register a self-destructing service worker under a NEW filename.
-// The old SW had '/sw.js' cached and intercepted the fetch, serving its own
-// stale version — so the new SW never installed. Using '/sw-killer.js' forces
-// the browser to fetch this file from the network (old SW doesn't have it cached).
+// Register the self-destructing service worker at /sw.js.
+// The browser checks for updates to this file on every navigation (bypassing
+// the old SW's fetch handler). When it finds new content, it installs this
+// SW, which clears all caches, notifies clients to reload, then unregisters.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker

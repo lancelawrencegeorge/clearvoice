@@ -14,8 +14,15 @@
   <body>
     <div id="root"></div>
     <script>
-      // Kill stale service workers and caches before the app loads.
-      // Uses sessionStorage to avoid reload loops.
+      // Listen for force-reload message from the self-destructing service worker.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'FORCE_RELOAD') {
+            window.location.reload();
+          }
+        });
+      }
+      // Also run the direct cleanup (works once the new HTML is served).
       (async function () {
         var needReload = false;
         if ('serviceWorker' in navigator) {
