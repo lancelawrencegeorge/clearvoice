@@ -141,9 +141,11 @@ export default function LiveMonitor({ tenantFilter, agentRole, agentDomain }) {
                     <p className="text-xs text-muted-foreground font-mono truncate">{s.agent_email}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSessionToDelete(s)}>
-                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                    </Button>
+                    {agentRole === "admin" && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSessionToDelete(s)}>
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </Button>
+                    )}
                     <div className={`flex items-center gap-1.5 ${s.suppression_active ? "text-green-400" : "text-muted-foreground"}`}>
                       {s.suppression_active ? (
                         <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse-glow" />

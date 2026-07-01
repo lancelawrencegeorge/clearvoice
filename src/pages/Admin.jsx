@@ -271,7 +271,7 @@ export default function Admin() {
                 <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
               </div>
               <div className="flex items-center gap-2 ml-auto">
-                {selectedSessions.size > 0 && (
+                {currentAgent?.role === "admin" && selectedSessions.size > 0 && (
                   <Button variant="destructive" size="sm" onClick={() => setBulkDeleteOpen(true)}>
                     <Trash2 className="w-4 h-4" /> Delete ({selectedSessions.size})
                   </Button>
@@ -346,48 +346,54 @@ export default function Admin() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={filteredSessions.length > 0 && selectedSessions.size === filteredSessions.length}
-                          onCheckedChange={toggleSelectAll}
-                        />
-                      </TableHead>
+                      {currentAgent?.role === "admin" && (
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={filteredSessions.length > 0 && selectedSessions.size === filteredSessions.length}
+                            onCheckedChange={toggleSelectAll}
+                          />
+                        </TableHead>
+                      )}
                       <TableHead>Agent</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Tenant</TableHead>
                       <TableHead>Login</TableHead>
                       <TableHead>Logout</TableHead>
                       <TableHead>Duration</TableHead>
-                      <TableHead className="w-10"></TableHead>
+                      {currentAgent?.role === "admin" && <TableHead className="w-10"></TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredSessions.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={currentAgent?.role === "admin" ? 8 : 7} className="text-center text-muted-foreground py-8">
                           No sessions yet.
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredSessions.map((s) => (
                         <TableRow key={s.id}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedSessions.has(s.id)}
-                              onCheckedChange={() => toggleSessionSelection(s.id)}
-                            />
-                          </TableCell>
+                          {currentAgent?.role === "admin" && (
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedSessions.has(s.id)}
+                                onCheckedChange={() => toggleSessionSelection(s.id)}
+                              />
+                            </TableCell>
+                          )}
                           <TableCell className="font-medium">{s.agent_name || "—"}</TableCell>
                           <TableCell>{s.agent_email || "—"}</TableCell>
                           <TableCell>{s.tenant_domain || "—"}</TableCell>
                           <TableCell className="text-sm">{formatDate(s.login_at)}</TableCell>
                           <TableCell className="text-sm">{formatDate(s.logout_at)}</TableCell>
                           <TableCell>{formatDuration(s.duration_minutes)}</TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="icon" onClick={() => setSessionToDelete(s)}>
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </TableCell>
+                          {currentAgent?.role === "admin" && (
+                            <TableCell>
+                              <Button variant="ghost" size="icon" onClick={() => setSessionToDelete(s)}>
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))
                     )}
