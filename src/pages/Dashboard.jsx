@@ -9,6 +9,7 @@ import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircl
 import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
+import CustomerFilter from "@/components/audio/CustomerFilter";
 
 const INACTIVITY_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -23,7 +24,7 @@ export default function Dashboard() {
   const lastActivityRef = useRef(Date.now());
   const autoSigningOutRef = useRef(false);
   const handleSignOutRef = useRef(null);
-  const { status, error, audioLevel, suppressionLevel, outputDevices, selectedOutputDevice, setSinkIdSupported, start, stop, changeSuppressionLevel, changeOutputDevice } = useAudioEngine();
+  const { status, error, audioLevel, suppressionLevel, outputDevices, selectedOutputDevice, setSinkIdSupported, start, stop, changeSuppressionLevel, changeOutputDevice, customerFilterActive, customerFilterError, toggleCustomerFilter } = useAudioEngine();
   const suppressionActive = status === 'active' || status === 'connecting';
   const isConnecting = status === 'connecting';
 
@@ -359,6 +360,14 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
+
+              <div className="mt-6 border-t border-border pt-6">
+                <CustomerFilter
+                  active={customerFilterActive}
+                  error={customerFilterError}
+                  onToggle={toggleCustomerFilter}
+                />
+              </div>
             </CardContent>
           </Card>
 
