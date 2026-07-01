@@ -3,12 +3,16 @@ import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
 
-// Register the self-destructing service worker. It replaces the old SW,
-// clears all caches, unregisters itself, and forces a reload — so no stale
-// cached code (like the old floating CustomerFilter) can survive in the PWA.
+// Register a self-destructing service worker under a NEW filename.
+// The old SW had '/sw.js' cached and intercepted the fetch, serving its own
+// stale version — so the new SW never installed. Using '/sw-killer.js' forces
+// the browser to fetch this file from the network (old SW doesn't have it cached).
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker
+      .register('/sw-killer.js', { updateViaCache: 'none' })
+      .then((reg) => reg.update())
+      .catch(() => {});
   });
 }
 
