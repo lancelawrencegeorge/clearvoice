@@ -114,8 +114,8 @@ Deno.serve(async (req) => {
                     await base44.asServiceRole.integrations.Core.SendEmail({
                         to: email,
                         from_name: 'ClearVoice',
-                        subject: `You've been invited to join ${company.name} on ClearVoice`,
-                        body: `Hi there,\n\nYou've been invited by ${requester.full_name || 'your company admin'} to join ${company.name} on the ClearVoice platform.\n\nGo to https://clearvoice.africa/login and sign in with your email (${email}) to get started.\n\nOnce logged in, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`
+                        subject: `You've been registered on ClearVoice`,
+                        body: `Hi there,\n\nYou've been registered by ${requester.full_name || 'your company admin'} to use ClearVoice for ${company.name}.\n\nGo to https://clearvoice.africa/login and sign in with your email (${email}) to get started — no password needed.\n\nOnce logged in, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`
                     });
                     emailSent = true;
                 } catch (_emailErr) {
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
                     tenant_domain: companyDomain || requester.tenant_domain || '',
                     sent_at: new Date().toISOString(),
                     status: 'sent',
-                    failure_reason: emailSent ? null : 'Email not sent — invitee is not a registered user. Agent can log in at /login.',
+                    failure_reason: emailSent ? null : 'Email not sent — agent is not yet a registered app user. Agent can sign in at /login with their email.',
                 });
 
                 succeeded.push({ email, role, email_sent: emailSent });

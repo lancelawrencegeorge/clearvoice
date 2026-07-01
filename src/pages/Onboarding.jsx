@@ -19,7 +19,7 @@ const STEPS = [
   { id: 'welcome', title: 'Welcome', icon: Volume2 },
   { id: 'company', title: 'Company', icon: Building2 },
   { id: 'plan', title: 'Plan & Trial', icon: CreditCard },
-  { id: 'team', title: 'Invite Team', icon: Users },
+  { id: 'team', title: 'Register Team', icon: Users },
   { id: 'done', title: 'Done', icon: CheckCircle2 },
 ];
 
@@ -140,7 +140,7 @@ export default function Onboarding() {
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground pt-2">
-                  This takes about 2 minutes. You'll set up your company, start a 14-day trial, and learn how to invite agents.
+                  This takes about 2 minutes. You'll set up your company, start a 14-day trial, and learn how to register agents.
                 </p>
               </div>
             )}
@@ -224,28 +224,28 @@ export default function Onboarding() {
             {currentStepId === 'team' && (
               <div className="space-y-5">
                 <div>
-                  <h2 className="text-xl font-bold">Invite Your Team</h2>
-                  <p className="text-sm text-muted-foreground mt-1">After setup, you can invite agents from your dashboard. Here's what to expect.</p>
+                  <h2 className="text-xl font-bold">Register Your Team</h2>
+                  <p className="text-sm text-muted-foreground mt-1">After setup, you can register agents from your dashboard. Here's what to expect.</p>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-4 rounded-xl bg-secondary/50">
                     <UserPlus className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-sm">Invite individual agents</p>
-                      <p className="text-xs text-muted-foreground mt-1">Enter each agent's work email — they'll get a sign-in link and complete their own profile setup.</p>
+                      <p className="font-medium text-sm">Register individual agents</p>
+                      <p className="text-xs text-muted-foreground mt-1">Enter each agent's work email — their account is created instantly and they can sign in right away, no password needed.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-4 rounded-xl bg-secondary/50">
                     <Users className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm">Bulk import via CSV</p>
-                      <p className="text-xs text-muted-foreground mt-1">Upload a spreadsheet of agent emails to invite your whole team at once.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Upload a spreadsheet of agent emails to register your whole team at once.</p>
                     </div>
                   </div>
                 </div>
                 <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 text-sm text-muted-foreground">
                   <p className="font-medium text-foreground mb-1">📋 Next steps after onboarding</p>
-                  <p>Once you reach the dashboard, use the <strong>Users</strong> tab to invite agents and the <strong>IT Support</strong> tab to download the deployment guide for your team.</p>
+                  <p>Once you reach the dashboard, use the <strong>Register</strong> tab to register agents and the <strong>IT Support</strong> tab to download the deployment guide for your team.</p>
                 </div>
               </div>
             )}
@@ -263,7 +263,7 @@ export default function Onboarding() {
                 <div className="bg-secondary/50 rounded-xl p-4 text-sm text-left space-y-2">
                   <p className="font-medium">Quick start checklist:</p>
                   {[
-                    'Invite agents from the Users tab',
+                    'Register agents from the Register tab',
                     'Download the setup guide from IT Support',
                     'Share the guide with your IT team for virtual audio cable setup',
                     'Agents install ClearVoice and start taking clearer calls',

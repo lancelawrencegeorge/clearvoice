@@ -47,7 +47,7 @@ export default function InviteHistory() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Mail className="w-5 h-5" /> Invite History</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Mail className="w-5 h-5" /> Registration History</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-10">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -60,7 +60,7 @@ export default function InviteHistory() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Mail className="w-5 h-5" /> Invite History</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Mail className="w-5 h-5" /> Registration History</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-destructive">{error}</p>
@@ -76,21 +76,21 @@ export default function InviteHistory() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mail className="w-5 h-5" /> Invite History
+          <Mail className="w-5 h-5" /> Registration History
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          All invites sent by super users / tenants — {data?.total_sent || 0} sent, {data?.total_failed || 0} failed
+          All agents registered by super users / tenants — {data?.total_sent || 0} registered, {data?.total_failed || 0} failed
         </p>
       </CardHeader>
       <CardContent>
         {groups.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No invites have been sent yet.</p>
+          <p className="text-center text-muted-foreground py-8">No agents have been registered yet.</p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8"></TableHead>
-                <TableHead>Inviter</TableHead>
+                <TableHead>Registered By</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Tenant</TableHead>

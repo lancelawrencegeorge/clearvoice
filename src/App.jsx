@@ -13,7 +13,7 @@ import UserManagement from './pages/UserManagement';
 import ITSupport from './pages/ITSupport';
 import Onboarding from './pages/Onboarding';
 import Guide from './pages/Guide';
-import InviteAgent from './pages/InviteAgent';
+import RegisterAgent from './pages/InviteAgent';
 import BulkImport from './pages/BulkImport';
 import Invoices from './pages/Invoices';
 import EmailTemplates from './pages/EmailTemplates';
@@ -35,7 +35,7 @@ function App() {
               <Route path="/it-support" element={<ITSupport />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/guide" element={<Guide />} />
-              <Route path="/invite" element={<InviteAgent />} />
+              <Route path="/register" element={<RegisterAgent />} />
               <Route path="/bulk-import" element={<BulkImport />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/email-templates" element={<EmailTemplates />} />

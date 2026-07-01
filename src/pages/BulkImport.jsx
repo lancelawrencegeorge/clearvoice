@@ -140,7 +140,7 @@ export default function BulkImport() {
         <div className="mb-8">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Dashboard</Link>
           <h1 className="text-2xl font-bold mt-3">Bulk Import Agents</h1>
-          <p className="text-muted-foreground text-sm mt-1">Upload a CSV to invite multiple agents at once with assigned roles.</p>
+          <p className="text-muted-foreground text-sm mt-1">Upload a CSV to register multiple agents at once with assigned roles.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -257,7 +257,7 @@ export default function BulkImport() {
                     className="gap-2"
                   >
                     {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
-                    {importing ? 'Inviting...' : `Invite ${validRows.length} Agent${validRows.length !== 1 ? 's' : ''}`}
+                    {importing ? 'Registering...' : `Register ${validRows.length} Agent${validRows.length !== 1 ? 's' : ''}`}
                   </Button>
                 </div>
               </Card>
@@ -270,7 +270,7 @@ export default function BulkImport() {
                 {results.succeeded.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 text-primary text-sm font-medium mb-2">
-                      <CheckCircle2 className="w-4 h-4" /> {results.succeeded.length} invited successfully
+                      <CheckCircle2 className="w-4 h-4" /> {results.succeeded.length} registered successfully
                     </div>
                     <div className="bg-secondary/50 rounded-lg p-3 space-y-1 max-h-40 overflow-y-auto">
                       {results.succeeded.map(e => (

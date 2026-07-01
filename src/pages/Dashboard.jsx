@@ -193,9 +193,9 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             {(agent.role === "super_user" || agent.role === "admin") && (
               <nav className="flex items-center gap-1">
-                <Link to="/invite" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+                <Link to="/register" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
                   <UserPlus className="w-4 h-4" />
-                  Invite
+                  Register
                 </Link>
                 <Link to="/bulk-import" className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
                   <Upload className="w-4 h-4" />

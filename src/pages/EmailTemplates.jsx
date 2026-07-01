@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check, Mail, Building2, Users, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { getCurrentAgent } from "@/lib/customAuth";
 
-const INVITE_SUPER_USER_TEMPLATE = {
-    subject: "You're invited to manage [Company Name] on ClearVoice",
+const REGISTER_SUPER_USER_TEMPLATE = {
+    subject: "You've been registered to manage [Company Name] on ClearVoice",
     body: `Hi there,
 
 You've been appointed the Super User for [Company Name] on ClearVoice.
@@ -18,9 +18,9 @@ As Super User, you'll be responsible for:
 • Setting up your company profile during onboarding
 
 Getting started:
-1. Click the registration link to create your account
+1. Go to clearvoice.africa/login and sign in with your work email — no password needed
 2. Complete your company setup in the onboarding wizard
-3. Invite your agents and assign their seats
+3. Register your agents and assign their seats
 
 Your company has access to a 14-day free trial to get started.
 
@@ -30,21 +30,21 @@ Best,
 The ClearVoice Team`
 };
 
-const INVITE_AGENT_TEMPLATE = {
-    subject: "You've been added to [Company Name] on ClearVoice",
+const REGISTER_AGENT_TEMPLATE = {
+    subject: "You've been registered on ClearVoice",
     body: `Hi there,
 
-You've been added as an Agent for [Company Name] on ClearVoice.
+You've been registered as an Agent for [Company Name] on ClearVoice.
 
 What you'll do:
-• Download and install the ClearVoice browser extension
+• Download and install the ClearVoice desktop app
 • Use real-time noise suppression during calls
 • Test your audio setup in your dashboard
 
 Getting started:
-1. Click the registration link to create your account
-2. Log into the ClearVoice dashboard
-3. Follow the setup guide to configure your audio
+1. Go to clearvoice.africa/login and sign in with your work email — no password needed
+2. Follow the setup guide to configure your audio
+3. Start taking clearer calls!
 
 Need help? Ask your Super User at [Company Name] or contact us at support@clearvoice.africa
 
@@ -71,8 +71,8 @@ export default function EmailTemplates() {
     }, []);
 
     const templates = [
-        { id: "super_user", title: "Super User Invite", icon: Building2, template: INVITE_SUPER_USER_TEMPLATE },
-        { id: "agent", title: "Agent Invite", icon: Users, template: INVITE_AGENT_TEMPLATE },
+        { id: "super_user", title: "Super User Registration", icon: Building2, template: REGISTER_SUPER_USER_TEMPLATE },
+        { id: "agent", title: "Agent Registration", icon: Users, template: REGISTER_AGENT_TEMPLATE },
     ];
 
     const formatEmail = (template) => {
@@ -134,8 +134,8 @@ ${template.body}`;
                         <span className="font-bold text-lg">Email Templates</span>
                     </div>
                     <div>
-                        <Link to="/invite" className="text-sm text-primary hover:underline">
-                            Go to Invite →
+                        <Link to="/register" className="text-sm text-primary hover:underline">
+                            Go to Register →
                         </Link>
                     </div>
                 </div>
@@ -143,7 +143,7 @@ ${template.body}`;
 
             <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
                 <p className="text-muted-foreground text-sm">
-                    These templates are used when inviting users to your platform. Copy and paste into your email client,
+                    These templates can be used when notifying users that they've been registered on your platform. Copy and paste into your email client,
                     replacing <code className="text-primary bg-primary/10 px-1.5 py-0.5 rounded text-xs">[Company Name]</code> with the actual company name before sending.
                 </p>
 

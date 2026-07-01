@@ -114,23 +114,23 @@ export default function InviteAgent() {
       <div className="w-full max-w-md">
         <div className="mb-8">
           <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← Back to Dashboard</Link>
-          <h1 className="text-2xl font-bold mt-4">Invite Agent</h1>
+          <h1 className="text-2xl font-bold mt-4">Register Agent</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {isAdmin
-              ? 'Invite a new tenant super user or add agents to an existing company.'
-              : 'Send an invite and assign the agent to your company.'}
+              ? 'Register a new tenant super user or add agents to an existing company.'
+              : 'Register a new agent and assign them to your company.'}
           </p>
         </div>
 
         {success ? (
           <Card className="p-8 text-center bg-card/80 border-border/50">
             <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Agent Ready!</h2>
+            <h2 className="text-lg font-semibold mb-2">Agent Registered!</h2>
             <p className="text-sm text-muted-foreground mb-6">
               The agent's account is created and assigned to <strong>{selectedCompany?.name}</strong>. They can sign in now at the login page using their email — no password needed.
             </p>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => setSuccess(false)}>Invite Another</Button>
+              <Button variant="outline" className="flex-1" onClick={() => setSuccess(false)}>Register Another</Button>
               <Link to="/dashboard" className="flex-1">
                 <Button className="w-full">Back to Dashboard</Button>
               </Link>
@@ -208,7 +208,7 @@ export default function InviteAgent() {
 
               <Button type="submit" className="w-full gap-2" disabled={loading}>
                 <UserPlus className="w-4 h-4" />
-                {loading ? 'Sending...' : 'Send Invite'}
+                {loading ? 'Registering...' : 'Register Agent'}
               </Button>
             </form>
           </Card>
