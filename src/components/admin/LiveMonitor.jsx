@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wifi, MicOff, Mic, Clock } from "lucide-react";
+import { Loader2, Wifi, MicOff, Mic, Clock, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 function timeAgo(dateStr) {
   if (!dateStr) return "—";
@@ -15,6 +17,8 @@ function timeAgo(dateStr) {
 export default function LiveMonitor({ tenantFilter, agentRole, agentDomain }) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const loadedRef = useRef(false);
 
   useEffect(() => {
@@ -73,6 +77,20 @@ export default function LiveMonitor({ tenantFilter, agentRole, agentDomain }) {
 
   const activeCount = filtered.filter((s) => s.suppression_active).length;
 
+  const handleDeleteSession = async () => {
+    if (!sessionToDelete) return;
+    setDeleting(true);
+    try {
+      await base44.entities.Session.delete(sessionToDelete.id);
+      setSessions((prev) => prev.filter((s) => s.id !== sessionToDelete.id));
+      setSessionToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete session:", err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -122,12 +140,17 @@ export default function LiveMonitor({ tenantFilter, agentRole, agentDomain }) {
                     <p className="font-medium text-sm truncate">{s.agent_name || "—"}</p>
                     <p className="text-xs text-muted-foreground font-mono truncate">{s.agent_email}</p>
                   </div>
-                  <div className={`flex items-center gap-1.5 shrink-0 ml-2 ${s.suppression_active ? "text-green-400" : "text-muted-foreground"}`}>
-                    {s.suppression_active ? (
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse-glow" />
-                    ) : (
-                      <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/40" />
-                    )}
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSessionToDelete(s)}>
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </Button>
+                    <div className={`flex items-center gap-1.5 ${s.suppression_active ? "text-green-400" : "text-muted-foreground"}`}>
+                      {s.suppression_active ? (
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse-glow" />
+                      ) : (
+                        <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/40" />
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs">
@@ -155,6 +178,27 @@ export default function LiveMonitor({ tenantFilter, agentRole, agentDomain }) {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={!!sessionToDelete} onOpenChange={(open) => !open && setSessionToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the session for {sessionToDelete?.agent_name || "this agent"} ({sessionToDelete?.agent_email || ""}). This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteSession}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

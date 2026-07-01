@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { exportBillingPDF, exportBillingCSV } from "@/lib/billingExport";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Admin() {
   const [currentAgent, setCurrentAgent] = useState(null);
@@ -28,6 +29,9 @@ export default function Admin() {
   const [dateTo, setDateTo] = useState("");
   const [sessionToDelete, setSessionToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [selectedSessions, setSelectedSessions] = useState(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   useEffect(() => {
     const cached = getCurrentAgent();
@@ -159,6 +163,37 @@ export default function Admin() {
     }
   };
 
+  const toggleSessionSelection = (id) => {
+    setSelectedSessions((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedSessions((prev) => {
+      if (prev.size === filteredSessions.length) return new Set();
+      return new Set(filteredSessions.map((s) => s.id));
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    try {
+      const ids = Array.from(selectedSessions);
+      await base44.entities.Session.deleteMany({ id: { $in: ids } });
+      setSessions((prev) => prev.filter((s) => !selectedSessions.has(s.id)));
+      setSelectedSessions(new Set());
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      console.error("Failed to delete sessions:", err);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   if (authChecking) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -236,6 +271,11 @@ export default function Admin() {
                 <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
               </div>
               <div className="flex items-center gap-2 ml-auto">
+                {selectedSessions.size > 0 && (
+                  <Button variant="destructive" size="sm" onClick={() => setBulkDeleteOpen(true)}>
+                    <Trash2 className="w-4 h-4" /> Delete ({selectedSessions.size})
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={handleExportPDF}>
                   <FileText className="w-4 h-4" /> PDF
                 </Button>
@@ -306,6 +346,12 @@ export default function Admin() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={filteredSessions.length > 0 && selectedSessions.size === filteredSessions.length}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </TableHead>
                       <TableHead>Agent</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Tenant</TableHead>
@@ -318,13 +364,19 @@ export default function Admin() {
                   <TableBody>
                     {filteredSessions.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                           No sessions yet.
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredSessions.map((s) => (
                         <TableRow key={s.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedSessions.has(s.id)}
+                              onCheckedChange={() => toggleSessionSelection(s.id)}
+                            />
+                          </TableCell>
                           <TableCell className="font-medium">{s.agent_name || "—"}</TableCell>
                           <TableCell>{s.agent_email || "—"}</TableCell>
                           <TableCell>{s.tenant_domain || "—"}</TableCell>
@@ -407,6 +459,27 @@ export default function Admin() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={(open) => !open && setBulkDeleteOpen(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedSessions.size} session{selectedSessions.size === 1 ? "" : "s"}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete {selectedSessions.size} session{selectedSessions.size === 1 ? "" : "s"}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {bulkDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete All"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
