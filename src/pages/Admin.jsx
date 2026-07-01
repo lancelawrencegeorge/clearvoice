@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import TenantBilling from "@/components/admin/TenantBilling";
 import LiveMonitor from "@/components/admin/LiveMonitor";
 import TrialManagement from "@/components/admin/TrialManagement";
+import InviteHistory from "@/components/admin/InviteHistory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { exportBillingPDF, exportBillingCSV } from "@/lib/billingExport";
@@ -327,6 +328,10 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </div>
+
+            {currentAgent?.role === 'admin' && (
+              <InviteHistory />
+            )}
 
             <LiveMonitor tenantFilter={tenantFilter} agentRole={currentAgent?.role} agentDomain={currentAgent ? getTenantDomain(currentAgent.email) : null} />
 
