@@ -86,8 +86,9 @@ Deno.serve(async (req) => {
             }
 
             try {
-                // Pre-create the Agent record so the invited user is counted in
-                // billing immediately and can log in without registering.
+                // Pre-create the Agent record so the invited user can log in
+                // immediately — this app uses custom Agent-based auth (no
+                // passwords), so creating the Agent record IS the invite.
                 const existing = await base44.asServiceRole.entities.Agent.filter({ email });
                 if (existing.length === 0) {
                     const namePart = email.split('@')[0];
@@ -102,19 +103,25 @@ Deno.serve(async (req) => {
                         onboarding_complete: false,
                     });
                 }
-                // Trigger the system invite for registration token.
-                // The platform only accepts 'user' or 'admin'; the app-specific
-                // role (e.g. super_user) is already stored on the Agent record
-                // above, so we always invite as 'user' here.
-                await base44.asServiceRole.users.inviteUser(email, 'user');
 
-                // Send a branded invitation email from your company
-                await base44.asServiceRole.integrations.Core.SendEmail({
-                    to: email,
-                    from_name: 'ClearVoice',
-                    subject: `You've been invited to join ${company.name} on ClearVoice`,
-                    body: `Hi there,\n\nYou've been invited by ${requester.full_name || 'your company admin'} to join ${company.name} on the ClearVoice platform.\n\nClick the link in the registration email you received to create your account.\n\nOnce registered, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`
-                });
+                // Send branded invitation email. The built-in SendEmail can
+                // only deliver to registered app users, so this may fail for
+                // brand-new invitees — catch separately so the invite itself
+                // still succeeds (the Agent record is created and they can
+                // log in at /login with their email immediately).
+                let emailSent = false;
+                try {
+                    await base44.asServiceRole.integrations.Core.SendEmail({
+                        to: email,
+                        from_name: 'ClearVoice',
+                        subject: `You've been invited to join ${company.name} on ClearVoice`,
+                        body: `Hi there,\n\nYou've been invited by ${requester.full_name || 'your company admin'} to join ${company.name} on the ClearVoice platform.\n\nGo to https://clearvoice.africa/login and sign in with your email (${email}) to get started.\n\nOnce logged in, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`
+                    });
+                    emailSent = true;
+                } catch (_emailErr) {
+                    // Built-in email can't send to unregistered users —
+                    // the invite still succeeds; agent can log in at /login.
+                }
 
                 // Log this invite for admin audit trail
                 await base44.asServiceRole.entities.InviteLog.create({
@@ -128,9 +135,10 @@ Deno.serve(async (req) => {
                     tenant_domain: companyDomain || requester.tenant_domain || '',
                     sent_at: new Date().toISOString(),
                     status: 'sent',
+                    failure_reason: emailSent ? null : 'Email not sent — invitee is not a registered user. Agent can log in at /login.',
                 });
 
-                succeeded.push({ email, role });
+                succeeded.push({ email, role, email_sent: emailSent });
             } catch (err) {
                 // Log the failure for admin audit trail
                 try {
