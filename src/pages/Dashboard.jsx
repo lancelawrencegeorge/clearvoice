@@ -45,10 +45,10 @@ export default function Dashboard() {
     await updateSessionSuppression(true, suppressionLevel);
   };
 
-  const handleChangeSuppressionLevel = (v) => {
-    changeSuppressionLevel(v[0]);
+  const handleChangeSuppressionLevel = (level) => {
+    changeSuppressionLevel(level);
     if (suppressionActive) {
-      updateSessionSuppression(true, v[0]);
+      updateSessionSuppression(true, level);
     }
   };
   useEffect(() => {
