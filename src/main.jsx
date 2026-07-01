@@ -10,7 +10,7 @@ import '@/index.css'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw-killer.js', { updateViaCache: 'none' })
+      .register('/sw.js', { updateViaCache: 'none' })
       .then((reg) => reg.update())
       .catch(() => {});
   });
