@@ -1,0 +1,85 @@
+{
+  "name": "InviteLog",
+  "type": "object",
+  "properties": {
+    "inviter_id": {
+      "type": "string",
+      "description": "Agent ID of the person who sent the invite"
+    },
+    "inviter_name": {
+      "type": "string",
+      "description": "Name of the inviter"
+    },
+    "inviter_email": {
+      "type": "string",
+      "description": "Email of the inviter"
+    },
+    "inviter_role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "super_user"
+      ],
+      "description": "Role of the inviter"
+    },
+    "invitee_email": {
+      "type": "string",
+      "description": "Email of the invited agent"
+    },
+    "invitee_role": {
+      "type": "string",
+      "description": "Role assigned to the invitee"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name at time of invite"
+    },
+    "tenant_domain": {
+      "type": "string",
+      "description": "Tenant domain at time of invite"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the invite was sent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "failed"
+      ],
+      "default": "sent",
+      "description": "Whether the invite was sent or failed"
+    },
+    "failure_reason": {
+      "type": "string",
+      "description": "Reason if the invite failed"
+    }
+  },
+  "required": [
+    "inviter_id",
+    "inviter_role",
+    "invitee_email",
+    "sent_at",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

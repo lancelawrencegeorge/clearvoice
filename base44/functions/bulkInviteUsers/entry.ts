@@ -116,8 +116,40 @@ Deno.serve(async (req) => {
                     body: `Hi there,\n\nYou've been invited by ${requester.full_name || 'your company admin'} to join ${company.name} on the ClearVoice platform.\n\nClick the link in the registration email you received to create your account.\n\nOnce registered, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`
                 });
 
+                // Log this invite for admin audit trail
+                await base44.asServiceRole.entities.InviteLog.create({
+                    inviter_id: requester.id,
+                    inviter_name: requester.full_name || '',
+                    inviter_email: requester.email || '',
+                    inviter_role: requester.role,
+                    invitee_email: email,
+                    invitee_role: role,
+                    company_name: company.name,
+                    tenant_domain: companyDomain || requester.tenant_domain || '',
+                    sent_at: new Date().toISOString(),
+                    status: 'sent',
+                });
+
                 succeeded.push({ email, role });
             } catch (err) {
+                // Log the failure for admin audit trail
+                try {
+                    await base44.asServiceRole.entities.InviteLog.create({
+                        inviter_id: requester.id,
+                        inviter_name: requester.full_name || '',
+                        inviter_email: requester.email || '',
+                        inviter_role: requester.role,
+                        invitee_email: email,
+                        invitee_role: role,
+                        company_name: company.name,
+                        tenant_domain: companyDomain || requester.tenant_domain || '',
+                        sent_at: new Date().toISOString(),
+                        status: 'failed',
+                        failure_reason: err?.message || 'Invite failed',
+                    });
+                } catch (_logErr) {
+                    // don't let logging failure mask the original error
+                }
                 failed.push({ email, reason: err?.message || 'Invite failed' });
             }
         }
