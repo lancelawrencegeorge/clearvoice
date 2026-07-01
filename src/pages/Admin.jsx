@@ -294,7 +294,9 @@ export default function Admin() {
               <TrialManagement companies={filteredCompanies} onActionComplete={loadData} />
             )}
 
-            <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
+            {currentAgent?.role === 'admin' && (
+              <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
+            )}
 
             <Card>
               <CardHeader>
