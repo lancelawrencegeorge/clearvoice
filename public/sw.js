@@ -1,4 +1,4 @@
-// Self-destructing service worker (v3).
+// Self-destructing service worker (v4).
 // The browser checks this file for updates on every navigation (bypassing
 // the old SW's fetch handler). When it finds new content, it installs this
 // SW which clears all caches, reloads clients, then unregisters itself.
