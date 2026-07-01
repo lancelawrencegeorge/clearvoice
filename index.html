@@ -5,33 +5,42 @@
     <link rel="icon" type="image/png" href="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png" />
     <link rel="apple-touch-icon" href="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/ccdfa1a60_image.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <link rel="manifest" href="/manifest.json" />
     <title>ClearVoice – Noise Suppression</title>
   </head>
   <body>
     <div id="root"></div>
     <script>
-      // Kill any stale service workers and caches BEFORE the app loads.
-      // This runs synchronously in the HTML so the old cached bundle (which
-      // renders a duplicate floating CustomerFilter) never gets to execute.
+      // Kill stale service workers and caches before the app loads.
+      // Uses sessionStorage to avoid reload loops.
       (async function () {
         var needReload = false;
         if ('serviceWorker' in navigator) {
-          var regs = await navigator.serviceWorker.getRegistrations();
-          for (var i = 0; i < regs.length; i++) {
-            await regs[i].unregister();
-            needReload = true;
-          }
+          try {
+            var regs = await navigator.serviceWorker.getRegistrations();
+            for (var i = 0; i < regs.length; i++) {
+              await regs[i].unregister();
+              needReload = true;
+            }
+          } catch (e) {}
         }
         if ('caches' in window) {
-          var keys = await caches.keys();
-          for (var j = 0; j < keys.length; j++) {
-            await caches.delete(keys[j]);
-            needReload = true;
-          }
+          try {
+            var keys = await caches.keys();
+            for (var j = 0; j < keys.length; j++) {
+              await caches.delete(keys[j]);
+              needReload = true;
+            }
+          } catch (e) {}
         }
-        if (needReload) {
+        if (needReload && !sessionStorage.getItem('cv_cache_cleared')) {
+          sessionStorage.setItem('cv_cache_cleared', '1');
           window.location.reload();
+        } else {
+          sessionStorage.removeItem('cv_cache_cleared');
         }
       })();
     </script>
