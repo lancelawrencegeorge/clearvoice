@@ -318,7 +318,7 @@ export default function Dashboard() {
                     Output Device
                   </label>
                   <p className="text-xs text-muted-foreground mt-1 mb-2">
-                    Select "CABLE Input" to route cleaned audio to Teams or Zoom via VB-Cable.
+                    Select "CABLE Input" to route cleaned audio to your softphone via VB-Cable.
                   </p>
                   <Select
                     value={selectedOutputDevice}
