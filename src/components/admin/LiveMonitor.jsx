@@ -12,7 +12,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(diff / 3600)}h ago`;
 }
 
-export default function LiveMonitor({ tenantFilter }) {
+export default function LiveMonitor({ tenantFilter, agentRole, agentDomain }) {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const loadedRef = useRef(false);
@@ -23,7 +23,10 @@ export default function LiveMonitor({ tenantFilter }) {
 
     const load = async () => {
       try {
-        const all = await base44.entities.Session.list("-login_at", 500);
+        const isSuperUser = agentRole === "super_user";
+        const all = isSuperUser
+          ? await base44.entities.Session.filter({ tenant_domain: agentDomain }, "-login_at", 500)
+          : await base44.entities.Session.list("-login_at", 500);
         const cutoff = Date.now() - 8 * 60 * 60 * 1000;
         const online = all.filter(
           (s) => !s.logout_at && s.login_at && new Date(s.login_at).getTime() > cutoff

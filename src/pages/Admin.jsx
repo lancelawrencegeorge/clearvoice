@@ -288,7 +288,7 @@ export default function Admin() {
               </Card>
             </div>
 
-            <LiveMonitor tenantFilter={tenantFilter} />
+            <LiveMonitor tenantFilter={tenantFilter} agentRole={currentAgent?.role} agentDomain={currentAgent ? getTenantDomain(currentAgent.email) : null} />
 
             {currentAgent?.role === 'admin' && (
               <TrialManagement companies={filteredCompanies} onActionComplete={loadData} />
