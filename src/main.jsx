@@ -7,19 +7,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <App />
 )
 
+// Register the self-destructing service worker. It will replace any old
+// service worker, clear all caches, unregister itself, and force-reload
+// the page — so no stale cached code (like the old floating CustomerFilter)
+// can survive.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Also clear all caches
-    if ('caches' in window) {
-      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
-    }
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      if (registrations.length > 0) {
-        // Unregister all, then force a hard reload to bypass any cached assets
-        Promise.all(registrations.map((reg) => reg.unregister())).then(() => {
-          window.location.reload();
-        });
-      }
-    }).catch(() => {});
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
