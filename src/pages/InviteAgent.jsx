@@ -89,11 +89,16 @@ export default function InviteAgent() {
     setError('');
     setLoading(true);
     try {
-      await base44.functions.invoke('bulkInviteUsers', {
+      const res = await base44.functions.invoke('bulkInviteUsers', {
         users: [{ email, role: inviteRole }],
         company_id: companyId,
         agent_id: currentAgent.id,
       });
+      if (res?.data?.failed?.length > 0) {
+        setError(res.data.failed[0].reason || 'Failed to send invite');
+        setLoading(false);
+        return;
+      }
       setSuccess(true);
       setEmail('');
     } catch (err) {

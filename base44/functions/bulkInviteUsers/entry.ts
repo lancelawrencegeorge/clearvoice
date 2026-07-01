@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
                 // The platform only accepts 'user' or 'admin'; the app-specific
                 // role (e.g. super_user) is already stored on the Agent record
                 // above, so we always invite as 'user' here.
-                await base44.users.inviteUser(email, 'user');
+                await base44.asServiceRole.users.inviteUser(email, 'user');
 
                 // Send a branded invitation email from your company
                 await base44.asServiceRole.integrations.Core.SendEmail({

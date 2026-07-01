@@ -110,6 +110,7 @@ export default function BulkImport() {
       const res = await base44.functions.invoke('bulkInviteUsers', {
         users: validRows.map(r => ({ email: r.email, role: r.role || defaultRole })),
         company_id: selectedCompany,
+        agent_id: currentAgent.id,
       });
       const data = res.data || res;
       setResults({
