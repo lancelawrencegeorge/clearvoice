@@ -2,7 +2,7 @@
   "name": "ClearVoice – Noise Suppression",
   "short_name": "ClearVoice",
   "description": "Zero-latency AI noise suppression for contact centres",
-  "start_url": "/",
+  "start_url": "/?cv=2",
   "display": "standalone",
   "background_color": "#0b0c14",
   "theme_color": "#5f55ff",
