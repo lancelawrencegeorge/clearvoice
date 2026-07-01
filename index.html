@@ -45,7 +45,9 @@
         }
         if (needReload && !sessionStorage.getItem('cv_cache_cleared')) {
           sessionStorage.setItem('cv_cache_cleared', '1');
-          window.location.reload();
+          // Use replace with cache-busting query param to bypass old SW cache
+          var freshUrl = window.location.pathname + '?nocache=' + Date.now();
+          window.location.replace(freshUrl);
         } else {
           sessionStorage.removeItem('cv_cache_cleared');
         }

@@ -1,5 +1,7 @@
-// Self-destructing service worker (v2).
-// Fixes activation timing: claim clients and reload BEFORE unregistering.
+// Self-destructing service worker (v3).
+// The browser checks this file for updates on every navigation (bypassing
+// the old SW's fetch handler). When it finds new content, it installs this
+// SW which clears all caches, reloads clients, then unregisters itself.
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -17,18 +19,13 @@ self.addEventListener('activate', (event) => {
         await Promise.all(keys.map((k) => caches.delete(k)));
       }
 
-      // 3. Tell all open clients to hard-reload (postMessage is more reliable than navigate)
+      // 3. Tell all open clients to hard-reload
       const clients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
       clients.forEach((client) => {
         client.postMessage({ type: 'FORCE_RELOAD' });
       });
 
-      // 4. Also try clients.navigate as a fallback
-      clients.forEach((client) => {
-        try { client.navigate(client.url); } catch (e) {}
-      });
-
-      // 5. Now unregister — after reload is already triggered
+      // 4. Unregister this SW so it doesn't re-activate
       await self.registration.unregister();
     })()
   );
