@@ -125,9 +125,9 @@ export default function InviteAgent() {
         {success ? (
           <Card className="p-8 text-center bg-card/80 border-border/50">
             <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Invite Sent!</h2>
+            <h2 className="text-lg font-semibold mb-2">Agent Ready!</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              The agent will receive an email to join. Once they log in, they'll be assigned to <strong>{selectedCompany?.name}</strong>.
+              The agent's account is created and assigned to <strong>{selectedCompany?.name}</strong>. They can sign in now at the login page using their email — no password needed.
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setSuccess(false)}>Invite Another</Button>
