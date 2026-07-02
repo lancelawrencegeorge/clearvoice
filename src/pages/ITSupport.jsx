@@ -7,8 +7,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Power, Loader2, FileText, Download, FileCheck, Monitor, ListChecks, Wrench, Trash2, ArrowLeft, ExternalLink, CheckCircle2, Headphones, ArrowRight, Mic, AudioLines, User, Info } from "lucide-react";
 import { getCurrentAgent, clearAuth } from "@/lib/customAuth";
-
-const PDF_URL = "https://base44.app/api/apps/69dfcacd77821fcbc01329c8/files/mp/public/69dfcacd77821fcbc01329c8/fa779b224_ClearVoice_IT_Deployment_Guide.pdf";
+import jsPDF from "jspdf";
 
 export default function ITSupport() {
   const navigate = useNavigate();
@@ -37,6 +36,277 @@ export default function ITSupport() {
   const handleSignOut = () => {
     clearAuth();
     navigate("/", { replace: true });
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const margin = 50;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const maxWidth = pageWidth - margin * 2;
+    let y = margin;
+
+    const checkPage = (needed = 20) => {
+      if (y + needed > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
+
+    const addTitle = (text) => {
+      checkPage(40);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.setTextColor(30, 30, 30);
+      doc.text(text, margin, y);
+      y += 30;
+    };
+
+    const addH2 = (text) => {
+      checkPage(30);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor(50, 50, 50);
+      doc.text(text, margin, y);
+      y += 20;
+    };
+
+    const addH3 = (text) => {
+      checkPage(25);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      doc.text(text, margin, y);
+      y += 18;
+    };
+
+    const addBody = (text, indent = 0) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      const lines = doc.splitTextToSize(text, maxWidth - indent);
+      lines.forEach(line => {
+        checkPage(14);
+        doc.text(line, margin + indent, y);
+        y += 14;
+      });
+    };
+
+    const addBullet = (text, indent = 10) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      const lines = doc.splitTextToSize(text, maxWidth - indent - 10);
+      checkPage(14);
+      doc.text("•", margin + indent, y);
+      lines.forEach(line => {
+        checkPage(14);
+        doc.text(line, margin + indent + 12, y);
+        y += 14;
+      });
+    };
+
+    const addNumbered = (text, indent = 10) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      const lines = doc.splitTextToSize(text, maxWidth - indent - 15);
+      checkPage(14);
+      lines.forEach((line, i) => {
+        checkPage(14);
+        if (i === 0) {
+          doc.text(text.replace(/^(\d+)\..*/, "$1."), margin + indent, y);
+          doc.text(line.replace(/^\d+\.\s*/, ""), margin + indent + 18, y);
+        } else {
+          doc.text(line, margin + indent + 18, y);
+        }
+        y += 14;
+      });
+    };
+
+    const addSpace = (n = 10) => { y += n; };
+
+    const addDivider = () => {
+      checkPage(15);
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 15;
+    };
+
+    // --- CONTENT ---
+    addTitle("ClearVoice — IT Deployment Guide");
+    addBody("Everything needed to deploy ClearVoice with VB-Cable virtual audio routing.");
+    addSpace();
+    addDivider();
+
+    // Desktop vs Web App
+    addH2("Desktop App vs Web App (Browser)");
+    addBullet("Desktop App: standalone window that can't be accidentally closed, auto-updates via installer, system tray icon, requires admin rights to install");
+    addBullet("Web App: zero installation, works on locked-down/BYOD machines with no admin rights, agent must manually keep the browser tab open, VB-Cable driver still required for full feature parity");
+    addSpace();
+    addDivider();
+
+    // Files Required
+    addH2("Files Required");
+    addBody("Download both files before starting the installation. Note: The Web App (Browser) path requires no downloads — just a bookmark to clearvoice.africa.");
+    addSpace();
+    addH3("ClearVoice Installer");
+    addBullet("Desktop application installer (Windows)");
+    addBullet("Download: https://github.com/lancelawrencegeorge/clearvoice/releases/download/V1.1.1/ClearVoice.Setup.1.1.1.exe");
+    addSpace();
+    addH3("VB-Cable Driver");
+    addBullet("Virtual audio cable driver for routing mic output");
+    addBullet("Download: https://vb-audio.com/Cable/index.htm");
+    addSpace();
+    addDivider();
+
+    // System Requirements
+    addH2("System Requirements");
+    addBullet("OS: Windows 10 or Windows 11 (64-bit)");
+    addBullet("RAM: Minimum 4 GB (8 GB recommended)");
+    addBullet("Internet: Required for initial login and license validation");
+    addBullet("Admin Rights: Required to install VB-Cable driver and the ClearVoice desktop app");
+    addBullet("Softphone: OmniVoice (or compatible softphone) must be installed for audio routing configuration");
+    addBullet("Microphone: Working microphone or headset");
+    addSpace();
+    addDivider();
+
+    // Account & Role Flow
+    addH2("Account & Role Flow");
+    addBody("How accounts are created across the ClearVoice system:");
+    addSpace();
+    addH3("Platform Owner (Admin)");
+    addBullet("Invites Super Users at each client company");
+    addBullet("Manages billing, plans, seat limits & invoices");
+    addBullet("Full visibility into all tenants");
+    addSpace();
+    addH3("Super User (Client Admin)");
+    addBullet("Invited by platform owner, then registers");
+    addBullet("Completes onboarding (sets company domain)");
+    addBullet("Invites agents individually or via bulk CSV import");
+    addSpace();
+    addH3("Agent");
+    addBullet("Invited, then registers. Or bulk imported (record already exists)");
+    addBullet("Installs ClearVoice + VB-Cable driver");
+    addSpace();
+    addBody("Agents always log in with email + password. Bulk-imported agents skip registration — their account already exists.", 10);
+    addSpace();
+    addDivider();
+
+    // Step-by-Step Installation
+    addH2("Step-by-Step Installation Guide (Desktop App)");
+    addSpace();
+    addH3("1. Install ClearVoice");
+    addBullet("Run the ClearVoice installer as Administrator (right-click → Run as administrator)");
+    addBullet("Follow the setup wizard and accept the default installation path");
+    addBullet("Launch ClearVoice and sign in with your agent credentials");
+    addSpace();
+    addH3("2. Install VB-Cable");
+    addBullet('Download and extract VB-Cable 2ch (standard) version from vb-audio.com/Cable/ — only install this version, not any "16ch" variant');
+    addBullet("Right-click VBCABLE_Setup_x64.exe and select Run as administrator");
+    addBullet("Click Install Driver and wait for confirmation");
+    addSpace();
+    addH3("Identifying the correct VB-Cable devices");
+    addBody("After installation you'll see two active devices in Windows Sound settings:", 10);
+    addBullet("Playback tab → \"CABLE Input (VB-Audio Virtual Cable)\" — ClearVoice routes cleaned audio here", 20);
+    addBullet("Recording tab → \"CABLE Output (VB-Audio Virtual Cable)\" — select this as your softphone microphone", 20);
+    addBody('You may also see "CABLE In 16ch (VB-Audio Virtual Cable)" or similar extra entries — these are leftover driver artifacts and are disabled by default. Ignore them entirely. Always select the standard "(VB-Audio Virtual Cable)" devices, never the "16ch" variants.', 10);
+    addBody("If incorrect devices appear, uninstall VB-Cable entirely via the setup tool, reboot, and reinstall the standard (2ch) version only.", 10);
+    addSpace();
+    addH3("3. Reboot");
+    addBullet("Restart the computer after VB-Cable installation for the driver to take effect");
+    addSpace();
+    addH3("4. Configure OmniVoice Audio");
+    addBullet("Open OmniVoice softphone settings → Audio Devices");
+    addBullet("Set Microphone to CABLE Output (VB-Audio Virtual Cable)");
+    addBullet("Set Speaker to your headset or speakers as normal");
+    addBullet("In ClearVoice, set the output device to CABLE Input so the denoised audio feeds into OmniVoice");
+    addSpace();
+    addDivider();
+
+    // Web App (Browser)
+    addH2("Web App (Browser) — No Installation Required");
+    addBody("ClearVoice works entirely in a browser tab with no installation. Ideal for locked-down or BYOD machines where agents can't install software.");
+    addSpace();
+    addH3("Steps");
+    addBullet("Open a browser and go to clearvoice.africa");
+    addBullet("Sign in with work email (no password needed)");
+    addBullet('Click "Start Session" and grant microphone access when prompted');
+    addBullet("Keep the browser tab open for the entire shift — unlike the desktop app's standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don't close it mid-shift");
+    addBullet("For full dual-channel suppression (using the Customer Noise Filter toggle to also filter the other caller's audio), the same VB-Cable (Windows) / BlackHole (Mac) virtual audio driver is still required — this is a one-time OS-level driver install, completely independent of whether you use the desktop app or a plain browser tab");
+    addBullet('Set the softphone\'s microphone to "CABLE Output" exactly as documented in the Desktop App steps above — that part of the setup is identical either way');
+    addBody("⚠️ The browser tab is the suppression engine — closing it stops filtering immediately.", 10);
+    addSpace();
+    addDivider();
+
+    // Verification
+    addH2("Verification Steps");
+    addBody("Confirm the virtual cable is installed correctly:");
+    addSpace();
+    addBullet("Open Start → Settings → System → Sound");
+    addBullet("Scroll to Input and click Choose a device for speaking or recording");
+    addBullet("Verify CABLE Output (VB-Audio Virtual Cable) appears in the list");
+    addBullet("Open Sound Control Panel → Recording tab and confirm CABLE Output is listed and enabled");
+    addBullet("Check the Playback tab for CABLE Input");
+    addBullet("Speak into the mic — the ClearVoice level meter should respond, and OmniVoice should receive clean audio");
+    addSpace();
+    addDivider();
+
+    // Audio Setup for Headset Users
+    addH2("Audio Setup for Headset Users");
+    addSpace();
+    addH3("How the Audio Chain Works");
+    addBody("Your physical microphone captures your voice → ClearVoice applies real-time noise suppression → the cleaned audio is sent to CABLE Output (a virtual microphone) → OmniVoice picks up that virtual mic → the customer hears clean, noise-free audio.");
+    addSpace();
+    addH3("Audio Flow Diagram");
+    addBody("Physical Headset Mic → ClearVoice → CABLE Output → OmniVoice → Customer");
+    addSpace();
+    addH3("OmniVoice Settings for Headset Users");
+    addBullet("Microphone: Set to CABLE Output (VB-Audio Virtual Cable) — this receives the denoised audio from ClearVoice");
+    addBullet("Speaker / Headphones: Set to your headset (e.g. HONOR CHOICE, Jabra, Plantronics, or any USB/Bluetooth headset)");
+    addBullet("Note on the CABLE Output volume slider: In Windows Sound Settings, the Recording tab's CABLE Output Levels slider will show 0% and cannot be changed — this is normal. Audio passes through at full volume regardless of this slider.");
+    addSpace();
+    addH3("Key Point");
+    addBody("Headphones are output only — they carry the customer's voice to your ears and do not interfere with VB-Cable at all. VB-Cable only handles the microphone input path (your voice → ClearVoice → OmniVoice).");
+    addSpace();
+    addDivider();
+
+    // Troubleshooting
+    addH2("Troubleshooting");
+    addSpace();
+    addH3("Blank screen on launch");
+    addBody("Clear the app cache or reinstall. Check that the GPU supports hardware acceleration. Try running in compatibility mode.");
+    addSpace();
+    addH3("CABLE Output missing from Sound settings");
+    addBody("Reinstall VB-Cable as administrator. Reboot. Check Sound Control Panel → Recording — right-click and enable disabled/disconnected devices.");
+    addSpace();
+    addH3("Icon not updating in taskbar");
+    addBody("Unpin the old shortcut, uninstall the app, reinstall, and re-pin. Windows caches taskbar icons at install time.");
+    addSpace();
+    addH3("UAC prompt not appearing");
+    addBody("Check UAC settings in Control Panel → User Accounts → Change User Account Control settings. Ensure it's not set to \"Never notify\". Run the installer manually as administrator.");
+    addSpace();
+    addDivider();
+
+    // Uninstall
+    addH2("Uninstall Instructions");
+    addSpace();
+    addH3("ClearVoice");
+    addBullet("Open Settings → Apps → Installed apps");
+    addBullet("Find ClearVoice and click Uninstall");
+    addBullet("Follow the uninstaller prompts to complete removal");
+    addSpace();
+    addH3("VB-Cable");
+    addBullet("Run VBCABLE_Setup_x64.exe as administrator");
+    addBullet("Click Uninstall Driver");
+    addBullet("Reboot the computer to complete removal");
+    addSpace(20);
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(130, 130, 130);
+    doc.text("ClearVoice — A product of Contact Centre SA", margin, y);
+
+    doc.save("ClearVoice_IT_Deployment_Guide.pdf");
   };
 
   if (checking) {
@@ -114,12 +384,10 @@ export default function ITSupport() {
                 <p className="text-sm text-muted-foreground">Download the complete printable guide for distribution.</p>
               </div>
             </div>
-            <a href={PDF_URL} target="_blank" rel="noopener noreferrer">
-              <Button size="lg">
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF Guide
-              </Button>
-            </a>
+            <Button size="lg" onClick={handleDownloadPDF}>
+              <Download className="w-4 h-4 mr-2" />
+              Download PDF Guide
+            </Button>
           </CardContent>
         </Card>
 
