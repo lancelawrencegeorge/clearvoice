@@ -5,8 +5,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    // Admin-only: only the platform owner can view invite history
-    if (!user || user.role !== 'admin') {
+    // Admin or super_user (tenant owner) can view invite history
+    if (!user || (user.role !== 'admin' && user.role !== 'super_user')) {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
