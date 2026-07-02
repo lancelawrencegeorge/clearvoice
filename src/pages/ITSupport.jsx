@@ -123,9 +123,38 @@ export default function ITSupport() {
           </CardContent>
         </Card>
 
+        {/* Desktop vs Web App Comparison */}
+        <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-5 space-y-3 mb-6">
+          <div className="flex items-center gap-2">
+            <Info className="w-5 h-5 text-blue-400 shrink-0" />
+            <h3 className="text-sm font-semibold">Desktop App vs Web App (Browser)</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border border-border rounded-lg p-4 space-y-1.5">
+              <p className="font-medium text-sm text-foreground">🖥️ Desktop App</p>
+              <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground">
+                <li>Standalone window that can't be accidentally closed</li>
+                <li>Auto-updates via installer</li>
+                <li>System tray icon for quick access</li>
+                <li>Requires admin rights to install</li>
+              </ul>
+            </div>
+            <div className="border border-border rounded-lg p-4 space-y-1.5">
+              <p className="font-medium text-sm text-foreground">🌐 Web App (Browser)</p>
+              <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground">
+                <li>Zero installation — just open a browser tab</li>
+                <li>Works on locked-down / BYOD machines with no admin rights</li>
+                <li>Agent must manually keep the browser tab open</li>
+                <li>VB-Cable driver still required for full feature parity</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <Accordion type="single" collapsible defaultValue="files" className="space-y-3">
 
-          {/* Files Required */}
+          {/* Files Required (Desktop App only — Web App needs no download) */}
+
           <Card>
             <AccordionItem value="files" className="border-b-0 px-4">
               <AccordionTrigger className="text-base font-semibold">
@@ -135,7 +164,7 @@ export default function ITSupport() {
                 </span>
               </AccordionTrigger>
               <AccordionContent>
-                <p className="text-muted-foreground mb-4">Download both files before starting the installation.</p>
+                <p className="text-muted-foreground mb-4">Download both files before starting the installation. <span className="text-blue-400">Note: The Web App (Browser) path requires no downloads — just a bookmark to clearvoice.africa.</span></p>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -274,6 +303,37 @@ export default function ITSupport() {
                       <li>Set <strong>Speaker</strong> to your headset or speakers as normal.</li>
                       <li>In ClearVoice, set the output device to <strong>CABLE Input</strong> so the denoised audio feeds into OmniVoice.</li>
                     </ul>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Card>
+
+          {/* Web App (Browser) Installation */}
+          <Card>
+            <AccordionItem value="webapp" className="border-b-0 px-4">
+              <AccordionTrigger className="text-base font-semibold">
+                <span className="flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5 text-primary" />
+                  Web App (Browser) — No Installation Required
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    ClearVoice works entirely in a browser tab with no installation. Ideal for locked-down or BYOD machines where agents can't install software.
+                  </p>
+                  <div>
+                    <p className="font-medium mb-2 text-primary">Steps</p>
+                    <ol className="space-y-1.5 text-sm text-muted-foreground list-decimal pl-5">
+                      <li>Open a browser and go to <a href="https://clearvoice.africa" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">clearvoice.africa</a></li>
+                      <li>Sign in with work email (no password needed)</li>
+                      <li>Click <strong>"Start Session"</strong> and grant microphone access when prompted</li>
+                      <li>Keep the browser tab open for the entire shift — unlike the desktop app's standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don't close it mid-shift</li>
+                      <li>For full dual-channel suppression (using the <strong>Customer Noise Filter</strong> toggle to also filter the other caller's audio), the same <strong>VB-Cable</strong> (Windows) / <strong>BlackHole</strong> (Mac) virtual audio driver is still required — this is a one-time OS-level driver install, completely independent of whether you use the desktop app or a plain browser tab</li>
+                      <li>Set the softphone's microphone to <strong>"CABLE Output"</strong> exactly as documented in the Desktop App steps above — that part of the setup is identical either way</li>
+                    </ol>
+                    <p className="mt-2 text-amber-500 text-xs">⚠️ The browser tab is the suppression engine — closing it stops filtering immediately.</p>
                   </div>
                 </div>
               </AccordionContent>
