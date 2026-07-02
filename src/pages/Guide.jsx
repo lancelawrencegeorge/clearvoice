@@ -354,7 +354,12 @@ export default function Guide() {
     addDivider();
 
     addH2('Installation');
-    addBody('ClearVoice runs as a desktop app — a standalone window that stays active throughout your calls and can\'t be accidentally closed like a browser tab.');
+    addBody('ClearVoice can be used as a desktop app or directly in a browser tab — choose whichever fits your environment.');
+    addSpace();
+
+    addH3('Desktop App vs Web App');
+    addBullet('Desktop App: standalone window that can\'t be accidentally closed, auto-updates via installer, system tray icon');
+    addBullet('Web App: zero installation, works on locked-down/BYOD machines with no admin rights, but the agent must manually keep the browser tab open');
     addSpace();
 
     addH3('Desktop App (Recommended)');
@@ -366,6 +371,19 @@ export default function Guide() {
     addBullet('ClearVoice installs and launches automatically');
     addBullet('Pin it to your taskbar for quick access');
     addBody('✅ Success check: ClearVoice opens as a standalone desktop app.', 10);
+    addSpace();
+
+    addH3('Web App (Browser) — No Installation Required');
+    addBody('ClearVoice works entirely in a browser tab with no installation. Ideal for locked-down or BYOD machines where you can\'t install software.');
+    addSpace();
+    addH3('Steps');
+    addBullet('Open your browser and go to clearvoice.africa');
+    addBullet('Sign in with your work email (no password needed)');
+    addBullet('Click "Start Session" and grant microphone access when prompted');
+    addBullet('Keep this browser tab open for your entire shift — unlike the desktop app\'s standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don\'t close it mid-shift');
+    addBullet('For full dual-channel suppression (using the Customer Noise Filter toggle to also filter the other caller\'s audio), the same VB-Cable (Windows) / BlackHole (Mac) virtual audio driver is still required — this is a one-time OS-level driver install, completely independent of whether you use the desktop app or a plain browser tab');
+    addBullet('Set your softphone\'s microphone to "CABLE Output" exactly as documented in the Desktop App section above — that part of the setup is identical either way');
+    addBody('⚠️ The browser tab is your suppression engine — closing it stops filtering immediately.', 10);
     addSpace();
 
     addH3('Step 2: Set Up Virtual Audio Cable (One-Time, IT Required)');
@@ -423,8 +441,9 @@ export default function Guide() {
     addSpace();
     addH3('What Requires Manual Action Per Agent (Today)');
     addBullet('Desktop app installer — standard .exe install; IT can package and deploy it via SCCM, Intune, or Group Policy');
+    addBody('Alternatively, IT can provision a bookmarked link to clearvoice.africa for the Web App path instead of deploying the .exe installer — useful for locked-down or BYOD machines. The VB-Cable driver push is still required either way for full feature parity (dual-channel suppression via the Customer Noise Filter).', 10);
     addSpace();
-    addBody('Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy.', 10);
+    addBody('Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy — or skipped entirely in favour of a bookmarked web link.', 10);
     addSpace();
 
     addDivider();
@@ -604,7 +623,33 @@ export default function Guide() {
         <section className="space-y-6 mb-8">
           <div>
             <h2 className="text-lg font-semibold mb-1">Installation</h2>
-            <p className="text-sm text-muted-foreground">ClearVoice runs as a desktop app — a standalone window that stays active throughout your calls and can't be accidentally closed like a browser tab.</p>
+            <p className="text-sm text-muted-foreground">ClearVoice can be used as a desktop app or directly in a browser tab — choose whichever fits your environment.</p>
+          </div>
+
+          {/* Desktop vs Web App Comparison */}
+          <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <Info className="w-5 h-5 text-blue-400 shrink-0" />
+              <h3 className="text-sm font-semibold">Desktop App vs Web App</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border border-border rounded-lg p-4 space-y-1.5">
+                <p className="font-medium text-sm text-foreground">🖥️ Desktop App</p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground">
+                  <li>Standalone window that can't be accidentally closed</li>
+                  <li>Auto-updates via installer</li>
+                  <li>System tray icon for quick access</li>
+                </ul>
+              </div>
+              <div className="border border-border rounded-lg p-4 space-y-1.5">
+                <p className="font-medium text-sm text-foreground">🌐 Web App (Browser)</p>
+                <ul className="list-disc list-inside space-y-0.5 text-xs text-muted-foreground">
+                  <li>Zero installation — just open a browser tab</li>
+                  <li>Works on locked-down / BYOD machines with no admin rights</li>
+                  <li>Agent must manually keep the browser tab open</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           {/* Option A: Desktop App */}
@@ -630,6 +675,27 @@ export default function Guide() {
             </div>
           </div>
 
+          {/* Option B: Web App (Browser) */}
+          <div className="border border-border rounded-xl p-6 space-y-4">
+            <div>
+              <h3 className="text-base font-semibold mb-1">Web App (Browser) — No Installation Required</h3>
+              <p className="text-sm text-muted-foreground">
+                ClearVoice works entirely in a browser tab with no installation. Ideal for locked-down or BYOD machines where you can't install software.
+              </p>
+            </div>
+            <div className="text-sm">
+              <h4 className="font-medium text-sm mb-2">Steps</h4>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>Open your browser and go to <a href="https://clearvoice.africa" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">clearvoice.africa</a></li>
+                <li>Sign in with your work email (no password needed)</li>
+                <li>Click <strong>"Start Session"</strong> and grant microphone access when prompted</li>
+                <li>Keep this browser tab open for your entire shift — unlike the desktop app's standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don't close it mid-shift</li>
+                <li>For full dual-channel suppression (using the <strong>Customer Noise Filter</strong> toggle to also filter the other caller's audio), the same <strong>VB-Cable</strong> (Windows) / <strong>BlackHole</strong> (Mac) virtual audio driver is still required — this is a one-time OS-level driver install, completely independent of whether you use the desktop app or a plain browser tab</li>
+                <li>Set your softphone's microphone to <strong>"CABLE Output"</strong> exactly as documented in the Desktop App section above — that part of the setup is identical either way</li>
+              </ol>
+              <p className="mt-2 text-amber-500 text-xs">⚠️ The browser tab is your suppression engine — closing it stops filtering immediately.</p>
+            </div>
+          </div>
 
         </section>
 
@@ -731,9 +797,12 @@ export default function Guide() {
               <ul className="space-y-1 text-muted-foreground">
                 <li>⚠️ <strong>Desktop app installer</strong> — standard .exe install; IT can package and deploy it via SCCM, Intune, or Group Policy</li>
               </ul>
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 Alternatively, IT can provision a <strong>bookmarked link to clearvoice.africa</strong> for the Web App path instead of deploying the .exe installer — useful for locked-down or BYOD machines. The VB-Cable driver push is still required either way for full feature parity (dual-channel suppression via the Customer Noise Filter).
+              </p>
             </div>
             <p className="text-xs text-muted-foreground italic pt-2 border-t border-border">
-              Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy.
+              Summary: IT can handle the driver today, and the desktop installer can be centrally deployed via SCCM, Intune, or Group Policy — or skipped entirely in favour of a bookmarked web link.
             </p>
           </section>
 
