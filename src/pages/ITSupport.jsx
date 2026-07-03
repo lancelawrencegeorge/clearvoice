@@ -232,9 +232,23 @@ export default function ITSupport() {
     addBullet("Sign in with work email (no password needed)");
     addBullet('Click "Start Session" and grant microphone access when prompted');
     addBullet("Keep the browser tab open for the entire shift — unlike the desktop app's standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don't close it mid-shift");
-    addBullet("For full dual-channel suppression (using the Customer Noise Filter toggle to also filter the other caller's audio), the same VB-Cable (Windows) / BlackHole (Mac) virtual audio driver is still required — this is a one-time OS-level driver install, completely independent of whether you use the desktop app or a plain browser tab");
-    addBullet('Set the softphone\'s microphone to "CABLE Output" exactly as documented in the Desktop App steps above — that part of the setup is identical either way');
     addBody("⚠️ The browser tab is the suppression engine — closing it stops filtering immediately.", 10);
+    addSpace();
+
+    addH3("VB-Cable Setup for the Web App (Client-Side Noise Suppression)");
+    addBody("VB-Cable is an OS-level virtual audio driver — Windows registers it as a standard audio device, so the browser sees it just like any other microphone or speaker. The web app uses the browser's setSinkId API (the \"Output Device\" dropdown on the dashboard) to route cleaned audio to CABLE Input, and the softphone reads from CABLE Output — identical to the desktop app.");
+    addSpace();
+    addBody("Important: Installing the VB-Cable driver itself still requires admin rights (it's a Windows driver, not a browser plugin). The \"no admin rights\" benefit of the web app applies to the ClearVoice application only — the one-time VB-Cable driver install still needs an IT admin. If the machine is fully locked down with no admin access at all, the agent can still use the web app for agent-side suppression (their own mic) without VB-Cable, but customer-side suppression via the Customer Noise Filter will not be available.");
+    addSpace();
+    addH3("Setup Steps");
+    addBullet("Install VB-Cable (one-time, requires admin) — download the 2ch standard version from vb-audio.com/Cable/, right-click VBCABLE_Setup_x64.exe → Run as administrator → click Install Driver → reboot");
+    addBullet("Open the web app — navigate to clearvoice.africa and sign in");
+    addBullet('Start Session — click "Start Session" and grant microphone access. The browser will use your physical mic as input');
+    addBullet('Select Output Device — on the dashboard, open the "Output Device" dropdown (visible after starting the session) and select CABLE Input (VB-Audio Virtual Cable). This routes the denoised audio into the virtual cable');
+    addBullet("Configure the softphone — in OmniVoice (or any softphone), set the Microphone to CABLE Output (VB-Audio Virtual Cable). The softphone now picks up the cleaned audio from ClearVoice");
+    addBullet('(Optional) Enable Customer Noise Filter — toggle the "Customer Noise Filter" on the dashboard to also filter the caller\'s audio. This uses the browser\'s screen-share audio capture to grab the softphone\'s speaker output and route it through ClearVoice. Follow the on-screen instructions to select the correct browser tab/audio source');
+    addSpace();
+    addBody("Audio Flow (Web App + VB-Cable): Physical Mic → Browser (Web App) → ClearVoice suppression → CABLE Input → CABLE Output → Softphone → Customer");
     addSpace();
     addDivider();
 
@@ -598,10 +612,33 @@ export default function ITSupport() {
                       <li>Sign in with work email (no password needed)</li>
                       <li>Click <strong>"Start Session"</strong> and grant microphone access when prompted</li>
                       <li>Keep the browser tab open for the entire shift — unlike the desktop app's standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don't close it mid-shift</li>
-                      <li>For full dual-channel suppression (using the <strong>Customer Noise Filter</strong> toggle to also filter the other caller's audio), the same <strong>VB-Cable</strong> (Windows) / <strong>BlackHole</strong> (Mac) virtual audio driver is still required — this is a one-time OS-level driver install, completely independent of whether you use the desktop app or a plain browser tab</li>
-                      <li>Set the softphone's microphone to <strong>"CABLE Output"</strong> exactly as documented in the Desktop App steps above — that part of the setup is identical either way</li>
                     </ol>
                     <p className="mt-2 text-amber-500 text-xs">⚠️ The browser tab is the suppression engine — closing it stops filtering immediately.</p>
+                  </div>
+
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+                    <p className="font-medium text-primary text-sm">VB-Cable Setup for the Web App (Client-Side Noise Suppression)</p>
+                    <p className="text-sm text-muted-foreground">
+                      VB-Cable is an OS-level virtual audio driver — Windows registers it as a standard audio device, so the browser sees it just like any other microphone or speaker. The web app uses the browser's <code className="px-1 py-0.5 rounded bg-secondary text-xs">setSinkId</code> API (the "Output Device" dropdown on the dashboard) to route cleaned audio to <strong>CABLE Input</strong>, and the softphone reads from <strong>CABLE Output</strong> — identical to the desktop app.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Important:</strong> Installing the VB-Cable driver itself still requires admin rights (it's a Windows driver, not a browser plugin). The "no admin rights" benefit of the web app applies to the ClearVoice application only — the one-time VB-Cable driver install still needs an IT admin. If the machine is fully locked down with no admin access at all, the agent can still use the web app for <em>agent-side</em> suppression (their own mic) without VB-Cable, but <strong>customer-side</strong> suppression via the Customer Noise Filter will not be available.
+                    </p>
+                    <div>
+                      <p className="font-medium text-sm mb-2">Setup Steps:</p>
+                      <ol className="space-y-2 text-sm text-muted-foreground list-decimal pl-5">
+                        <li><strong>Install VB-Cable</strong> (one-time, requires admin) — download the 2ch standard version from <a href="https://vb-audio.com/Cable/index.htm" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">vb-audio.com/Cable/</a>, right-click <code className="px-1 py-0.5 rounded bg-secondary text-xs">VBCABLE_Setup_x64.exe</code> → Run as administrator → click <strong>Install Driver</strong> → reboot.</li>
+                        <li><strong>Open the web app</strong> — navigate to <a href="https://clearvoice.africa" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">clearvoice.africa</a> and sign in.</li>
+                        <li><strong>Start Session</strong> — click "Start Session" and grant microphone access. The browser will use your physical mic as input.</li>
+                        <li><strong>Select Output Device</strong> — on the dashboard, open the "Output Device" dropdown (visible after starting the session) and select <strong>CABLE Input (VB-Audio Virtual Cable)</strong>. This routes the denoised audio into the virtual cable.</li>
+                        <li><strong>Configure the softphone</strong> — in OmniVoice (or any softphone), set the <strong>Microphone</strong> to <strong>CABLE Output (VB-Audio Virtual Cable)</strong>. The softphone now picks up the cleaned audio from ClearVoice.</li>
+                        <li><strong>(Optional) Enable Customer Noise Filter</strong> — toggle the "Customer Noise Filter" on the dashboard to also filter the caller's audio. This uses the browser's screen-share audio capture to grab the softphone's speaker output and route it through ClearVoice. Follow the on-screen instructions to select the correct browser tab/audio source.</li>
+                      </ol>
+                    </div>
+                    <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground">
+                      <p className="font-medium text-foreground mb-1">Audio Flow (Web App + VB-Cable):</p>
+                      <p>Physical Mic → Browser (Web App) → ClearVoice suppression → CABLE Input → CABLE Output → Softphone → Customer</p>
+                    </div>
                   </div>
                 </div>
               </AccordionContent>
