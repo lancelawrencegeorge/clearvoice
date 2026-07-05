@@ -18,6 +18,7 @@ import BulkImport from './pages/BulkImport';
 import Invoices from './pages/Invoices';
 import EmailTemplates from './pages/EmailTemplates';
 import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/email-templates" element={<EmailTemplates />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ErrorBoundary>

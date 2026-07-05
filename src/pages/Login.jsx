@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AudioLines, Mail, Loader2, User, Building, ArrowLeft } from "lucide-react";
+import { AudioLines, Mail, Loader2, User, Building, ArrowLeft, ShieldCheck } from "lucide-react";
 import { getCurrentAgent, setCurrentAgent, getTenantDomain } from "@/lib/customAuth";
 
 export default function Login() {
@@ -235,7 +235,11 @@ export default function Login() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          By continuing, you agree to our Terms of Service and{' '}
+          <Link to="/privacy" className="text-primary hover:underline inline-flex items-center gap-0.5">
+            <ShieldCheck className="w-3 h-3" />
+            Privacy Policy
+          </Link>.
         </p>
       </div>
     </div>
