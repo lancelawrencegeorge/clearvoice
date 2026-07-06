@@ -366,8 +366,8 @@ export default function Guide() {
     addBody('Install the ClearVoice desktop app for the best experience — standalone window, auto-updates, and persistent settings.');
     addSpace();
     addH3('Step 1: Download & Install');
-    addBullet('Download the installer: https://github.com/lancelawrencegeorge/clearvoice/releases/download/V1.1.1/ClearVoice.Setup.1.1.1.exe');
-    addBullet('Run ClearVoice Setup 1.1.1.exe');
+    addBullet('Download the installer: https://github.com/lancelawrencegeorge/clearvoice/releases/download/V1.1.2/ClearVoice.Setup.1.1.2.exe');
+    addBullet('Run ClearVoice Setup 1.1.2.exe');
     addBullet('ClearVoice installs and launches automatically');
     addBullet('Pin it to your taskbar for quick access');
     addBody('✅ Success check: ClearVoice opens as a standalone desktop app.', 10);
@@ -666,8 +666,8 @@ export default function Guide() {
             <div className="text-sm">
               <h4 className="font-medium text-sm mb-2">Step 1: Download &amp; Install</h4>
               <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                <li>Download the installer: <a href="https://github.com/lancelawrencegeorge/clearvoice/releases/download/V1.1.1/ClearVoice.Setup.1.1.1.exe" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">ClearVoice Setup 1.1.1.exe</a></li>
-                <li>Run <strong>ClearVoice Setup 1.1.1.exe</strong></li>
+                <li>Download the installer: <a href="https://github.com/lancelawrencegeorge/clearvoice/releases/download/V1.1.2/ClearVoice.Setup.1.1.2.exe" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">ClearVoice Setup 1.1.2.exe</a></li>
+                <li>Run <strong>ClearVoice Setup 1.1.2.exe</strong></li>
                 <li>ClearVoice installs and launches automatically</li>
                 <li>Pin it to your taskbar for quick access</li>
               </ol>
