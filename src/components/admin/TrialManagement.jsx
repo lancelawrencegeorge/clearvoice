@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Loader2, CheckCircle2, CalendarClock, AlertTriangle, Ban } from 'lucide-react';
+import { Loader2, CheckCircle2, CalendarClock, AlertTriangle, Ban, Trash2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 const planBadge = (plan, isActive) => {
@@ -44,10 +44,24 @@ export default function TrialManagement({ companies, onActionComplete }) {
     setDialog({ company, action: 'deactivate' });
   };
 
+  const openDelete = (company) => {
+    setDialog({ company, action: 'delete' });
+  };
+
   const handleConfirm = async () => {
     if (!dialog) return;
     setBusy(true);
     try {
+      if (dialog.action === 'delete') {
+        await base44.entities.Company.delete(dialog.company.id);
+        setDialog(null);
+        toast({
+          title: 'Company deleted',
+          description: `${dialog.company.name} has been permanently deleted.`,
+        });
+        if (onActionComplete) onActionComplete();
+        return;
+      }
       const payload = { company_id: dialog.company.id, action: dialog.action };
       if (dialog.action === 'extend_trial') {
         payload.new_end_date = extendDate;
@@ -162,6 +176,13 @@ export default function TrialManagement({ companies, onActionComplete }) {
                             <CheckCircle2 className="w-3.5 h-3.5" /> Reactivate
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openDelete(c)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -180,7 +201,9 @@ export default function TrialManagement({ companies, onActionComplete }) {
                 ? `Extend trial for ${dialog?.company?.name}?`
                 : dialog?.action === 'activate_paid'
                   ? `Activate paid subscription for ${dialog?.company?.name}?`
-                  : `Deactivate ${dialog?.company?.name}?`}
+                  : dialog?.action === 'delete'
+                    ? `Delete ${dialog?.company?.name}?`
+                    : `Deactivate ${dialog?.company?.name}?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {dialog?.action === 'extend_trial' ? (
@@ -190,6 +213,10 @@ export default function TrialManagement({ companies, onActionComplete }) {
               ) : dialog?.action === 'activate_paid' ? (
                 <>
                   This will move the company to the <strong>paid</strong> plan at R95/seat/month and restore access immediately.
+                </>
+              ) : dialog?.action === 'delete' ? (
+                <>
+                  This will <strong>permanently delete</strong> the company record. Agent and session records will remain but will no longer be linked to a company. This action cannot be undone.
                 </>
               ) : (
                 <>
@@ -214,10 +241,10 @@ export default function TrialManagement({ companies, onActionComplete }) {
             <AlertDialogAction
               onClick={handleConfirm}
               disabled={busy || (dialog?.action === 'extend_trial' && !extendDate)}
-              className={dialog?.action === 'deactivate' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+              className={dialog?.action === 'deactivate' || dialog?.action === 'delete' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
             >
               {busy && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              {dialog?.action === 'deactivate' ? 'Deactivate' : 'Confirm'}
+              {dialog?.action === 'deactivate' ? 'Deactivate' : dialog?.action === 'delete' ? 'Delete' : 'Confirm'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

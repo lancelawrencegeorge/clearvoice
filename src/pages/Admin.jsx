@@ -340,7 +340,7 @@ export default function Admin() {
             )}
 
             {currentAgent?.role === 'admin' && (
-              <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} />
+              <TenantBilling agents={filteredAgents} companies={filteredCompanies} sessions={filteredSessions} onActionComplete={loadData} />
             )}
 
             <Card>

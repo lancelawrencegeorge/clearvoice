@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Building2, ChevronDown, ChevronRight, Receipt } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, ChevronDown, ChevronRight, Receipt, Trash2, Loader2 } from 'lucide-react';
 import { calculateTenantBilling, formatZAR, formatBillingPeriod } from '@/lib/billing';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { toast } from '@/components/ui/use-toast';
 
 const planBadge = (plan) => {
   const styles = {
@@ -14,8 +18,33 @@ const planBadge = (plan) => {
   return styles[plan] || styles.trial;
 };
 
-export default function TenantBilling({ agents, companies, sessions }) {
+export default function TenantBilling({ agents, companies, sessions, onActionComplete }) {
   const [expanded, setExpanded] = useState({});
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteTarget?.company) return;
+    setDeleting(true);
+    try {
+      await base44.entities.Company.delete(deleteTarget.company.id);
+      setDeleteTarget(null);
+      toast({
+        title: 'Company deleted',
+        description: `${deleteTarget.company.name} has been permanently deleted.`,
+      });
+      if (onActionComplete) onActionComplete();
+    } catch (err) {
+      console.error('Failed to delete company:', err);
+      toast({
+        title: 'Delete failed',
+        description: err?.response?.data?.error || err?.message || 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // Group agents by tenant domain
   const tenantMap = {};
@@ -71,12 +100,13 @@ export default function TenantBilling({ agents, companies, sessions }) {
               <TableHead className="text-right">Full Month</TableHead>
               <TableHead className="text-right">Prorata</TableHead>
               <TableHead className="text-right">Total</TableHead>
+              <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {tenants.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   No tenants yet.
                 </TableCell>
               </TableRow>
@@ -131,10 +161,21 @@ export default function TenantBilling({ agents, companies, sessions }) {
                         )}
                       </TableCell>
                       <TableCell className="text-right font-bold">{formatZAR(b.totalCharge)}</TableCell>
+                      <TableCell>
+                        {t.company && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(t); }}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                     {isExpanded && hasProrata && (
                       <TableRow className="bg-secondary/20">
-                        <TableCell colSpan={7} className="py-3">
+                        <TableCell colSpan={8} className="py-3">
                           <div className="pl-8">
                             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                               Prorata Agents (added this month)
@@ -162,7 +203,7 @@ export default function TenantBilling({ agents, companies, sessions }) {
               })
             )}
             <TableRow className="border-t-2 border-border/50">
-              <TableCell colSpan={5} className="text-right font-semibold">
+              <TableCell colSpan={6} className="text-right font-semibold">
                 Grand Total
               </TableCell>
               <TableCell className="text-right text-primary font-medium">{formatZAR(grandProrata)}</TableCell>
@@ -174,6 +215,28 @@ export default function TenantBilling({ agents, companies, sessions }) {
           Prices exclude VAT · prorata calculated for agents added during the current billing period · click a tenant row to see prorata breakdown.
         </p>
       </CardContent>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && !deleting && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {deleteTarget?.company?.name || deleteTarget?.domain}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will <strong>permanently delete</strong> the company record. Agent and session records will remain but will no longer be linked to a company. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
