@@ -44,7 +44,8 @@ export const calculateTenantBilling = (agents, company, refDate = new Date()) =>
     const created = new Date(agent.created_date);
     if (created.getFullYear() === year && created.getMonth() === month) {
       const dayCreated = created.getDate();
-      const daysActive = daysInMonth - dayCreated + 1;
+      const refDay = refDate.getDate();
+      const daysActive = Math.max(1, refDay - dayCreated + 1);
       const prorataFraction = daysActive / daysInMonth;
       const charge = pricePerSeat * prorataFraction;
       prorataSeats.push({ ...agent, daysActive, prorataFraction, prorataCharge: charge });
