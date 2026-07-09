@@ -25,7 +25,7 @@ export default function Dashboard() {
   const lastActivityRef = useRef(Date.now());
   const autoSigningOutRef = useRef(false);
   const handleSignOutRef = useRef(null);
-  const { status, error, audioLevel, suppressionLevel, outputDevices, selectedOutputDevice, setSinkIdSupported, start, stop, changeSuppressionLevel, changeOutputDevice, customerFilterActive, customerFilterError, toggleCustomerFilter } = useAudioEngine();
+  const { status, error, audioLevel, suppressionLevel, outputDevices, selectedOutputDevice, setSinkIdSupported, start, stop, changeSuppressionLevel, changeOutputDevice, customerFilterActive, customerFilterError, toggleCustomerFilter, customerOutputDevice, changeCustomerOutputDevice } = useAudioEngine();
   const suppressionActive = status === 'active' || status === 'connecting';
   const isConnecting = status === 'connecting';
 
@@ -316,10 +316,10 @@ export default function Dashboard() {
                 <div className="mt-6">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Volume2 className="w-4 h-4" />
-                    Output Device
+                    Mic Output (Virtual Cable)
                   </label>
                   <p className="text-xs text-muted-foreground mt-1 mb-2">
-                    Select "CABLE Input" to route cleaned audio to your softphone via VB-Cable.
+                    Select "CABLE Input" to route your cleaned mic audio to your softphone. Do NOT select your headset here — use the headset selector under Customer Noise Filter below.
                   </p>
                   <Select
                     value={selectedOutputDevice}
@@ -367,6 +367,10 @@ export default function Dashboard() {
                   active={customerFilterActive}
                   error={customerFilterError}
                   onToggle={toggleCustomerFilter}
+                  outputDevices={outputDevices}
+                  customerOutputDevice={customerOutputDevice}
+                  onChangeCustomerOutputDevice={changeCustomerOutputDevice}
+                  setSinkIdSupported={setSinkIdSupported}
                 />
               </div>
             </CardContent>

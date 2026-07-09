@@ -22,6 +22,11 @@ export function useAudioEngine() {
   const [setSinkIdSupported] = useState(() => typeof HTMLMediaElement.prototype.setSinkId === 'function');
   const [customerFilterActive, setCustomerFilterActive] = useState(false);
   const [customerFilterError, setCustomerFilterError] = useState(null);
+  const [customerOutputDevice, setCustomerOutputDevice] = useState(() => {
+    try {
+      return localStorage.getItem('clearvoice_customer_output_device') || 'default';
+    } catch { return 'default'; }
+  });
   const engineRef = useRef(null);
   const customerEngineRef = useRef(null);
   const animFrameRef = useRef(null);
@@ -138,7 +143,7 @@ export function useAudioEngine() {
       const engine = new NoiseSuppressionEngine();
       engine.setSuppressionLevel(suppressionLevel);
       await engine.startCustomerFilter({
-        outputDeviceId: selectedOutputDevice !== 'default' ? selectedOutputDevice : undefined,
+        outputDeviceId: customerOutputDevice !== 'default' ? customerOutputDevice : undefined,
       });
       customerEngineRef.current = engine;
       setCustomerFilterActive(true);
@@ -146,7 +151,7 @@ export function useAudioEngine() {
       setCustomerFilterError(err.message || 'Failed to start customer filter');
       setCustomerFilterActive(false);
     }
-  }, [suppressionLevel, selectedOutputDevice]);
+  }, [suppressionLevel, customerOutputDevice]);
 
   const stopCustomerFilter = useCallback(() => {
     if (customerEngineRef.current) {
@@ -154,6 +159,18 @@ export function useAudioEngine() {
       customerEngineRef.current = null;
     }
     setCustomerFilterActive(false);
+  }, []);
+
+  const changeCustomerOutputDevice = useCallback(async (deviceId) => {
+    setCustomerOutputDevice(deviceId);
+    try { localStorage.setItem('clearvoice_customer_output_device', deviceId); } catch {}
+    if (customerEngineRef.current?.customerOutputAudioElement) {
+      try {
+        await customerEngineRef.current.customerOutputAudioElement.setSinkId(deviceId === 'default' ? '' : deviceId);
+      } catch (e) {
+        setCustomerFilterError('Failed to switch headset device: ' + (e.message || ''));
+      }
+    }
   }, []);
 
   const toggleCustomerFilter = useCallback(() => {
@@ -194,6 +211,8 @@ export function useAudioEngine() {
     customerFilterActive,
     customerFilterError,
     toggleCustomerFilter,
+    customerOutputDevice,
+    changeCustomerOutputDevice,
     refreshOutputDevices
   };
 }

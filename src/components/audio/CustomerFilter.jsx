@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Headphones, Info, X, MonitorUp } from 'lucide-react';
+import { Headphones, Info, X, MonitorUp, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -12,7 +13,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 
-export default function CustomerFilter({ active, error, onToggle }) {
+export default function CustomerFilter({ active, error, onToggle, outputDevices = [], customerOutputDevice = 'default', onChangeCustomerOutputDevice, setSinkIdSupported = false }) {
   const [showHelp, setShowHelp] = useState(false);
   const [showPrep, setShowPrep] = useState(false);
 
@@ -68,6 +69,34 @@ export default function CustomerFilter({ active, error, onToggle }) {
           </button>
         </div>
       </div>
+
+      {active && setSinkIdSupported && (
+        <div className="pl-1">
+          <label className="text-sm font-medium flex items-center gap-2">
+            <Volume2 className="w-4 h-4" />
+            Headset / Speaker Output
+          </label>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">
+            Where you hear the caller's cleaned audio. Select your headset — not the virtual cable.
+          </p>
+          <Select
+            value={customerOutputDevice}
+            onValueChange={onChangeCustomerOutputDevice}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default speakers</SelectItem>
+              {outputDevices.filter((d) => d.deviceId).map((d) => (
+                <SelectItem key={d.deviceId} value={d.deviceId}>
+                  {d.label || 'Unknown audio device'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {showHelp && !active && (
         <div className="relative p-3 rounded-lg bg-secondary/70 border border-border text-xs space-y-1.5">
