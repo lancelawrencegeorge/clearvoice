@@ -337,6 +337,14 @@ export default function Dashboard() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {selectedOutputDevice === 'default' && (
+                    <div className="mt-2 flex items-start gap-2 p-2.5 rounded-lg bg-orange-500/10 border border-orange-500/30 text-xs text-orange-500">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                      <span>
+                        No virtual cable selected — your cleaned mic audio is muted and will NOT reach your softphone. Select "CABLE Input" above to activate routing.
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 

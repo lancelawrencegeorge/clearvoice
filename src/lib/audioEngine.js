@@ -192,9 +192,11 @@ export class NoiseSuppressionEngine {
     this.gainNode.connect(this.analyserNode);
     this.analyserNode.connect(this.streamDestination);
 
-    // <audio> element routes the cleaned stream to the selected output device
+    // <audio> element routes the cleaned stream to the selected output device.
+    // If no virtual cable is selected (outputDeviceId is undefined), mute it
+    // so the agent does NOT hear their own processed mic through their headset.
     this.outputAudioElement = new Audio();
-    this.outputAudioElement.volume = 1.0;
+    this.outputAudioElement.volume = outputDeviceId ? 1.0 : 0;
     this.outputAudioElement.srcObject = this.streamDestination.stream;
     if (outputDeviceId && typeof this.outputAudioElement.setSinkId === 'function') {
       try {
@@ -241,6 +243,10 @@ export class NoiseSuppressionEngine {
 
   async setOutputDevice(deviceId) {
     this.outputDeviceId = deviceId;
+    // Mute when no virtual cable selected — prevents the agent hearing themselves.
+    if (this.outputAudioElement) {
+      this.outputAudioElement.volume = deviceId ? 1.0 : 0;
+    }
     if (this.outputAudioElement && typeof this.outputAudioElement.setSinkId === 'function') {
       try {
         await this.outputAudioElement.setSinkId(deviceId || '');
