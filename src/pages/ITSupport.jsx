@@ -160,7 +160,7 @@ export default function ITSupport() {
     addBullet("RAM: Minimum 4 GB (8 GB recommended)");
     addBullet("Internet: Required for initial login and license validation");
     addBullet("Admin Rights: Required to install VB-Cable driver and the ClearVoice desktop app");
-    addBullet("Softphone: OmniVoice (or compatible softphone) must be installed for audio routing configuration");
+    addBullet("Softphone: Telephony Platform (or compatible softphone) must be installed for audio routing configuration");
     addBullet("Microphone: Working microphone or headset");
     addSpace();
     addDivider();
@@ -210,11 +210,11 @@ export default function ITSupport() {
     addH3("3. Reboot");
     addBullet("Restart the computer after VB-Cable installation for the driver to take effect");
     addSpace();
-    addH3("4. Configure OmniVoice Audio");
-    addBullet("Open OmniVoice softphone settings → Audio Devices");
+    addH3("4. Configure Telephony Platform Audio");
+    addBullet("Open Telephony Platform softphone settings → Audio Devices");
     addBullet("Set Microphone to CABLE Output (VB-Audio Virtual Cable)");
     addBullet("Set Speaker to your headset or speakers as normal");
-    addBullet("In ClearVoice, set the output device to CABLE Input so the denoised audio feeds into OmniVoice");
+    addBullet("In ClearVoice, set the output device to CABLE Input so the denoised audio feeds into Telephony Platform");
     addSpace();
     addDivider();
 
@@ -240,7 +240,7 @@ export default function ITSupport() {
     addBullet("Open the web app — navigate to clearvoice.africa and sign in");
     addBullet('Start Session — click "Start Session" and grant microphone access. The browser will use your physical mic as input');
     addBullet('Select Output Device — on the dashboard, open the "Output Device" dropdown (visible after starting the session) and select CABLE Input (VB-Audio Virtual Cable). This routes the denoised audio into the virtual cable');
-    addBullet("Configure the softphone — in OmniVoice (or any softphone), set the Microphone to CABLE Output (VB-Audio Virtual Cable). The softphone now picks up the cleaned audio from ClearVoice");
+    addBullet("Configure the softphone — in Telephony Platform (or any softphone), set the Microphone to CABLE Output (VB-Audio Virtual Cable). The softphone now picks up the cleaned audio from ClearVoice");
     addBullet('(Optional) Enable Customer Noise Filter — toggle the "Customer Noise Filter" on the dashboard to also filter the caller\'s audio. This uses the browser\'s screen-share audio capture to grab the softphone\'s speaker output and route it through ClearVoice. Follow the on-screen instructions to select the correct browser tab/audio source');
     addSpace();
     addBody("Audio Flow (Web App + VB-Cable): Physical Mic → Browser (Web App) → ClearVoice suppression → CABLE Input → CABLE Output → Softphone → Customer");
@@ -256,7 +256,7 @@ export default function ITSupport() {
     addBullet("Verify CABLE Output (VB-Audio Virtual Cable) appears in the list");
     addBullet("Open Sound Control Panel → Recording tab and confirm CABLE Output is listed and enabled");
     addBullet("Check the Playback tab for CABLE Input");
-    addBullet("Speak into the mic — the ClearVoice level meter should respond, and OmniVoice should receive clean audio");
+    addBullet("Speak into the mic — the ClearVoice level meter should respond, and Telephony Platform should receive clean audio");
     addSpace();
     addDivider();
 
@@ -264,18 +264,18 @@ export default function ITSupport() {
     addH2("Audio Setup for Headset Users");
     addSpace();
     addH3("How the Audio Chain Works");
-    addBody("Your physical microphone captures your voice → ClearVoice applies real-time noise suppression → the cleaned audio is sent to CABLE Output (a virtual microphone) → OmniVoice picks up that virtual mic → the customer hears clean, noise-free audio.");
+    addBody("Your physical microphone captures your voice → ClearVoice applies real-time noise suppression → the cleaned audio is sent to CABLE Output (a virtual microphone) → Telephony Platform picks up that virtual mic → the customer hears clean, noise-free audio.");
     addSpace();
     addH3("Audio Flow Diagram");
-    addBody("Physical Headset Mic → ClearVoice → CABLE Output → OmniVoice → Customer");
+    addBody("Physical Headset Mic → ClearVoice → CABLE Output → Telephony Platform → Customer");
     addSpace();
-    addH3("OmniVoice Settings for Headset Users");
+    addH3("Telephony Platform Settings for Headset Users");
     addBullet("Microphone: Set to CABLE Output (VB-Audio Virtual Cable) — this receives the denoised audio from ClearVoice");
     addBullet("Speaker / Headphones: Set to your headset (e.g. HONOR CHOICE, Jabra, Plantronics, or any USB/Bluetooth headset)");
     addBullet("Note on the CABLE Output volume slider: In Windows Sound Settings, the Recording tab's CABLE Output Levels slider will show 0% and cannot be changed — this is normal. Audio passes through at full volume regardless of this slider.");
     addSpace();
     addH3("Key Point");
-    addBody("Headphones are output only — they carry the customer's voice to your ears and do not interfere with VB-Cable at all. VB-Cable only handles the microphone input path (your voice → ClearVoice → OmniVoice).");
+    addBody("Headphones are output only — they carry the customer's voice to your ears and do not interfere with VB-Cable at all. VB-Cable only handles the microphone input path (your voice → ClearVoice → Telephony Platform).");
     addSpace();
     addDivider();
 
@@ -490,7 +490,7 @@ export default function ITSupport() {
                   <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>RAM:</strong> Minimum 4 GB (8 GB recommended)</span></li>
                   <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Internet:</strong> Required for initial login and license validation</span></li>
                   <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Admin Rights:</strong> Required to install VB-Cable driver and the ClearVoice desktop app</span></li>
-                  <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Softphone:</strong> OmniVoice (or compatible softphone) must be installed for audio routing configuration</span></li>
+                  <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Softphone:</strong> Telephony Platform (or compatible softphone) must be installed for audio routing configuration</span></li>
                   <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Microphone:</strong> Working microphone or headset</span></li>
                 </ul>
               </AccordionContent>
@@ -573,9 +573,9 @@ export default function ITSupport() {
                     </ul>
                   </div>
                   <div>
-                    <p className="font-medium mb-2 text-primary">4. Configure OmniVoice Audio</p>
+                    <p className="font-medium mb-2 text-primary">4. Configure Telephony Platform Audio</p>
                     <ul className="space-y-1.5 text-sm text-muted-foreground list-disc pl-5">
-                      <li>Open OmniVoice softphone settings → Audio Devices.</li>
+                      <li>Open Telephony Platform softphone settings → Audio Devices.</li>
                       <li>Set <strong>Microphone</strong> to <strong>CABLE Output (VB-Audio Virtual Cable)</strong>.</li>
                       <li>Set <strong>Speaker</strong> to your headset or speakers as normal.</li>
                       <li>In ClearVoice, set the output device to <strong>CABLE Input</strong> so the denoised audio feeds into OmniVoice.</li>
@@ -626,7 +626,7 @@ export default function ITSupport() {
                         <li><strong>Open the web app</strong> — navigate to <a href="https://clearvoice.africa" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">clearvoice.africa</a> and sign in.</li>
                         <li><strong>Start Session</strong> — click "Start Session" and grant microphone access. The browser will use your physical mic as input.</li>
                         <li><strong>Select Output Device</strong> — on the dashboard, open the "Output Device" dropdown (visible after starting the session) and select <strong>CABLE Input (VB-Audio Virtual Cable)</strong>. This routes the denoised audio into the virtual cable.</li>
-                        <li><strong>Configure the softphone</strong> — in OmniVoice (or any softphone), set the <strong>Microphone</strong> to <strong>CABLE Output (VB-Audio Virtual Cable)</strong>. The softphone now picks up the cleaned audio from ClearVoice.</li>
+                        <li><strong>Configure the softphone</strong> — in Telephony Platform (or any softphone), set the <strong>Microphone</strong> to <strong>CABLE Output (VB-Audio Virtual Cable)</strong>. The softphone now picks up the cleaned audio from ClearVoice.</li>
                         <li><strong>(Optional) Enable Customer Noise Filter</strong> — toggle the "Customer Noise Filter" on the dashboard to also filter the caller's audio. This uses the browser's screen-share audio capture to grab the softphone's speaker output and route it through ClearVoice. Follow the on-screen instructions to select the correct browser tab/audio source.</li>
                       </ol>
                     </div>
@@ -657,7 +657,7 @@ export default function ITSupport() {
                   <li>Verify <strong>CABLE Output (VB-Audio Virtual Cable)</strong> appears in the list.</li>
                   <li>Open <strong>Sound Control Panel</strong> → <strong>Recording</strong> tab and confirm CABLE Output is listed and enabled.</li>
                   <li>Check the <strong>Playback</strong> tab for <strong>CABLE Input</strong>.</li>
-                  <li>Speak into the mic — the ClearVoice level meter should respond, and OmniVoice should receive clean audio.</li>
+                  <li>Speak into the mic — the ClearVoice level meter should respond, and Telephony Platform should receive clean audio.</li>
                 </ol>
               </AccordionContent>
             </AccordionItem>
@@ -677,7 +677,7 @@ export default function ITSupport() {
                   <div>
                     <p className="font-medium mb-2 text-primary">How the Audio Chain Works</p>
                     <p className="text-sm text-muted-foreground">
-                      Your physical microphone captures your voice → ClearVoice applies real-time noise suppression → the cleaned audio is sent to <strong>CABLE Output</strong> (a virtual microphone) → OmniVoice picks up that virtual mic → the customer hears clean, noise-free audio.
+                      Your physical microphone captures your voice → ClearVoice applies real-time noise suppression → the cleaned audio is sent to <strong>CABLE Output</strong> (a virtual microphone) → Telephony Platform picks up that virtual mic → the customer hears clean, noise-free audio.
                     </p>
                   </div>
 
@@ -709,7 +709,7 @@ export default function ITSupport() {
                         <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
                           <Headphones className="w-5 h-5 text-primary" />
                         </div>
-                        <span className="text-xs text-center font-medium">OmniVoice</span>
+                        <span className="text-xs text-center font-medium">Telephony Platform</span>
                       </div>
                       <ArrowRight className="w-4 h-4 text-muted-foreground" />
                       <div className="flex flex-col items-center gap-1.5 min-w-[90px]">
@@ -722,7 +722,7 @@ export default function ITSupport() {
                   </div>
 
                   <div>
-                    <p className="font-medium mb-2 text-primary">OmniVoice Settings for Headset Users</p>
+                    <p className="font-medium mb-2 text-primary">Telephony Platform Settings for Headset Users</p>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Microphone:</strong> Set to <strong>CABLE Output (VB-Audio Virtual Cable)</strong> — this receives the denoised audio from ClearVoice.</span></li>
                       <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" /> <span><strong>Speaker / Headphones:</strong> Set to your headset (e.g. HONOR CHOICE, Jabra, Plantronics, or any USB/Bluetooth headset).</span></li>
@@ -733,7 +733,7 @@ export default function ITSupport() {
                   <div>
                     <p className="font-medium mb-2 text-primary">Key Point</p>
                     <p className="text-sm text-muted-foreground">
-                      Headphones are <strong>output only</strong> — they carry the customer's voice to your ears and do <strong>not</strong> interfere with VB-Cable at all. VB-Cable only handles the microphone input path (your voice → ClearVoice → OmniVoice).
+                      Headphones are <strong>output only</strong> — they carry the customer's voice to your ears and do <strong>not</strong> interfere with VB-Cable at all. VB-Cable only handles the microphone input path (your voice → ClearVoice → Telephony Platform).
                     </p>
                   </div>
 
