@@ -21,16 +21,11 @@ export default function ITSupport() {
       navigate("/", { replace: true });
       return;
     }
-    base44.entities.Agent.get(a.id).then((fresh) => {
-      if (fresh.role !== "admin" && fresh.role !== "super_user") {
-        setDenied(true);
-      }
-      setAgent(fresh);
-      setChecking(false);
-    }).catch(() => {
+    if (a.role !== "admin" && a.role !== "super_user") {
       setDenied(true);
-      setChecking(false);
-    });
+    }
+    setAgent(a);
+    setChecking(false);
   }, [navigate]);
 
   const handleSignOut = () => {
