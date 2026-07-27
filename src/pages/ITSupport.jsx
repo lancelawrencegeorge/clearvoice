@@ -516,8 +516,7 @@ export default function ITSupport() {
                   <p className="text-muted-foreground">How accounts are created across the ClearVoice system:</p>
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div className="border border-primary/30 bg-primary/5 rounded-lg p-3">
-                      <p className="font-semibold text-primary text-xs mb-1">Platform Owner (Admin)</p>
-                      <p className="text-xs text-muted-foreground">Invites Super Users. Manages billing, plans, seat limits &amp; invoices. Full tenant visibility.</p>
+                      <p className="text-xs text-muted-foreground">Invites Super Users</p>
                     </div>
                     <div className="border border-border rounded-lg p-3">
                       <p className="font-semibold text-xs mb-1">Super User (Client Admin)</p>
