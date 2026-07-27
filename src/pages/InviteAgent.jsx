@@ -76,7 +76,21 @@ export default function InviteAgent() {
 
   const handleInvite = async (e) => {
     e.preventDefault();
-    if (!email || !companyId) { setError('Please fill in all fields.'); return; }
+    if (!email || (!companyId && !(showNewCompany && newCompanyName.trim()))) { setError('Please fill in all fields.'); return; }
+    // If creating a new company inline, create it now before inviting
+    if (showNewCompany && newCompanyName.trim() && !companyId) {
+      try {
+        const company = await base44.entities.Company.create({ name: newCompanyName.trim(), plan: 'trial', is_active: true });
+        setCompanies(prev => [...prev, company]);
+        setCompanyId(company.id);
+        setShowNewCompany(false);
+        await doInvite(company.id);
+        return;
+      } catch (err) {
+        setError(err?.message || 'Failed to create company');
+        return;
+      }
+    }
     // Domain guard for super_user
     if (currentAgent.role === 'super_user') {
       const company = companies.find(c => c.id === companyId);
@@ -88,10 +102,16 @@ export default function InviteAgent() {
     }
     setError('');
     setLoading(true);
+    await doInvite(companyId);
+  };
+
+  const doInvite = async (companyIdToUse) => {
+    setError('');
+    setLoading(true);
     try {
       const res = await base44.functions.invoke('bulkInviteUsers', {
         users: [{ email, role: inviteRole }],
-        company_id: companyId,
+        company_id: companyIdToUse,
         agent_id: currentAgent.id,
       });
       if (res?.data?.failed?.length > 0) {
