@@ -1,20 +1,29 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// Shared secret for the scheduled invoice-generation automation.  Scheduled
+// automations invoke this function via direct HTTP without a user session, so
+// they pass this token via function_args; direct unauthenticated HTTP calls
+// (external attackers) are rejected.
+const AUTOMATION_SECRET = "sk_invoice_a3f7b2c9e1d84f6a";
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // If authenticated, must be admin; if not (scheduled automation), proceed.
+    let body = {};
+    try { body = await req.json(); } catch (e) {}
+
+    // Require either an authenticated admin or the automation secret.
     const isAuthenticated = await base44.auth.isAuthenticated();
     if (isAuthenticated) {
       const user = await base44.auth.me();
       if (user.role !== 'admin') {
         return Response.json({ error: 'Forbidden' }, { status: 403 });
       }
+    } else if (body._automation_secret !== AUTOMATION_SECRET) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let body = {};
-    try { body = await req.json(); } catch (e) {}
     const refDate = body.billing_month ? new Date(body.billing_month + '-01T00:00:00') : new Date();
     const billingMonth = `${refDate.getFullYear()}-${String(refDate.getMonth() + 1).padStart(2, '0')}`;
 
