@@ -183,7 +183,7 @@ export default function ITSupport() {
     addBullet("Invited, then registers. Or bulk imported (record already exists)");
     addBullet("Installs ClearVoice + VB-Cable driver");
     addSpace();
-    addBody("Agents always log in with email + password. Bulk-imported agents skip registration — their account already exists.", 10);
+    addBody("Agents always log in with their email only — no password needed. Bulk-imported agents skip registration — their account already exists.", 10);
     addSpace();
     addDivider();
 
@@ -523,7 +523,7 @@ export default function ITSupport() {
                       <p className="text-xs text-muted-foreground">Invited → registers. Or bulk imported (record exists, sets password on first login). Installs ClearVoice + driver.</p>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">💡 Agents always log in with email + password. Bulk-imported agents skip registration — their account already exists.</p>
+                  <p className="text-xs text-muted-foreground mt-2">💡 Agents always log in with their email only — no password needed. Bulk-imported agents skip registration — their account already exists.</p>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -604,7 +604,7 @@ export default function ITSupport() {
                     <p className="font-medium mb-2 text-primary">Steps</p>
                     <ol className="space-y-1.5 text-sm text-muted-foreground list-decimal pl-5">
                       <li>Open a browser and go to <a href="https://clearvoice.africa" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">clearvoice.africa</a></li>
-                      <li>Sign in with work email (no password needed)</li>
+                      <li>Sign in with your work email only — no password needed</li>
                       <li>Click <strong>"Start Session"</strong> and grant microphone access when prompted</li>
                       <li>Keep the browser tab open for the entire shift — unlike the desktop app's standalone window, a browser tab can be accidentally closed, so treat it like an active call window and don't close it mid-shift</li>
                     </ol>
