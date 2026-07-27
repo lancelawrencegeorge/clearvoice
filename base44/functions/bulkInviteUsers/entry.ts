@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { secrets } from 'base44:runtime';
 import { sendEmail } from '../../shared/sendGridEmail.ts';
 
 Deno.serve(async (req) => {
@@ -120,12 +121,13 @@ Deno.serve(async (req) => {
                     await sendEmail({
                         to: email,
                         subject: `You've been registered on ClearVoice`,
-                        body: `Hi there,\n\nYou've been registered by ${requester.full_name || 'your company admin'} to use ClearVoice for ${company.name}.\n\nGo to https://clearvoice.africa/login and sign in with your email (${email}) to get started — no password needed.\n\nOnce logged in, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`
+                        body: `Hi there,\n\nYou've been registered by ${requester.full_name || 'your company admin'} to use ClearVoice for ${company.name}.\n\nGo to https://clearvoice.africa/login and sign in with your email (${email}) to get started — no password needed.\n\nOnce logged in, you'll be able to use ClearVoice for real-time noise suppression.\n\nHave questions? Please reach out to your company admin — ${requester.full_name || 'Your ClearVoice admin'} or contact us at support@clearvoice.africa.\n\nBest,\nThe ClearVoice Team`,
+                        apiKey: secrets.get("SENDGRID_API_KEY"),
                     });
                     emailSent = true;
                 } catch (emailErr) {
                     emailError = emailErr?.message || String(emailErr);
-                    console.error('Resend email failed:', emailError);
+                    console.error('SendGrid email failed:', emailError);
                 }
 
                 // Log this invite for admin audit trail
@@ -140,7 +142,7 @@ Deno.serve(async (req) => {
                     tenant_domain: companyDomain || requester.tenant_domain || '',
                     sent_at: new Date().toISOString(),
                     status: 'sent',
-                    failure_reason: emailSent ? null : `Email not sent via Resend: ${emailError || 'Unknown error'}. Agent can sign in at /login with their email.`,
+                    failure_reason: emailSent ? null : `Email not sent via SendGrid: ${emailError || 'Unknown error'}. Agent can sign in at /login with their email.`,
                 });
 
                 succeeded.push({ email, role, email_sent: emailSent, email_error: emailError });

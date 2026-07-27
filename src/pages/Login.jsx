@@ -19,33 +19,13 @@ export default function Login() {
     setLoading(true);
     try {
       const normalizedEmail = email.toLowerCase().trim();
-      const agents = await base44.entities.Agent.filter({ email: normalizedEmail }, '-created_date', 1);
-      if (agents.length > 0) {
-        const agent = agents[0];
-        if (agent.status === "Suspended") {
-          setError("This account has been suspended. Contact your super user.");
-          setLoading(false);
-          return;
-        }
-        await base44.entities.Agent.update(agent.id, {
-          last_login: new Date().toISOString(),
-        });
-        const session = await base44.entities.Session.create({
-          agent_id: agent.id,
-          agent_email: agent.email,
-          agent_name: agent.full_name,
-          tenant_domain: agent.tenant_domain,
-          login_at: new Date().toISOString(),
-          app_version: "1.0.0",
-        });
-        setCurrentAgent({ ...agent, last_login: new Date().toISOString() }, session.id);
-        navigate("/dashboard", { replace: true });
-      } else {
-        setError("No account found for this email. Access to ClearVoice is invite-only — please contact your administrator to be invited.");
-        setLoading(false);
-      }
+      const response = await base44.functions.invoke("agentLogin", { email: normalizedEmail });
+      const { agent, session_id } = response.data;
+      setCurrentAgent(agent, session_id);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      const msg = err?.response?.data?.error || err?.message || "Something went wrong. Please try again.";
+      setError(msg);
       setLoading(false);
     }
   };

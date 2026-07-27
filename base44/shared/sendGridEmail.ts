@@ -1,12 +1,11 @@
-import { secrets } from "base44:runtime";
-
 /**
  * Sends an email via SendGrid from no-reply@clearvoice.africa.
- * Returns { success: true } on 202, otherwise throws.
+ * The API key is passed by the calling backend function (which reads it
+ * from base44:runtime secrets) — this shared module must not import
+ * "base44:runtime" directly or Vite's dev-server will fail to resolve it.
  */
-export async function sendEmail({ to, subject, body, fromName = "ClearVoice" }) {
-  const apiKey = secrets.get("SENDGRID_API_KEY");
-  if (!apiKey) throw new Error("SENDGRID_API_KEY not set");
+export async function sendEmail({ to, subject, body, fromName = "ClearVoice", apiKey }) {
+  if (!apiKey) throw new Error("SendGrid API key not provided");
 
   const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
