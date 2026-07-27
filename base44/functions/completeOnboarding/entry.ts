@@ -1,4 +1,7 @@
-import { createClientFromRequest, createClient } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+const WAYNE_APP_ID = '69dfcacd77821fcbc01329c8';
+const WAYNE_BASE_URL = `https://api.base44.com/api/apps/${WAYNE_APP_ID}`;
 
 Deno.serve(async (req) => {
   try {
@@ -59,24 +62,26 @@ Deno.serve(async (req) => {
       onboarding_complete: true,
     });
 
-    // Auto-create a Tenant record in the Wayne Superagent app for domain isolation.
-    // Non-blocking: tenant creation failure should not fail onboarding.
+    // Auto-create a Tenant + AgentUser in the Wayne Superagent app via service token.
+    // Non-blocking: failure does not fail onboarding.
     try {
-      const authHeader = req.headers.get('authorization') || req.headers.get('Authorization');
-      const token = authHeader ? authHeader.replace(/^Bearer\s+/i, '') : null;
+      const apiKey = process.env.WAYNE_AGENT_API_KEY;
+      const normalizedDomain = domain.toLowerCase().trim();
+      const slug = company_name.trim().toLowerCase().replace(/\s+/g, '');
 
-      if (token) {
-        const wayneClient = createClient({
-          appId: '69dfcacd77821fcbc01329c8',
-          token,
-        });
+      // Check for existing tenant by primary_domain to avoid duplicates.
+      const checkRes = await fetch(
+        `${WAYNE_BASE_URL}/entities/Tenant?filter=${encodeURIComponent(JSON.stringify({ primary_domain: normalizedDomain }))}`,
+        { headers: { api_key: apiKey } }
+      );
+      const existing = checkRes.ok ? await checkRes.json() : [];
+      const tenantExists = Array.isArray(existing) ? existing.length > 0 : false;
 
-        const normalizedDomain = domain.toLowerCase().trim();
-        const existingTenants = await wayneClient.entities.Tenant.filter({ primary_domain: normalizedDomain });
-
-        if (existingTenants.length === 0) {
-          const slug = company_name.trim().toLowerCase().replace(/\s+/g, '');
-          await wayneClient.entities.Tenant.create({
+      if (!tenantExists) {
+        const tenantRes = await fetch(`${WAYNE_BASE_URL}/entities/Tenant`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', api_key: apiKey },
+          body: JSON.stringify({
             name: company_name.trim(),
             slug,
             primary_domain: normalizedDomain,
@@ -85,11 +90,28 @@ Deno.serve(async (req) => {
             auth_provider: 'local',
             agent_count: 0,
             notes: `Auto-created on Super User onboarding. Super User: ${agent.email}`,
+          }),
+        });
+
+        if (tenantRes.ok) {
+          const tenant = await tenantRes.json();
+
+          // Create the AgentUser linked to the new tenant.
+          await fetch(`${WAYNE_BASE_URL}/entities/AgentUser`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', api_key: apiKey },
+            body: JSON.stringify({
+              tenant_id: tenant.id,
+              email: agent.email,
+              display_name: agent.full_name || agent.email,
+              role: 'super_user',
+              auth_provider: 'local',
+              status: 'active',
+            }),
           });
         }
       }
     } catch (tenantError) {
-      // Log but don't fail onboarding — tenant can be created manually if needed.
       console.error('Tenant auto-creation failed:', tenantError.message);
     }
 
