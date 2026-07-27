@@ -5,7 +5,7 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         const body = await req.json();
-        const { users, company_id, agent_id } = body;
+        const { users, company_id } = body;
 
         if (!Array.isArray(users) || users.length === 0) {
             return Response.json({ error: 'No users provided' }, { status: 400 });
@@ -13,18 +13,22 @@ Deno.serve(async (req) => {
         if (!company_id) {
             return Response.json({ error: 'Company ID is required' }, { status: 400 });
         }
-        if (!agent_id) {
-            return Response.json({ error: 'Agent ID is required' }, { status: 400 });
-        }
 
-        // Identify the requester via the Agent entity (the app uses a custom
-        // Agent-based auth model, not Base44's built-in User auth).
+        // Resolve the caller's identity from the platform auth token — never
+        // trust a client-provided agent_id (allows identity spoofing / privilege
+        // escalation). The Agent record is looked up by the authenticated
+        // user's email so the role/tenant checks below operate on verified
+        // identity.
+        const authUser = await base44.auth.me();
+        if (!authUser) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         let requester = null;
         try {
-            const requesterAgents = await base44.asServiceRole.entities.Agent.filter({ id: agent_id });
+            const requesterAgents = await base44.asServiceRole.entities.Agent.filter({ email: authUser.email });
             requester = requesterAgents[0];
         } catch (_e) {
-            // filter throws on invalid id — treat as not found
+            // filter throws on invalid email — treat as not found
         }
         if (!requester) {
             return Response.json({ error: 'Requester not found' }, { status: 403 });
