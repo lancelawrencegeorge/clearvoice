@@ -68,20 +68,7 @@
     "name"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_user"
-          }
-        }
-      ]
-    },
+    "create": true,
     "read": {
       "$or": [
         {
