@@ -520,7 +520,7 @@ export default function ITSupport() {
                     </div>
                     <div className="border border-border rounded-lg p-3">
                       <p className="font-semibold text-xs mb-1">Agent</p>
-                      <p className="text-xs text-muted-foreground">Invited → registers. Or bulk imported (record exists, sets password on first login). Installs ClearVoice + driver.</p>
+                      <p className="text-xs text-muted-foreground">Invited → registers. Or bulk imported (record already exists, no password needed). Installs ClearVoice + driver.</p>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">💡 Agents always log in with their email only — no password needed. Bulk-imported agents skip registration — their account already exists.</p>
