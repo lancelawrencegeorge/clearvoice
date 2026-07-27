@@ -67,11 +67,15 @@ export default function InviteAgent() {
 
   const handleCreateCompany = async () => {
     if (!newCompanyName.trim()) return;
-    const company = await base44.entities.Company.create({ name: newCompanyName.trim(), plan: 'trial', is_active: true });
-    setCompanies(prev => [...prev, company]);
-    setCompanyId(company.id);
-    setNewCompanyName('');
-    setShowNewCompany(false);
+    try {
+      const company = await base44.entities.Company.create({ name: newCompanyName.trim(), plan: 'trial', is_active: true });
+      setCompanies(prev => [...prev, company]);
+      setCompanyId(company.id);
+      setNewCompanyName('');
+      setShowNewCompany(false);
+    } catch (err) {
+      setError(err?.message || 'Failed to create company');
+    }
   };
 
   const handleInvite = async (e) => {
