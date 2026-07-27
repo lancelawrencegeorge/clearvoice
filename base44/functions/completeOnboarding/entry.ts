@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest, createClient } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   try {
@@ -58,6 +58,40 @@ Deno.serve(async (req) => {
       tenant_domain: domain.toLowerCase().trim(),
       onboarding_complete: true,
     });
+
+    // Auto-create a Tenant record in the Wayne Superagent app for domain isolation.
+    // Non-blocking: tenant creation failure should not fail onboarding.
+    try {
+      const authHeader = req.headers.get('authorization') || req.headers.get('Authorization');
+      const token = authHeader ? authHeader.replace(/^Bearer\s+/i, '') : null;
+
+      if (token) {
+        const wayneClient = createClient({
+          appId: '69dfcacd77821fcbc01329c8',
+          token,
+        });
+
+        const normalizedDomain = domain.toLowerCase().trim();
+        const existingTenants = await wayneClient.entities.Tenant.filter({ primary_domain: normalizedDomain });
+
+        if (existingTenants.length === 0) {
+          const slug = company_name.trim().toLowerCase().replace(/\s+/g, '');
+          await wayneClient.entities.Tenant.create({
+            name: company_name.trim(),
+            slug,
+            primary_domain: normalizedDomain,
+            status: 'active',
+            region: 'sa',
+            auth_provider: 'local',
+            agent_count: 0,
+            notes: `Auto-created on Super User onboarding. Super User: ${agent.email}`,
+          });
+        }
+      }
+    } catch (tenantError) {
+      // Log but don't fail onboarding — tenant can be created manually if needed.
+      console.error('Tenant auto-creation failed:', tenantError.message);
+    }
 
     return Response.json({ company, agent: updated });
   } catch (error) {

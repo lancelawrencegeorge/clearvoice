@@ -174,6 +174,10 @@ export default function Onboarding() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">Pre-filled from your email. Change only if your team uses a different domain.</p>
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-muted-foreground">
+                    <Globe className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                    <span>Your company domain (e.g. {form.domain || 'sourcefit.net'}) will be used to isolate your data. Only agents with a matching email domain can be registered under your account.</span>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label>Billing Contact Email</Label>
