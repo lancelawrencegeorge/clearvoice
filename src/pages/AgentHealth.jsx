@@ -18,6 +18,8 @@ import {
   CheckCircle,
   AlertTriangle,
   ChevronDown,
+  ShieldCheck,
+  Headset,
 } from "lucide-react";
 import { getCurrentAgent } from "@/lib/customAuth";
 import AgentHealthTable from "@/components/admin/AgentHealthTable";
@@ -51,6 +53,7 @@ export default function AgentHealth() {
   const [loading, setLoading] = useState(true);
   const [tenantFilter, setTenantFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [alertsOpen, setAlertsOpen] = useState(true);
 
   useEffect(() => {
@@ -112,16 +115,27 @@ export default function AgentHealth() {
         return false;
       if (statusFilter !== "all" && row.health.status !== statusFilter)
         return false;
+      if (roleFilter !== "all" && row.agent.role !== roleFilter)
+        return false;
       return true;
     });
-  }, [rows, tenantFilter, statusFilter]);
+  }, [rows, tenantFilter, statusFilter, roleFilter]);
 
   const stats = useMemo(() => {
-    const s = { total: rows.length, healthy: 0, warning: 0, issues: 0 };
+    const s = {
+      total: rows.length,
+      healthy: 0,
+      warning: 0,
+      issues: 0,
+      superUsers: 0,
+      agents: 0,
+    };
     rows.forEach((r) => {
       if (r.health.status === "healthy") s.healthy++;
       else if (r.health.status === "warning") s.warning++;
       else s.issues++;
+      if (r.agent.role === "super_user") s.superUsers++;
+      else if (r.agent.role === "agent") s.agents++;
     });
     return s;
   }, [rows]);
@@ -218,8 +232,20 @@ export default function AgentHealth() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatTile
             icon={Users}
-            label="Total Agents"
+            label="Total Accounts"
             value={stats.total}
+            color="text-primary"
+          />
+          <StatTile
+            icon={ShieldCheck}
+            label="Super Users"
+            value={stats.superUsers}
+            color="text-blue-400"
+          />
+          <StatTile
+            icon={Headset}
+            label="Agents"
+            value={stats.agents}
             color="text-primary"
           />
           <StatTile
@@ -227,18 +253,6 @@ export default function AgentHealth() {
             label="Healthy"
             value={stats.healthy}
             color="text-green-400"
-          />
-          <StatTile
-            icon={AlertTriangle}
-            label="Warnings"
-            value={stats.warning}
-            color="text-yellow-400"
-          />
-          <StatTile
-            icon={Activity}
-            label="Issues"
-            value={stats.issues}
-            color="text-red-400"
           />
         </div>
 
@@ -267,6 +281,17 @@ export default function AgentHealth() {
                   {s.label}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="super_user">Super Users</SelectItem>
+              <SelectItem value="agent">Agents</SelectItem>
+              <SelectItem value="admin">Admins</SelectItem>
             </SelectContent>
           </Select>
         </div>

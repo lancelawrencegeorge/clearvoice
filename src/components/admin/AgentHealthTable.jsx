@@ -11,6 +11,32 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { STATUS_CONFIG } from "@/lib/agentHealth";
 
+const ROLE_CONFIG = {
+  admin: {
+    label: "Admin",
+    badge: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  },
+  super_user: {
+    label: "Super User",
+    badge: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  },
+  agent: {
+    label: "Agent",
+    badge: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
+  },
+};
+
+function RoleBadge({ role }) {
+  const config = ROLE_CONFIG[role] || ROLE_CONFIG.agent;
+  return (
+    <span
+      className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${config.badge}`}
+    >
+      {config.label}
+    </span>
+  );
+}
+
 function formatRelative(dateStr) {
   if (!dateStr) return "Never";
   try {
@@ -144,6 +170,7 @@ export default function AgentHealthTable({ rows, companies }) {
             <TableHead className="w-8"></TableHead>
             <TableHead>Agent Name</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
             <TableHead>Company / Tenant</TableHead>
             <TableHead>Setup Date</TableHead>
             <TableHead>Last Login</TableHead>
@@ -175,6 +202,9 @@ export default function AgentHealthTable({ rows, companies }) {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {row.agent.email}
+                  </TableCell>
+                  <TableCell>
+                    <RoleBadge role={row.agent.role} />
                   </TableCell>
                   <TableCell>
                     {row.agent.company || company?.name || "—"}
@@ -210,7 +240,7 @@ export default function AgentHealthTable({ rows, companies }) {
                 </TableRow>
                 {isExpanded && (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={10} className="bg-muted/30 p-4">
+                    <TableCell colSpan={11} className="bg-muted/30 p-4">
                       <ExpandedDetail row={row} />
                     </TableCell>
                   </TableRow>
