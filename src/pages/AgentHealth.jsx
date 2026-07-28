@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { getCurrentAgent } from "@/lib/customAuth";
 import AgentHealthTable from "@/components/admin/AgentHealthTable";
+import ConnectionsChart from "@/components/admin/ConnectionsChart";
 import {
   computeAgentHealth,
   STATUS_CONFIG,
@@ -185,6 +186,9 @@ export default function AgentHealth() {
             tenants
           </p>
         </div>
+
+        {/* Active Connections Chart */}
+        {!loading && <ConnectionsChart sessions={sessions} />}
 
         {/* Alerts Panel */}
         {alertItems.length > 0 && (
