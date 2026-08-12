@@ -169,11 +169,6 @@ export default function ITSupport() {
     addH2("Account & Role Flow");
     addBody("How accounts are created across the ClearVoice system:");
     addSpace();
-    addH3("Platform Owner (Admin)");
-    addBullet("Invites Super Users at each client company");
-    addBullet("Manages billing, plans, seat limits & invoices");
-    addBullet("Full visibility into all tenants");
-    addSpace();
     addH3("Super User (Client Admin)");
     addBullet("Invited by platform owner, then registers");
     addBullet("Completes onboarding (sets company domain)");
