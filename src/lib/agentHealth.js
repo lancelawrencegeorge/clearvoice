@@ -72,6 +72,13 @@ export function computeAgentHealth(agent, allSessions, now = new Date()) {
 
   const hasSessions = agentSessions.length > 0;
   const lastSession = hasSessions ? agentSessions[0] : null;
+  // A super_user or admin is considered onboarded by virtue of their role —
+  // the onboarding_complete flag is only meaningful for ordinary agents whose
+  // super user may not have finished registering them.
+  const effectivelyOnboarded =
+    agent.onboarding_complete === true ||
+    agent.role === 'super_user' ||
+    agent.role === 'admin';
   const createdDate = new Date(agent.created_date);
   const hoursSinceCreated = (now - createdDate) / (1000 * 60 * 60);
   const issues = [];
@@ -82,7 +89,7 @@ export function computeAgentHealth(agent, allSessions, now = new Date()) {
       issues.push(ISSUE.no_sessions);
       return { status: "never_logged_in", issues, sessions: agentSessions, lastSession: null };
     }
-    if (!agent.onboarding_complete) {
+    if (!effectivelyOnboarded) {
       issues.push(ISSUE.onboarding_incomplete);
       return { status: "incomplete", issues, sessions: agentSessions, lastSession: null };
     }
@@ -95,7 +102,7 @@ export function computeAgentHealth(agent, allSessions, now = new Date()) {
   const daysSinceLastSession = (now - new Date(lastSession.login_at)) / (1000 * 60 * 60 * 24);
 
   // Edge case: sessions exist but onboarding incomplete
-  if (!agent.onboarding_complete) {
+  if (!effectivelyOnboarded) {
     issues.push(ISSUE.onboarding_incomplete);
     if (lastSession.suppression_active === false) {
       issues.push(ISSUE.no_suppression);
