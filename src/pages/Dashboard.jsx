@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AudioLines, Power, Activity, Clock, Mail, Building, Loader2, AlertCircle, Mic, ShieldCheck, BarChart3, Users, LifeBuoy, UserPlus, Upload, Receipt, Volume2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getCurrentAgent, getCurrentSessionId, clearAuth } from "@/lib/customAuth";
+import { getCurrentAgent, getCurrentSessionId, clearAuth, markSuppressionActive, closeSession } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
 import CustomerFilter from "@/components/audio/CustomerFilter";
 
@@ -29,30 +29,25 @@ export default function Dashboard() {
   const suppressionActive = status === 'active' || status === 'connecting';
   const isConnecting = status === 'connecting';
 
-  const updateSessionSuppression = async (active, level) => {
-    const sessionId = getCurrentSessionId();
-    if (!sessionId) return;
-    try {
-      await base44.entities.Session.update(sessionId, {
-        suppression_active: active,
-        suppression_level: level,
-      });
-    } catch (e) {
-      console.error("Failed to update suppression status:", e);
-    }
-  };
-
   const handleStart = async () => {
     await start();
-    await updateSessionSuppression(true, suppressionLevel);
   };
 
   const handleChangeSuppressionLevel = (level) => {
     changeSuppressionLevel(level);
-    if (suppressionActive) {
-      updateSessionSuppression(true, level);
-    }
   };
+
+  // When the noise engine actually goes active, mark the current session so
+  // the Agent Health "suppression off" warning only fires when suppression was
+  // genuinely never turned on. Routed through the backend function (service
+  // role, ownership-checked, idempotent). Fires on the real active state,
+  // not just on a start attempt, so a failed mic start won't record a false
+  // positive.
+  useEffect(() => {
+    if (status === "active") {
+      markSuppressionActive(getCurrentSessionId(), suppressionLevel);
+    }
+  }, [status, suppressionLevel]);
   useEffect(() => {
     const a = getCurrentAgent();
     if (!a) {
@@ -123,17 +118,12 @@ export default function Dashboard() {
   const handleSignOut = async () => {
     setSigningOut(true);
     const sessionId = getCurrentSessionId();
-    if (sessionId && sessionStartMs) {
-      const duration = Math.max(1, Math.round((Date.now() - sessionStartMs) / 60000));
-      try {
-        await base44.entities.Session.update(sessionId, {
-          logout_at: new Date().toISOString(),
-          duration_minutes: duration,
-          suppression_active: false,
-        });
-      } catch (err) {
-        console.error("Failed to update session:", err);
-      }
+    if (sessionId) {
+      // Close out the session server-side (logout_at + duration_minutes).
+      // suppression_active is left as-is — the backend never flips it back to
+      // false once true, so the health warning reflects whether suppression
+      // was ever used, not whether the agent signed out.
+      await closeSession(sessionId);
     }
     stop();
     clearAuth();
@@ -169,6 +159,16 @@ export default function Dashboard() {
       }
     }, 10000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Best-effort: close the session if the tab is closed or navigated away.
+  useEffect(() => {
+    const handler = () => {
+      const sessionId = getCurrentSessionId();
+      if (sessionId) closeSession(sessionId);
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
   if (!agent) {
