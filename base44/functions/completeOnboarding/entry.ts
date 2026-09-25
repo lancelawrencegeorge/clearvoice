@@ -65,14 +65,17 @@ Deno.serve(async (req) => {
     // Auto-create a Tenant + AgentUser in the Wayne Superagent app via service token.
     // Non-blocking: failure does not fail onboarding.
     try {
+      // Auth: Personal Access Token via Bearer header (old api_key header
+      // pattern is retired by Base44 on 15 Oct 2026).
       const apiKey = process.env.WAYNE_AGENT_API_KEY;
+      const authHeaders = { Authorization: `Bearer ${apiKey}` };
       const normalizedDomain = domain.toLowerCase().trim();
       const slug = company_name.trim().toLowerCase().replace(/\s+/g, '');
 
       // Check for existing tenant by primary_domain to avoid duplicates.
       const checkRes = await fetch(
         `${WAYNE_BASE_URL}/entities/Tenant?filter=${encodeURIComponent(JSON.stringify({ primary_domain: normalizedDomain }))}`,
-        { headers: { api_key: apiKey } }
+        { headers: authHeaders }
       );
       const existing = checkRes.ok ? await checkRes.json() : [];
       const tenantExists = Array.isArray(existing) ? existing.length > 0 : false;
@@ -80,7 +83,7 @@ Deno.serve(async (req) => {
       if (!tenantExists) {
         const tenantRes = await fetch(`${WAYNE_BASE_URL}/entities/Tenant`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', api_key: apiKey },
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
           body: JSON.stringify({
             name: company_name.trim(),
             slug,
@@ -99,7 +102,7 @@ Deno.serve(async (req) => {
           // Create the AgentUser linked to the new tenant.
           await fetch(`${WAYNE_BASE_URL}/entities/AgentUser`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', api_key: apiKey },
+            headers: { 'Content-Type': 'application/json', ...authHeaders },
             body: JSON.stringify({
               tenant_id: tenant.id,
               email: agent.email,
