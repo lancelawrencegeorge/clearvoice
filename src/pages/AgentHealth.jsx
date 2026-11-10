@@ -166,9 +166,9 @@ export default function AgentHealth() {
             <p className="text-muted-foreground text-sm mb-4">
               This page is only accessible to platform administrators.
             </p>
-            <Link to="/dashboard">
-              <Button variant="outline">Back to Dashboard</Button>
-            </Link>
+            <Button asChild variant="outline">
+              <Link to="/dashboard">Back to Dashboard</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

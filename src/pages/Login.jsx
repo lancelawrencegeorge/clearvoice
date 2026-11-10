@@ -93,6 +93,10 @@ export default function Login() {
           <Link to="/privacy" className="text-primary hover:underline inline-flex items-center gap-0.5">
             <ShieldCheck className="w-3 h-3" />
             Privacy Policy
+          </Link>{' '}
+          and our{' '}
+          <Link to="/cookies" className="text-primary hover:underline">
+            Cookie Notice
           </Link>.
         </p>
       </div>

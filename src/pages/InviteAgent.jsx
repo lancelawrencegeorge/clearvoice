@@ -155,9 +155,9 @@ export default function InviteAgent() {
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setSuccess(false)}>Register Another</Button>
-              <Link to="/dashboard" className="flex-1">
-                <Button className="w-full">Back to Dashboard</Button>
-              </Link>
+              <Button asChild className="flex-1">
+                <Link to="/dashboard" className="w-full">Back to Dashboard</Link>
+              </Button>
             </div>
           </Card>
         ) : (

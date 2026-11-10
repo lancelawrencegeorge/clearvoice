@@ -172,11 +172,11 @@ export default function BillingDashboard() {
             <Button variant="outline" className="gap-2" onClick={() => setShowAddCompany(true)}>
               <Building2 className="w-4 h-4" /> Add Company
             </Button>
-            <Link to="/invite">
-              <Button className="gap-2">
+            <Button asChild className="gap-2">
+              <Link to="/invite">
                 <Plus className="w-4 h-4" /> Invite Agent
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
 

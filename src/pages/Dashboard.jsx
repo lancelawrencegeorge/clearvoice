@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { getCurrentAgent, getCurrentSessionId, clearAuth, markSuppressionActive, closeSession } from "@/lib/customAuth";
 import { useAudioEngine } from "@/lib/useAudioEngine";
 import CustomerFilter from "@/components/audio/CustomerFilter";
+import LegalLinks from "@/components/legal/LegalLinks";
 
 
 const INACTIVITY_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
@@ -425,8 +426,11 @@ export default function Dashboard() {
         </div>
       </main>
 
-      <footer className="text-center text-xs text-muted-foreground/60 py-4 border-t border-border/30">
-        A product of Contact Centre SA
+      <footer className="py-4 border-t border-border/30">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground/60">
+          <span>A product of Contact Centre SA</span>
+          <LegalLinks />
+        </div>
       </footer>
     </div>
   );

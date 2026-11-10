@@ -330,9 +330,9 @@ export default function ITSupport() {
             <p className="text-sm text-muted-foreground mb-4">
               The IT Support page is restricted to administrators and IT managers.
             </p>
-            <Link to="/dashboard">
-              <Button variant="outline">Back to Dashboard</Button>
-            </Link>
+            <Button asChild variant="outline">
+              <Link to="/dashboard">Back to Dashboard</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -352,12 +352,12 @@ export default function ITSupport() {
             <span className="font-bold text-lg">ClearVoice</span>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/dashboard">
                 <ArrowLeft className="w-4 h-4 mr-1.5" />
                 Dashboard
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <Button variant="outline" size="sm" onClick={handleSignOut}>
               <Power className="w-4 h-4 mr-1.5" />
               Sign Out

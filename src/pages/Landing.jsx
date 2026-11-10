@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { motion, useInView } from 'framer-motion';
 import { Volume2, Zap, ShieldCheck, Headphones, BarChart3, Users, ChevronRight, CheckCircle2, Globe, Cpu, Wifi, AudioWaveform, Ban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import LegalLinks from '@/components/legal/LegalLinks';
 
 const FEATURES = [
   {
@@ -160,11 +161,9 @@ export default function Landing() {
               >
                 Request a Demo <ChevronRight className="w-4 h-4" />
               </Button>
-              <Link to="/guide">
-                <Button size="lg" variant="outline" className="gap-2 px-8 text-base">
-                  View Setup Guide
-                </Button>
-              </Link>
+              <Button asChild size="lg" variant="outline" className="gap-2 px-8 text-base">
+                <Link to="/guide">View Setup Guide</Link>
+              </Button>
             </div>
           </motion.div>
 
@@ -338,8 +337,11 @@ export default function Landing() {
         </FadeIn>
       </section>
 
-      <footer className="border-t border-border/30 py-8 px-6 text-center text-xs text-muted-foreground/50">
-        © {new Date().getFullYear()} ClearVoice. All audio processed locally in your browser.
+      <footer className="border-t border-border/30 py-8 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/60">
+          <p>© {new Date().getFullYear()} ClearVoice. All audio processed locally in your browser.</p>
+          <LegalLinks />
+        </div>
       </footer>
     </div>
   );

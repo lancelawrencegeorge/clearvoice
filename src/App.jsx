@@ -19,6 +19,7 @@ import Invoices from './pages/Invoices';
 import EmailTemplates from './pages/EmailTemplates';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
+import Cookies from './pages/Cookies';
 import AgentHealth from './pages/AgentHealth';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
               <Route path="/email-templates" element={<EmailTemplates />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/cookies" element={<Cookies />} />
               <Route path="/agent-health" element={<AgentHealth />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

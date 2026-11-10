@@ -65,11 +65,11 @@ export default function Contact() {
             <img src="https://media.base44.com/images/public/6a0fee336f48ec0bfb9b9279/b787ab024_icon-128.png" alt="ClearVoice" className="w-8 h-8 rounded-lg object-cover" />
             <span className="font-bold text-lg tracking-tight">ClearVoice</span>
           </Link>
-          <Link to="/">
-            <Button size="sm" variant="ghost" className="gap-1.5">
+          <Button asChild size="sm" variant="ghost" className="gap-1.5">
+            <Link to="/">
               <ArrowLeft className="w-4 h-4" /> Back to home
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </header>
 
@@ -92,11 +92,11 @@ export default function Contact() {
                 <p className="text-muted-foreground mb-6">
                   Thanks {form.name.split(' ')[0]} — our team will reach out to {form.email} within one business day.
                 </p>
-                <Link to="/">
-                  <Button className="gap-2">
+                <Button asChild className="gap-2">
+                  <Link to="/">
                     Back to home <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="rounded-2xl border border-border/50 bg-card/50 p-8 space-y-5">
